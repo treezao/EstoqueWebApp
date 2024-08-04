@@ -1,0 +1,39 @@
+<div class="container">
+	<p id="msgTopoHistorico"></p>
+	<p id="msgDebug"></p>
+	<p id="msgResultado"></p>
+	<p id="msgAviso"></p>
+	<p id="msgErro"></p>
+
+	<input id="btnAddLocalToogle" class="btn btn-primary" type="button" value="Novo Local">
+	
+	<form id="formAddLocal" style="display: none;">
+		<div class="mb-3">
+			<label for="local_nome" class="form-label">Nome:</label>
+			<input type="text" class="form-control" id="local_nome" placeholder="Sigla do local">
+		</div>
+		<div class="mb-3">
+			<label for="local_descricao" class="form-label">Descrição:</label>
+			<textarea class="form-control" id="local_descricao" rows="3" placeholder="Descrição do local"></textarea>
+		</div>
+		
+		<input id="btnAddLocal2" class="btn btn-primary" type="button" onclick="adiciona_Local()" value="Adicionar Local">
+		
+	</form>
+	
+
+	<table id="tab_consulta_locais" class="display" style="width:100%">
+		<thead>
+			<tr>
+				<th>Nome</th>
+				<th>Descricao</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+
+
+	
+	
+</div>

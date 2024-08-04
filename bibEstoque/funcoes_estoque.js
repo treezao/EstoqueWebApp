@@ -32,6 +32,7 @@ function atualizaTabLocais(data){
 		for(x of data.consultas){
 			
 			t.row.add([
+					x[0],
 					x[1],
 					x[2]
 					]);

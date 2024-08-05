@@ -2,9 +2,18 @@ function initTabelaLocais(){
 	new DataTable('#tab_consulta_locais',{
 		"language": {
 			url: 'https://cdn.datatables.net/plug-ins/2.1.3/i18n/pt-BR.json'
-		}
-	}
-	);
+		},
+		"columnDefs": [
+			{
+				targets: 0,
+				visible: false
+			},
+			{width : '25%', targets : 1},
+			{width : '10%', targets : 3}
+			
+		]
+	});
+
 }
 
 
@@ -34,9 +43,13 @@ function atualizaTabLocais(data){
 			t.row.add([
 					x[0],
 					x[1],
-					x[2]
+					x[2],
+					//'<i class="far fa-edit editLocal data-idlocal=' + x[0] '"></i> '
+					'<i class="far fa-edit editLocal" onclick="get1Local(' + x[0] +')"></i> '
+					
 					]);
 		}
+		
 		
 		t.draw();
 		
@@ -75,6 +88,7 @@ function adiciona_Local() {
 	
 }
 
+
 function resultadoAdicionaLocal(data){
 	if(!data.error){
 		
@@ -90,11 +104,103 @@ function resultadoAdicionaLocal(data){
 		if(data.msg2 != ""){
 			jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
 		}
-
-		
 	}
+}
 
+
+function get1Local(id){
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		dataType: "JSON",
+		data: {
+			"action": 'get1Local',
+			"nonce":    nonce_get_1_Local,
+			"idLocal": id
+		},
+		success: function(data){
+			
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+			
+			if(!data.error){
+
+				jQuery("#btnAddLocalToogle").hide();
+				jQuery("#formAlteraLocal").show();
+				jQuery("#altera_local_id").val(data.consultas[0]);
+				jQuery("#altera_local_nome").val(data.consultas[1]);
+				jQuery("#altera_local_descricao").val(data.consultas[2]);
+
+			}else{
+				jQuery("#msgResultado").html('');
+				jQuery("#msgErro").html("Erro ao buscar o local, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+
+				if(data.msg2 != ""){
+					jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+				}
+
+
+			}
+		}
+	});
 	
+}
+
+function alteraLocal() {
+
+	jQuery("#msgTopoHistorico").html("");
+	
+	var str_id = document.getElementById("altera_local_id");
+	var str_nome = document.getElementById("altera_local_nome");
+	var str_desc = document.getElementById("altera_local_descricao");
+	
+	
+	if(!str_id.value || !str_nome.value || !str_desc.value) {
+		jQuery("#msgTopoHistorico").html("Um dos campos está vazio...<br>");
+		return;
+	}
+	if(!Number.isInteger(Number(str_id.value))){
+		jQuery("#msgTopoHistorico").html("ID não é numérico ou inteiro...<br>");
+		return;
+	}
+	
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		data: {
+			"action": 'alteraLocal',
+			"nonce":    nonce_alteraLocal,
+			"idLocal": Number(str_id.value),
+			"nome": str_nome.value,
+			"descricao": str_desc.value,
+		},
+		dataType: "JSON",
+		success: function(data){
+			if(!data.error){
+
+				jQuery("#btnAddLocalToogle").toggle();
+				jQuery("#formAlteraLocal").trigger("reset");
+				jQuery("#formAlteraLocal").toggle();
+
+			}else{
+				jQuery("#msgResultado").html('');
+				jQuery("#msgErro").html("Erro ao alterar o local, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+
+				if(data.msg2 != ""){
+					jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+				}
+			}
+			
+			getLocais();
+		}
+	});
+	
+}
+
+
+function altera_Local_cancelar(){
+	jQuery("#btnAddLocalToogle").toggle();
+	jQuery("#formAlteraLocal").trigger("reset");
+	jQuery("#formAlteraLocal").toggle();
 }
 
 

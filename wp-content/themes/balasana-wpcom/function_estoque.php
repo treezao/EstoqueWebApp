@@ -136,6 +136,73 @@ function get_Locais(){
 	finaliza();
 }
 
+add_action('wp_ajax_get1Local','get1Local');
+function get1Local(){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_get_1_Local') || !validaUsuario() || !conecta()){ 
+		finaliza(); // termina o programa aqui;
+	}
+
+	$cf_data["msg"] = "Recuperando consulta...";
+	
+	$sql = "SELECT * FROM localizacao WHERE id=" . $_POST["idLocal"];
+	$result = $cf_conn->query($sql);
+	
+	
+	if($result->num_rows > 0 ) {
+		// output data of each row
+		while($row = $result->fetch_assoc()) {
+			
+				$cf_data["consultas"] = [
+										$row["id"], // id
+										$row["nome"], // nome curto
+										$row["descricao"], // descricao
+										];
+		}
+		
+		$cf_data["msg"] = "Local encontrado: " . $result->num_rows;
+		$cf_data["error"] = false;
+		
+	}else {
+		$cf_data["msg"] = "Nenhum local com este ID foi encontrado...";
+		$cf_data["error"] = true;
+	}
+	
+	finaliza();
+}
+
+add_action('wp_ajax_alteraLocal','alteraLocal');
+function alteraLocal(){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_alteraLocal') || !validaUsuario() || !conecta()){ 
+		finaliza(); // termina o programa aqui;
+	}
+
+	$cf_data["msg"] = "Atualizando local...";
+	
+	$sql = "UPDATE localizacao SET nome='". $_POST["nome"] . "'," .
+			" descricao='" . $_POST["descricao"] . "' " .
+			" WHERE id=" . $_POST["idLocal"];
+	
+	
+	if($cf_conn->query($sql) === TRUE){
+		
+		$cf_data["msg"] = "Local atualizado.";
+		$cf_data["error"] = false;
+		
+	}else {
+		$cf_data["msg"] = "Problema na atualização do local. <br>";
+		$cf_data["msg2"] = $cf_conn->error . "<br>" . $sql . "<br>";
+		$cf_data["error"] = true;
+	}
+	
+	finaliza();
+}
+
 add_action('wp_ajax_addLocal','add_Local');
 function add_Local(){
 	global $cf_conn, $cf_data;

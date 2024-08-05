@@ -17,7 +17,27 @@
 			<textarea class="form-control" id="local_descricao" rows="3" placeholder="Descrição do local"></textarea>
 		</div>
 		
-		<input id="btnAddLocal2" class="btn btn-primary" type="button" onclick="adiciona_Local()" value="Adicionar Local">
+		<input id="btnAddLocal" class="btn btn-primary" type="button" onclick="adiciona_Local()" value="Adicionar Local">
+		
+	</form>
+	
+	
+	<form id="formAlteraLocal" style="display: none;" >
+		<div class="mb-3">
+			<label for="altera_local_id" class="form-label">ID:</label>
+			<input type="text" class="form-control" id="altera_local_id" placeholder="ID" disabled>
+		</div>
+		<div class="mb-3">
+			<label for="altera_local_nome" class="form-label">Nome:</label>
+			<input type="text" class="form-control" id="altera_local_nome" placeholder="Sigla do local">
+		</div>
+		<div class="mb-3">
+			<label for="altera_local_descricao" class="form-label">Descrição:</label>
+			<textarea class="form-control" id="altera_local_descricao" rows="3" placeholder="Descrição do local"></textarea>
+		</div>
+		
+		<input id="btnAltera" class="btn btn-primary" type="button" onclick="alteraLocal()" value="Alterar Local">
+		<input id="btnAltera_cancela" class="btn btn-primary" type="button" onclick="altera_Local_cancelar()" value="Cancelar">
 		
 	</form>
 	
@@ -28,6 +48,7 @@
 				<th > ID </th>
 				<th>Nome</th>
 				<th>Descricao</th>
+				<th>Controles</th>
 			</tr>
 		</thead>
 		<tbody>

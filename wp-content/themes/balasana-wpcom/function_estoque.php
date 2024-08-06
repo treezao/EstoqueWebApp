@@ -496,4 +496,56 @@ function alteraItem(){
 	
 	finaliza();
 }
+
+/*
+	funções relacionadas ao estoque 
+*/
+
+add_action('wp_ajax_getEstoque','getEstoque');
+function getEstoque(){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_getEstoque') || !validaUsuario() || !conecta()){ 
+		finaliza(); // termina o programa aqui;
+	}
+
+	$cf_data["msg"] = "Recuperando consultas...";
+	
+	$sql = "SELECT e.*, i.itemNome,i.itemTipo,l.localNome from estoque e ".
+			"INNER JOIN (SELECT id, nome as itemNome, tipo as itemTipo from item) i ON e.iditem=i.id ".
+			"INNER JOIN (SELECT id, nome as localNome from localizacao ) l ON e.idLocal=l.id;";
+	$result = $cf_conn->query($sql);
+	
+	
+	
+	if($result->num_rows > 0 ) {
+		// output data of each row
+		while($row = $result->fetch_assoc()) {
+			
+				$cf_data["consultas"][] = [
+										$row["iditem"], // id
+										$row["idLocal"], // nome curto
+										$row["qt"], // descricao
+										$row["qtEmprestada"], // tipo
+										$row["patrimonio"], // link manual
+										$row["itemNome"], 
+										$row["itemTipo"], 
+										$row["localNome"], 
+										];
+		}
+		
+		$cf_data["msg"] = "Consultas encontradas: " . $result->num_rows;
+		$cf_data["error"] = false;
+		
+	}else {
+		$cf_data["msg"] = "Nenhum estoque foi cadastrado...";
+		$cf_data["error"] = true;
+	}
+	
+	
+	finaliza();
+}
+
+
 ?>

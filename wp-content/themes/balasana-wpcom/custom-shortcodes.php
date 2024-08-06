@@ -105,5 +105,42 @@ function pagina_itens(){
 	
 }
 
+add_shortcode('estoque_estoque', 'pagina_estoque');
+function pagina_estoque(){
+	global $path_pagina;
+	
+	enqueue_datatables();
+	enqueue_bootstrap();
+	enqueue_fontawesome();
+
+	
+	wp_enqueue_script('funcoes_estoque', '/bibEstoque/funcoes_estoque.js', '', '', true);
+	wp_enqueue_script('initTabLocais', '/bibEstoque/initTabEstoque.js', '', '', true);
+	
+	
+	
+	
+	wp_localize_script( 'funcoes_estoque', 'ajax_url', [admin_url( 'admin-ajax.php' )]);
+	wp_localize_script( 'funcoes_estoque', 'nonce_getEstoque', 
+							wp_create_nonce('nonce_getEstoque'));
+	/*
+							
+	wp_localize_script( 'funcoes_estoque', 'nonce_addItem', 
+							wp_create_nonce('nonce_addItem'));
+							
+	wp_localize_script( 'funcoes_estoque', 'nonce_get1Item', 
+							wp_create_nonce('nonce_get1Item'));
+							
+	wp_localize_script( 'funcoes_estoque', 'nonce_alteraItem', 
+							wp_create_nonce('nonce_alteraItem'));
+	
+	
+	*/
+	
+	$path = $path_pagina . "tabConsultaEstoque.html";
+	
+	return file_get_contents($path);
+	
+}
 ?>
 

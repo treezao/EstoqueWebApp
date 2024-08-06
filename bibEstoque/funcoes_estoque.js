@@ -14,7 +14,7 @@ function initTabelaLocais(){
 				visible: false
 			},
 			{width : '25%', targets : 1},
-			{width : '10%', targets : 3}
+			{width : '5%', targets : 3}
 			
 		]
 	});
@@ -228,7 +228,7 @@ function initTabelaItens(){
 			},
 			{width : '25%', targets : 1},
 			{width : '7%', targets : 3},
-			{width : '7%', targets : 4},
+			{width : '5%', targets : 4},
 		]
 	});
 
@@ -439,3 +439,69 @@ function alteraItemCancelar(){
 	jQuery("#formAlteraItem").hide();
 }
 
+/*
+	funções da página Estoque
+*/
+
+function initTabelaEstoque(){
+	new DataTable('#tab_consulta_estoque',{
+		"language": {
+			url: 'https://cdn.datatables.net/plug-ins/2.1.3/i18n/pt-BR.json'
+		},
+		"columnDefs": [
+			{width : '20%', targets : 0},
+			//{width : '20%', targets : 1},
+			{width : '7%', targets : 2},
+			{width : '7%', targets : 3},
+			{width : '12%', targets : 4},
+			{width : '5%', targets : 5},
+		]
+	});
+
+}
+
+
+function getEstoque(){
+	
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		dataType: "JSON",
+		data: {
+			"action": 'getEstoque',
+			"nonce":    nonce_getEstoque
+		},
+		success: atualizaTabEstoque
+	});
+	
+}
+
+function atualizaTabEstoque(data){
+	
+	var t = jQuery("#tab_consulta_estoque").DataTable();
+	
+	if(!data.error){
+		
+		t.clear();
+	
+		for(x of data.consultas){
+			
+			t.row.add([
+					x[7],
+					x[5],
+					x[2],
+					x[3],
+					x[4],
+					'<i class="far fa-edit editEstoque" onclick="xxxx(' + x[0] +')"></i> '
+					]);
+		}
+		
+		
+		t.draw();
+		
+	
+	}else{
+		jQuery("#msgTopoHistorico").html("Erro ao buscar histórico de locais, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+	}
+	
+}

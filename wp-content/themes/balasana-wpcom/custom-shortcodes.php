@@ -63,9 +63,6 @@ function pagina_locais(){
 	wp_localize_script( 'funcoes_estoque', 'nonce_alteraLocal', 
 							wp_create_nonce('nonce_alteraLocal'));
 	
-	//$x = getConsultaLocais();
-	
-	
 	$path = $path_pagina . "tabConsultaLocais.html";
 	
 	return file_get_contents($path);
@@ -73,116 +70,43 @@ function pagina_locais(){
 }
 
 
-/*
-
-add_shortcode('tabelaHistorico', 'tabelaHistorico');
-function tabelaHistorico(){
-	global $dataTablecss, $dataTablejs;
+add_shortcode('estoque_itens', 'pagina_itens');
+function pagina_itens(){
+	global $path_pagina;
 	
-	wp_enqueue_style( 'jQueryDataTableStyle', $dataTablecss );
-	wp_enqueue_script('jQueryDataTable', $dataTablejs , ['jquery']);
-	
-	wp_enqueue_script('funcoesConsulta', '/js/funcoesConsulta.js', '', '', true);
-	wp_enqueue_script('initHistorico', '/js/initHistorico.js', '', '', true);
+	enqueue_datatables();
+	enqueue_bootstrap();
+	enqueue_fontawesome();
 
-	wp_localize_script( 'funcoesConsulta', 'ajax_url', [admin_url( 'admin-ajax.php' )]);
-	//wp_localize_script( 'scriptsHistorico', 'fnonce', wp_create_nonce('funcaoConsultas-nonce'));
-	
-	wp_localize_script( 'funcoesConsulta', 'fnonceConsultaHistorico', wp_create_nonce('funcoesConsultaHistorico-nonce'));
-	
-	//localhost
-	$path = $_SERVER['DOCUMENT_ROOT'] . "/wordpress2/js/tabelaHistorico.html";
-
-	//pantheon
-	//$path = $_SERVER['DOCUMENT_ROOT'] . "/js/tabelaHistorico.html";
-
-
-
-	$file = '<meta http-equiv="Refresh" content="300">';
-	//$file = "<p> ID usuário: " . get_current_user_id() . "</p>";
-	//$file .= "<p> Admin url: " . admin_url('admin-post.php') . "</p>";
-	//$file .= "<script> window.idUsuario = " . get_current_user_id() . "; </script>";
-
-	$file = $file .  file_get_contents($path);
-	
-	return $file;
+	wp_enqueue_script('funcoes_estoque', '/bibEstoque/funcoes_estoque.js', '', '', true);
+	wp_enqueue_script('initTabLocais', '/bibEstoque/initTabItens.js', '', '', true);
 	
 	
-}
-
-add_shortcode('formConsulta', 'formConsulta');
-function formConsulta(){
-	global $dataTablecss, $dataTablejs;
 	
-	wp_enqueue_style( 'jQueryDataTableStyle', $dataTablecss );
-	wp_enqueue_script('jQueryDataTable', $dataTablejs , ['jquery']);
+	wp_localize_script( 'funcoes_estoque', 'ajax_url', [admin_url( 'admin-ajax.php' )]);
+	wp_localize_script( 'funcoes_estoque', 'nonce_getItens', 
+							wp_create_nonce('nonce_getItens'));
 	
-	wp_enqueue_script('funcoesConsulta', '/js/funcoesConsulta.js', '', '', true);
-	wp_enqueue_script('initFormConsulta', '/js/initFormConsulta.js', '', '', true);
-
-	wp_localize_script( 'funcoesConsulta', 'ajax_url', [admin_url( 'admin-ajax.php' )]);
-	wp_localize_script( 'funcoesConsulta', 'fnonceConsultasAtivas', wp_create_nonce('funcoesConsultasAtivas-nonce'));
-	wp_localize_script( 'funcoesConsulta', 'fnonceGetBairros', wp_create_nonce('fnonceGetBairros-nonce'));
-	wp_localize_script( 'funcoesConsulta', 'fnonceGetQuadras', wp_create_nonce('fnonceGetQuadras-nonce'));
-	wp_localize_script( 'funcoesConsulta', 'fnonceGetLotes', wp_create_nonce('funcoesGetLotes-nonce'));
-	wp_localize_script( 'funcoesConsulta', 'fnonceGetLocal', wp_create_nonce('funcoesGetLocal-nonce'));
+	/*						
+	wp_localize_script( 'funcoes_estoque', 'nonce_add_Local', 
+							wp_create_nonce('nonce_add_Local'));
+							
+	wp_localize_script( 'funcoes_estoque', 'nonce_get_1_Local', 
+							wp_create_nonce('nonce_get_1_Local'));
+							
+	wp_localize_script( 'funcoes_estoque', 'nonce_alteraLocal', 
+							wp_create_nonce('nonce_alteraLocal'));
+	
+	//$x = getConsultaLocais();
+	
+	*/
 	
 	
-	//localhost
-	$path = $_SERVER['DOCUMENT_ROOT'] . "/wordpress2/js/formConsulta.html";
-	$path2 = $_SERVER['DOCUMENT_ROOT'] . "/wordpress2/js/tabelaHistorico.html";
-
-	//pantheon
-	//$path = $_SERVER['DOCUMENT_ROOT'] . "/js/formConsulta.html";
-	//$path2 = $_SERVER['DOCUMENT_ROOT'] . "/js/tabelaHistorico.html";
-
-
-
-	$file = '<meta http-equiv="Refresh" content="300">';
-	$file = $file .  file_get_contents($path);
-	$file .= '<p>OBS: Lista estará vazia se não houver consultas ativas!</p>';
-	$file .= file_get_contents($path2);
+	$path = $path_pagina . "tabConsultaItens.html";
 	
-	return $file;
+	return file_get_contents($path);
 	
 }
-
-add_shortcode('pagePerfilMembro', 'pagePerfilMembro');
-function pagePerfilMembro(){
-	$paginaPerfil = '';
-	
-	$paginaPerfil .="<p> Tipo de Assinatura: ";
-	
-	if(current_user_is("s2member_level0")){
-		$paginaPerfil .= " Gratuita -> permite 1 consulta por hora </p>";
-		
-	}elseif(current_user_is("s2member_level1")){
-		$paginaPerfil .= " Tipo 1 -> permite 2 consultas por hora </p>";
-
-	}elseif(current_user_is("s2member_level2")){
-		$paginaPerfil .= " Tipo 2 -> permite 3 consultas por hora </p>";
-
-	}elseif(current_user_is("s2member_level3")){
-		$paginaPerfil .= " Tipo 3 -> permite 4 consultas por hora </p>";
-
-	}elseif(current_user_is("s2member_level4")){
-		$paginaPerfil .= " Tipo 4 -> permite 5 consultas por hora </p>";
-
-	}else{
-		$paginaPerfil .= " Administrador -> permite 50 consulta por hora </p>";
-	}
-	
-	date_default_timezone_set($cf_timezone);
-	
-	$paginaPerfil .= "<p> Data de cadastro: " . date('Y-m-d H:i:s', s2member_registration_time()) . "</p>";
-
-
-
-	
-	return $paginaPerfil;
-	
-}
-*/
 
 ?>
 

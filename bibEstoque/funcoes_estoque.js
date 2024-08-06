@@ -1,3 +1,8 @@
+/*
+	funções da página Locais
+*/
+
+
 function initTabelaLocais(){
 	new DataTable('#tab_consulta_locais',{
 		"language": {
@@ -44,7 +49,6 @@ function atualizaTabLocais(data){
 					x[0],
 					x[1],
 					x[2],
-					//'<i class="far fa-edit editLocal data-idlocal=' + x[0] '"></i> '
 					'<i class="far fa-edit editLocal" onclick="get1Local(' + x[0] +')"></i> '
 					
 					]);
@@ -125,6 +129,8 @@ function get1Local(id){
 			if(!data.error){
 
 				jQuery("#btnAddLocalToogle").hide();
+				jQuery("#formAddLocal").hide();
+				
 				jQuery("#formAlteraLocal").show();
 				jQuery("#altera_local_id").val(data.consultas[0]);
 				jQuery("#altera_local_nome").val(data.consultas[1]);
@@ -203,4 +209,69 @@ function altera_Local_cancelar(){
 	jQuery("#formAlteraLocal").toggle();
 }
 
+
+
+
+/*
+	funções da página Itens
+*/
+
+function initTabelaItens(){
+	new DataTable('#tab_consulta_itens',{
+		"language": {
+			url: 'https://cdn.datatables.net/plug-ins/2.1.3/i18n/pt-BR.json'
+		},
+		"columnDefs": [
+			{
+				targets: 0,
+				visible: false
+			},
+			{width : '25%', targets : 1},
+			{width : '7%', targets : 3},
+			{width : '7%', targets : 4},
+		]
+	});
+
+}
+
+
+function getItens(){
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		dataType: "JSON",
+		data: {
+			"action": 'getItens',
+			"nonce":    nonce_getItens
+		},
+		success: atualizaTabItens
+	});
+}
+
+function atualizaTabItens(data){
+	var t = jQuery("#tab_consulta_itens").DataTable();
+	
+	if(!data.error){
+		
+		t.clear();
+	
+		for(x of data.consultas){
+			
+			t.row.add([
+					x[0],
+					x[1],
+					x[2],
+					x[3],
+					'<i class="far fa-edit editItem" onclick="get1Item(' + x[0] +')"></i> '
+					]);
+		}
+		
+		
+		t.draw();
+		
+	
+	}else{
+		jQuery("#msgTopoHistorico").html("Erro ao buscar histórico de locais, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+	}
+}
 

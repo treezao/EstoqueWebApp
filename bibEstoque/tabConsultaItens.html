@@ -1,0 +1,59 @@
+<div class="container">
+	<p id="msgTopoHistorico"></p>
+	<p id="msgDebug"></p>
+	<p id="msgResultado"></p>
+	<p id="msgAviso"></p>
+	<p id="msgErro"></p>
+
+	<input id="btnAddItemToogle" class="btn btn-primary" type="button" value="Novo Item">
+	
+	<form id="formAddItem" style="display: none;">
+		<div class="mb-3">
+			<label for="item_nome" class="form-label">Nome:</label>
+			<input type="text" class="form-control" id="item_nome" placeholder="Nome/modelo do item (texto curto)">
+		</div>
+		<div class="mb-3">
+			<label for="item_tipo" class="form-label">Tipo:</label>
+			<select class="form-control" id="item_tipo">
+				<option>Permanente</option>
+				<option>Consumo</option>
+			</select>
+		</div>
+		<div class="mb-3">
+			<label for="item_descricao" class="form-label">Descrição:</label>
+			<textarea class="form-control" id="item_descricao" rows="3" placeholder="Descrição do item"></textarea>
+		</div>
+		<div class="mb-3">
+			<label for="item_datasheet" class="form-label">Datasheet:</label>
+			<input type="url" class="form-control" id="item_datasheet" placeholder="Link datasheet">
+		</div>
+		<div class="mb-3">
+			<label for="item_imagem" class="form-label">Imagem:</label>
+			<input type="url" class="form-control" id="item_imagem" placeholder="Link imagem">
+		</div>
+		<input id="btnAddItem" class="btn btn-primary" type="button" onclick="adiciona_Item()" value="Adicionar Item">
+		
+	</form>
+	
+	
+
+	
+
+	<table id="tab_consulta_itens" class="display" style="width:100%">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Nome</th>
+				<th>Descricao</th>
+				<th>Tipo</th>
+				<th>Controles</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+
+
+	
+	
+</div>

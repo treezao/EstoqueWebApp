@@ -183,9 +183,9 @@ function alteraLocal() {
 		success: function(data){
 			if(!data.error){
 
-				jQuery("#btnAddLocalToogle").toggle();
+				jQuery("#btnAddLocalToogle").show();
 				jQuery("#formAlteraLocal").trigger("reset");
-				jQuery("#formAlteraLocal").toggle();
+				jQuery("#formAlteraLocal").hide();
 
 			}else{
 				jQuery("#msgResultado").html('');
@@ -204,9 +204,9 @@ function alteraLocal() {
 
 
 function altera_Local_cancelar(){
-	jQuery("#btnAddLocalToogle").toggle();
+	jQuery("#btnAddLocalToogle").show();
 	jQuery("#formAlteraLocal").trigger("reset");
-	jQuery("#formAlteraLocal").toggle();
+	jQuery("#formAlteraLocal").hide();
 }
 
 
@@ -273,5 +273,169 @@ function atualizaTabItens(data){
 	}else{
 		jQuery("#msgTopoHistorico").html("Erro ao buscar histórico de locais, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
 	}
+}
+
+function adicionaItem() {
+
+	jQuery("#msgTopoHistorico").html("");
+	
+	var str_nome = jQuery("#item_nome").val();
+	var str_desc = jQuery("#item_descricao").val();
+	var str_tipo = jQuery("#item_tipo option:selected").val();
+	var str_datasheet = jQuery("#item_datasheet").val();
+	var str_img = jQuery("#item_imagem").val();
+	
+	
+	if(!str_nome || !str_desc || (str_tipo !== "Consumo" && str_tipo !== "Permanente")) {
+		jQuery("#msgTopoHistorico").html("Um dos campos está vazio...<br>");
+		return;
+	}
+	
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		data: {
+			"action": 'addItem',
+			"nonce":    nonce_addItem,
+			"nome": str_nome,
+			"descricao": str_desc,
+			"tipo": str_tipo,
+			"datasheet": str_datasheet,
+			"img": str_img
+		},
+		dataType: "JSON",
+		success: function(data){
+			if(!data.error){
+		
+				jQuery("#formAddItem").trigger("reset");
+				jQuery("#formAddItem").toggle();
+				
+				getItens();
+				
+			}else{
+				jQuery("#msgResultado").html('');
+				jQuery("#msgErro").html("Erro ao adicionar o novo item, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+				
+				if(data.msg2 != ""){
+					jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+				}
+			}
+		}
+	});
+	
+}
+
+function get1Item(id){
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		dataType: "JSON",
+		data: {
+			"action": 'get1Item',
+			"nonce":    nonce_get1Item,
+			"idItem": id
+		},
+		success: function(data){
+			
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+			
+			if(!data.error){
+
+				jQuery("#btnAddItemToogle").hide();
+				jQuery("#formAddItem").hide();
+				
+				jQuery("#formAlteraItem").show();
+				
+				jQuery("#altera_item_id").val(data.consultas[0]);
+				jQuery("#altera_item_nome").val(data.consultas[1]);
+				jQuery("#altera_item_descricao").val(data.consultas[2]);
+				
+				if(data.consultas[3] === "Consumo"){
+					jQuery("#altera_item_tipo").val("0");
+				}else{
+					jQuery("#altera_item_tipo").val("1");
+				}
+
+				
+				
+				jQuery("#altera_item_datasheet").val(data.consultas[4]);
+				jQuery("#altera_item_imagem").val(data.consultas[5]);
+
+			}else{
+				jQuery("#msgResultado").html('');
+				jQuery("#msgErro").html("Erro ao buscar o local, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+
+				if(data.msg2 != ""){
+					jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+				}
+
+
+			}
+		}
+	});
+	
+}
+
+function alteraItem() {
+
+	jQuery("#msgTopoHistorico").html("");
+	
+	var id = Number(jQuery("#altera_item_id").val());
+	var str_nome = jQuery("#altera_item_nome").val();
+	var str_desc = jQuery("#altera_item_descricao").val();
+	var str_tipo = jQuery("#altera_item_tipo option:selected").text();
+	var str_datasheet = jQuery("#altera_item_datasheet").val();
+	var str_img = jQuery("#altera_item_imagem").val();
+	
+	
+	if(!str_nome || !str_desc || (str_tipo !== "Consumo" && str_tipo !== "Permanente")) {
+		jQuery("#msgTopoHistorico").html("Um dos campos está vazio ou incorreto...<br>");
+		return;
+	}
+	if(!Number.isInteger(id)){
+		jQuery("#msgTopoHistorico").html("ID não é numérico ou inteiro...<br>");
+		return;
+	}
+	
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		data: {
+			"action": 'alteraItem',
+			"nonce":    nonce_alteraItem,
+			"idItem": id,
+			"nome": str_nome,
+			"descricao": str_desc,
+			"tipo": str_tipo,
+			"datasheet": str_datasheet,
+			"img": str_img
+		},
+		dataType: "JSON",
+		success: function(data){
+			if(!data.error){
+
+				jQuery("#btnAddItemToogle").show();
+				jQuery("#formAlteraItem").trigger("reset");
+				jQuery("#formAlteraItem").hide();
+
+			}else{
+				jQuery("#msgResultado").html('');
+				jQuery("#msgErro").html("Erro ao alterar o item, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+
+				if(data.msg2 != ""){
+					jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+				}
+			}
+			
+			getItens();
+		}
+	});
+	
+}
+
+function alteraItemCancelar(){
+	jQuery("#btnAddItemToogle").show();
+	jQuery("#formAlteraItem").trigger("reset");
+	jQuery("#formAlteraItem").hide();
 }
 

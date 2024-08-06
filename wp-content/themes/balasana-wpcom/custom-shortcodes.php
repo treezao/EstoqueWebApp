@@ -87,19 +87,16 @@ function pagina_itens(){
 	wp_localize_script( 'funcoes_estoque', 'nonce_getItens', 
 							wp_create_nonce('nonce_getItens'));
 	
-	/*						
-	wp_localize_script( 'funcoes_estoque', 'nonce_add_Local', 
-							wp_create_nonce('nonce_add_Local'));
 							
-	wp_localize_script( 'funcoes_estoque', 'nonce_get_1_Local', 
-							wp_create_nonce('nonce_get_1_Local'));
+	wp_localize_script( 'funcoes_estoque', 'nonce_addItem', 
+							wp_create_nonce('nonce_addItem'));
 							
-	wp_localize_script( 'funcoes_estoque', 'nonce_alteraLocal', 
-							wp_create_nonce('nonce_alteraLocal'));
+	wp_localize_script( 'funcoes_estoque', 'nonce_get1Item', 
+							wp_create_nonce('nonce_get1Item'));
+							
+	wp_localize_script( 'funcoes_estoque', 'nonce_alteraItem', 
+							wp_create_nonce('nonce_alteraItem'));
 	
-	//$x = getConsultaLocais();
-	
-	*/
 	
 	
 	$path = $path_pagina . "tabConsultaItens.html";

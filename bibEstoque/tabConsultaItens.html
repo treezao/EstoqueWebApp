@@ -15,8 +15,8 @@
 		<div class="mb-3">
 			<label for="item_tipo" class="form-label">Tipo:</label>
 			<select class="form-control" id="item_tipo">
-				<option>Permanente</option>
 				<option>Consumo</option>
+				<option>Permanente</option>
 			</select>
 		</div>
 		<div class="mb-3">
@@ -31,7 +31,41 @@
 			<label for="item_imagem" class="form-label">Imagem:</label>
 			<input type="url" class="form-control" id="item_imagem" placeholder="Link imagem">
 		</div>
-		<input id="btnAddItem" class="btn btn-primary" type="button" onclick="adiciona_Item()" value="Adicionar Item">
+		<input id="btnAddItem" class="btn btn-primary" type="button" onclick="adicionaItem()" value="Adicionar Item">
+		
+	</form>
+	
+	<form id="formAlteraItem" style="display: none;">
+		<div class="mb-3">
+			<label for="altera_item_id" class="form-label">ID:</label>
+			<input type="text" class="form-control" id="altera_item_id" placeholder="ID" disabled>
+		</div>
+		<div class="mb-3">
+			<label for="altera_item_nome" class="form-label">Nome:</label>
+			<input type="text" class="form-control" id="altera_item_nome" placeholder="Nome/modelo do item (texto curto)">
+		</div>
+		<div class="mb-3">
+			<label for="altera_item_tipo" class="form-label">Tipo:</label>
+			<select class="form-control" id="altera_item_tipo" disabled>
+				<option Value="0">Consumo</option>
+				<option Value="1">Permanente</option>
+			</select>
+		</div>
+		<div class="mb-3">
+			<label for="altera_item_descricao" class="form-label">Descrição:</label>
+			<textarea class="form-control" id="altera_item_descricao" rows="3" placeholder="Descrição do item"></textarea>
+		</div>
+		<div class="mb-3">
+			<label for="altera_item_datasheet" class="form-label">Datasheet:</label>
+			<input type="url" class="form-control" id="altera_item_datasheet" placeholder="Link datasheet">
+		</div>
+		<div class="mb-3">
+			<label for="altera_item_imagem" class="form-label">Imagem:</label>
+			<input type="url" class="form-control" id="altera_item_imagem" placeholder="Link imagem">
+		</div>
+
+		<input id="btnAltera" class="btn btn-primary" type="button" onclick="alteraItem()" value="Alterar Item">
+		<input id="btnAltera_cancela" class="btn btn-primary" type="button" onclick="alteraItemCancelar()" value="Cancelar">
 		
 	</form>
 	

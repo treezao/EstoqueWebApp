@@ -98,6 +98,7 @@ function finaliza(){
 	
 	echo json_encode($cf_data);
 	
+	// esta função encerra a chamada para o servidor PHP independente de onde estiver no código
 	wp_die();
 }
 
@@ -370,4 +371,129 @@ function getItens(){
 	finaliza();
 }
 
+
+add_action('wp_ajax_addItem','addItem');
+function addItem(){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_addItem') || !validaUsuario() || !conecta()){ 
+		finaliza(); // termina o programa aqui;
+	}
+
+
+	$cf_data["msg"] = "Adicionando local...";
+	
+	if(!isset($_POST["nome"])){
+		$cf_data["msg"] = "Nome não definido!";
+		$cf_data["error"] = true;
+		
+		finaliza();
+	}elseif(!isset($_POST["descricao"])){
+		$cf_data["msg"] = "Descrição em branco!";
+		$cf_data["error"] = true;
+		
+		finaliza();
+	}elseif(!isset($_POST["tipo"])){
+		$cf_data["msg"] = "Tipo de item não definido!";
+		$cf_data["error"] = true;
+		
+		finaliza();
+	}
+	
+	
+	$sql = "INSERT INTO item (id, nome, tipo, descricao, link_manual, link_imagem ) ". 
+			"VALUES (NULL, '" . $_POST["nome"] . "', ".
+						"'". $_POST["tipo"] . "', " .
+						"'". $_POST["descricao"] . "', ".
+						"'". $_POST["datasheet"] . "', ".
+						"'". $_POST["img"] . "');";
+	 
+	
+	if($cf_conn->query($sql) === TRUE){
+		$cf_data["msg"] = "Item adicionado!";
+		$cf_data["error"] = false;
+		
+	}else{
+		$cf_data["msg"] = "Não foi possível adicionar o novo item. SQL:" . $sql . "/erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		
+	}
+
+	finaliza();
+}
+
+add_action('wp_ajax_get1Item','get1Item');
+function get1Item(){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_get1Item') || !validaUsuario() || !conecta()){ 
+		finaliza(); // termina o programa aqui;
+	}
+
+	$cf_data["msg"] = "Recuperando consulta...";
+	
+	$sql = "SELECT * FROM item WHERE id=" . $_POST["idItem"];
+	$result = $cf_conn->query($sql);
+	
+	
+	if($result->num_rows > 0 ) {
+		// output data of each row
+		while($row = $result->fetch_assoc()) {
+			
+				$cf_data["consultas"] = [
+										$row["id"], // id
+										$row["nome"], // nome curto
+										$row["descricao"], // descricao
+										$row["tipo"], // tipo
+										$row["link_manual"], // link manual
+										$row["link_imagem"] // link imagem
+										];
+		}
+		
+		$cf_data["msg"] = "Item encontrado: " . $result->num_rows;
+		$cf_data["error"] = false;
+		
+	}else {
+		$cf_data["msg"] = "Nenhum Item com este ID foi encontrado...";
+		$cf_data["msg2"]= $cf_conn->error;
+		$cf_data["error"] = true;
+	}
+	
+	finaliza();
+}
+
+add_action('wp_ajax_alteraItem','alteraItem');
+function alteraItem(){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_alteraItem') || !validaUsuario() || !conecta()){ 
+		finaliza(); // termina o programa aqui;
+	}
+
+	$cf_data["msg"] = "Atualizando local...";
+	
+	$sql = "UPDATE item SET ". 
+				"nome='". $_POST["nome"] . "', ".
+				"tipo='". $_POST["tipo"] . "', " .
+				"descricao='". $_POST["descricao"] . "', ".
+				"link_manual='". $_POST["datasheet"] . "', ".
+				"link_imagem='". $_POST["img"] . "' ".
+				" WHERE id=" . $_POST["idItem"] . ";";
+	
+	if($cf_conn->query($sql) === TRUE){
+		
+		$cf_data["msg"] = "Item atualizado.";
+		$cf_data["error"] = false;
+		
+	}else {
+		$cf_data["msg"] = "Problema na atualização do item. <br>";
+		$cf_data["msg2"] = $cf_conn->error . "<br>" . $sql . "<br>";
+		$cf_data["error"] = true;
+	}
+	
+	finaliza();
+}
 ?>

@@ -129,10 +129,10 @@ function pagina_estoque(){
 	
 	wp_localize_script( 'funcoes_estoque', 'nonce_get_Locais', 
 							wp_create_nonce('nonce_get_Locais'));
-	/*
 							
-	wp_localize_script( 'funcoes_estoque', 'nonce_addItem', 
-							wp_create_nonce('nonce_addItem'));
+	wp_localize_script( 'funcoes_estoque', 'nonce_get1Estoque', 
+							wp_create_nonce('nonce_get1Estoque'));
+	/*
 							
 	wp_localize_script( 'funcoes_estoque', 'nonce_get1Item', 
 							wp_create_nonce('nonce_get1Item'));

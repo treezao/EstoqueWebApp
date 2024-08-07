@@ -547,5 +547,97 @@ function getEstoque(){
 	finaliza();
 }
 
+add_action('wp_ajax_get1Estoque','get1Estoque');
+function get1Estoque(){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_get1Estoque') || !validaUsuario() || !conecta()){ 
+		finaliza(); // termina o programa aqui;
+	}
+
+	$cf_data["msg"] = "Recuperando 1 estoque...";
+	$cf_data["msg2"] = "";
+	$cf_data["error"] = false;
+	$cf_data["encontrado"] = false;
+	
+	
+	// Buscando o tipo do item selecionado
+	$sql = "SELECT * FROM item WHERE id=" . $_POST["idItem"] .";";
+	
+	$result = $cf_conn->query($sql);
+	
+	
+	if($result->num_rows == 1 ) {
+		
+		$row = $result->fetch_assoc();
+		
+		$tipoItem = $row["tipo"];
+		$cf_data["tipo"] = $row["tipo"];
+
+	}else {
+		$cf_data["msg"] = "Nenhum Item com este ID foi encontrado...";
+		$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	
+	// Buscando estoque
+	$sql = "SELECT * FROM estoque WHERE iditem=" . $_POST["idItem"] .
+										" AND idLocal=" . $_POST["idLocal"] . ";";
+	$result = $cf_conn->query($sql);
+	
+	
+	if($result){
+		if($tipoItem === "Consumo"){
+			
+			if($result->num_rows > 0 ) {
+				$cf_data["encontrado"] = true;
+				
+				$row = $result->fetch_assoc();
+				$cf_data["consultas"] = [
+											$row["iditem"],
+											$row["idLocal"], 
+											$row["qt"], 
+											$row["qtEmprestada"], 
+											$row["patrimonio"]
+										];
+				
+			}
+		
+		}elseif($tipoItem === "Permanente"){
+			
+			if($result->num_rows > 0 ) {
+				$cf_data["encontrado"] = true;
+				
+				while($row = $result->fetch_assoc()){
+					$cf_data["consultas"][] = [
+												$row["iditem"],
+												$row["idLocal"], 
+												$row["qt"], 
+												$row["qtEmprestada"], 
+												$row["patrimonio"]
+											];
+				}
+			}
+			
+		}else{
+			$cf_data["msg"] = "Problema no tipo do item...";
+			$cf_data["msg2"]= "tipo: " . $tipoItem;
+			$cf_data["error"] = true;
+			finaliza();
+		}
+		
+		
+	}else{
+		$cf_data["msg"] = "Problema com banco de dados...";
+		$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+	}
+	
+	finaliza();
+}
+
 
 ?>

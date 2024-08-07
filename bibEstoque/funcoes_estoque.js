@@ -588,4 +588,73 @@ function estoque_formGetItem(){
 }
 
 
+function get1Estoque(){
+	
+	
+	var sel_local = jQuery("#estoque_local option:selected");
+	var sel_item = jQuery("#estoque_item option:selected");
+	
+	if(sel_local.val() >0 && sel_item.val() >0){
+		//jQuery("#msgAviso").html('<br><p> local:' + sel_local.val() + ', item:' + sel_item.val() +'</p>');
+		
+		jQuery.post({
+			url: ajax_url,
+			type: "POST",
+			dataType: "JSON",
+			data: {
+				"action": 'get1Estoque',
+				"nonce":    nonce_get1Estoque,
+				"idLocal": sel_local.val(),
+				"idItem": sel_item.val()
+			},
+			success: function(data){
+				if(!data.error){
+					
+					if(data.tipo === "Consumo"){
+						
+						jQuery("#estoque_qt_add_patr").val("");
+						jQuery("#estoque_qt_add_patr").prop("disabled", true);
+						
+						if(data.encontrado){
+							jQuery("#estoque_qt_atual").val(data.consultas[1]);
+							jQuery("#estoque_qt_emprestada").val(data.consultas[2]);
+						
+						}else{
+							jQuery("#estoque_qt_atual").val(0);
+							jQuery("#estoque_qt_emprestada").val(0);
+						}
+						
+					}else if(data.tipo === "Permanente"){
+						jQuery("#estoque_qt_add_patr").val("");
+						jQuery("#estoque_qt_add_patr").prop("disabled", false);
+						
+						jQuery("#estoque_qt_atual").val(0);
+						jQuery("#estoque_qt_emprestada").val(0);
+						
+					}else{
+							jQuery("#msgTopoHistorico").html("Erro ao buscar estoque, tipo de item errado: " + data.tipo + "<br>");
+					}
+				}else{
+					jQuery("#msgTopoHistorico").html("Erro ao buscar estoque, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+					
+					if(data.msg2 != ""){
+						jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+					}
+				}
+			}
+		});
+		
+		
+	}else{
+		jQuery("#estoque_qt_atual").val("");
+		jQuery("#estoque_qt_emprestada").val("");
+		jQuery("#estoque_qt_add_patr").val("");
+		jQuery("#estoque_qt_add_patr").prop("disabled", false);
+		
+	}
+	
+	
+	
+}
+
 

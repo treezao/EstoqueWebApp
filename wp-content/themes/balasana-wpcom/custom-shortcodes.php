@@ -123,6 +123,12 @@ function pagina_estoque(){
 	wp_localize_script( 'funcoes_estoque', 'ajax_url', [admin_url( 'admin-ajax.php' )]);
 	wp_localize_script( 'funcoes_estoque', 'nonce_getEstoque', 
 							wp_create_nonce('nonce_getEstoque'));
+							
+	wp_localize_script( 'funcoes_estoque', 'nonce_getItens', 
+							wp_create_nonce('nonce_getItens'));
+	
+	wp_localize_script( 'funcoes_estoque', 'nonce_get_Locais', 
+							wp_create_nonce('nonce_get_Locais'));
 	/*
 							
 	wp_localize_script( 'funcoes_estoque', 'nonce_addItem', 

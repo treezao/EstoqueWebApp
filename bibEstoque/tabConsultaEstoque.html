@@ -5,16 +5,16 @@
 	<p id="msgAviso"></p>
 	<p id="msgErro"></p>
 
-	<input id="btnAlteraEstoqueToogle" class="btn btn-primary" type="button" value="Altera">
+	<input id="btnAlteraEstoqueToogle" class="btn btn-primary" type="button" value="Alterar Estoque">
 	<br><br>
 	
 	<form id="formAlteraEstoque" style="display: none;">
 		<div class="row mb-3 align-items-center">
-			<label for="estoque_op" class="form-label col-auto">Tipo:</label>
+			<label for="estoque_op" class="form-label col-auto">Operação:</label>
 			<select class="form-control col" id="estoque_op">
-				<option value="0">Adiciona</option>
-				<option value="1">Movimenta</option>
-				<option value="2">Baixa</option>
+				<option value="0">Adicionar</option>
+				<option value="1">Movimentar</option>
+				<option value="2">Remover</option>
 			</select>
 		</div>
 		<div class="row mb-3 align-items-center">
@@ -30,65 +30,70 @@
 			</select>
 		</div>
 		
-		
-		<!-- Itens específicos - ADICIONAR -->
 		<div class="row mb-3 align-items-center">
-			<label for="estoque_qt_atual" class="form-label col-auto">Qt. Atual:</label>
+			<label for="estoque_qt_atual" class="form-label col-auto" id="estoque_qt_atual_lab">Qt. Atual:</label>
 			<input type="number" class="form-control col" id="estoque_qt_atual" placeholder="valor" min="0" max="9999999999" disabled>
 		</div>
 		
 		<div class="row mb-3 align-items-center">
-			<label for="estoque_qt_emprestada" class="form-label col-auto">Qt. Emprestada:</label>
+			<label for="estoque_qt_emprestada" class="form-label col-auto" id="estoque_qt_emprestada_lab">Qt. Emprestada:</label>
 			<input type="number" class="form-control col" id="estoque_qt_emprestada" placeholder="valor" min="0" max="9999999999" disabled>
 		</div>
 		
-		<div class="row mb-3 align-items-center">
-			<label for="estoque_qt_add" class="form-label col-auto">Qt. a adicionar:</label>
-			<input type="number" class="form-control col" id="estoque_qt_add" placeholder="valor" min="0" max="9999999999">
-		</div>
+		
+		<!-- Itens específicos - ADICIONAR -->
+		<div id="formAdicionarEstoque">
+			<div class="row mb-3 align-items-center">
+				<label for="estoque_qt_add" class="form-label col-auto" id="estoque_qt_add_lab">Qt. a adicionar:</label>
+				<input type="number" class="form-control col" id="estoque_qt_add" placeholder="valor" min="0" max="9999999999">
+			</div>
 		
 				<!-- Itens específicos - ADICIONAR - apenas se permanente -->
-		<div class="row mb-3 align-items-center">
-			<label for="estoque_qt_add_patr" class="form-label col-auto">Patrimonio:</label>
-			<input type="number" class="form-control col" id="estoque_qt_add_patr" placeholder="valor" min="0" max="9999999999">
+			<div class="row mb-3 align-items-center">
+				<label for="estoque_qt_add_patr" class="form-label col-auto" id="estoque_qt_add_patr_lab">Patrimonio:</label>
+				<input type="number" class="form-control col" id="estoque_qt_add_patr" placeholder="Etiqueta patrimônio" min="0" max="9999999999" disabled>
+			</div>
 		</div>
 		
-		<!-- Itens específicos - BAIXA -->
-		<div class="row mb-3 align-items-center">
-			<label for="estoque_qt_rem_patr" class="form-label col-auto">Patrimonio:</label>
-			<select class="form-control col" id="estoque_qt_rem_patr">
-				</option>
-			</select>
-		</div>
-		
-		<div class="row mb-3 align-items-center">
-			<label for="estoque_qt_rem" class="form-label col-auto">Qt. a remover:</label>
-			<input type="number" class="form-control col" id="estoque_qt_rem" placeholder="Estoque resultante precisa ser maior que o emprestado." min="0" max="9999999999">
+		<!-- Itens específicos - REMOVER -->
+		<div id="formRemoverEstoque" style="display: none;">
+			<div class="row mb-3 align-items-center">
+				<label for="estoque_qt_rem_patr" class="form-label col-auto"  id="estoque_qt_rem_patr_lab">Patrimonio:</label>
+				<select class="form-control col" id="estoque_qt_rem_patr"  disabled>
+					</option>
+				</select>
+			</div>
+			
+			<div class="row mb-3 align-items-center">
+				<label for="estoque_qt_rem" class="form-label col-auto"  id="estoque_qt_rem_lab">Qt. a remover:</label>
+				<input type="number" class="form-control col" id="estoque_qt_rem" placeholder="Estoque resultante precisa ser maior que o emprestado." min="0" max="9999999999" >
+			</div>
 		</div>
 		
 		
 		<!-- Itens específicos - MOVER -->
-		<div class="row mb-3 align-items-center">
-			<label for="estoque_qt_mov" class="form-label col-auto">Qt. a mover:</label>
-			<input type="number" class="form-control col" id="estoque_qt_mov" placeholder="Estoque resultante precisa ser maior que o emprestado." min="0" max="9999999999">
+		<div id="formMoverEstoque" style="display: none;">
+			<div class="row mb-3 align-items-center">
+				<label for="estoque_qt_mov" class="form-label col-auto" id="estoque_qt_mov_lab" >Qt. a mover:</label>
+				<input type="number" class="form-control col" id="estoque_qt_mov" placeholder="Estoque resultante precisa ser maior que o emprestado." min="0" max="9999999999" >
+			</div>
+			
+			<div class="row mb-3 align-items-center">
+				<label for="estoque_qt_mov_patr" class="form-label col-auto" id="estoque_qt_mov_lab" >Patrimônio:</label>
+				<input type="number" class="form-control col" id="estoque_qt_mov_patr" placeholder="Estoque resultante precisa ser maior que o emprestado." min="0" max="9999999999" disabled>
+			</div>
+			
+
+			<div class="row mb-3 align-items-center" >
+				<label for="estoque_local_mov" class="form-label col-auto"  id="estoque_local_mov_lab">Local Destino:</label>
+				<select class="form-control col" id="estoque_local_mov"  >
+					</option>
+				</select>
+			</div>
 		</div>
 
-		<div class="row mb-3 align-items-center">
-			<label for="estoque_local_mov" class="form-label col-auto">Local:</label>
-			<select class="form-control col" id="estoque_local_mov">
-				</option>
-			</select>
-		</div>
 
-		
-		
-	
-		
-		<input id="btnAddItem" class="btn btn-primary" type="button" onclick="adicionaItem()" value="Adicionar Item">
-		
-		
-		
-
+		<input id="btnAlteraEstoque" class="btn btn-primary" type="button" onclick="xxx()" value="Alterar">
 		
 	</form>	
 

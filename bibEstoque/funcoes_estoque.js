@@ -505,3 +505,87 @@ function atualizaTabEstoque(data){
 	}
 	
 }
+
+
+function estoque_formGetLocal(){
+	
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		dataType: "JSON",
+		data: {
+			"action": 'getLocais',
+			"nonce":    nonce_get_Locais
+		},
+		success: function(data){
+			var t = jQuery("#estoque_local");
+			var t2 = jQuery("#estoque_local_mov");
+			
+			if(!data.error){
+				
+				t.empty();
+				t.append(new Option("",-1));
+				t2.append(new Option("",-1));
+			
+				for(x of data.consultas){
+					
+					t.append(new Option(x[1],x[0]));
+					t2.append(new Option(x[1],x[0]));
+				}
+				
+			
+			}else{
+				jQuery("#msgTopoHistorico").html("Erro ao buscar histórico de locais, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+				
+				if(data.msg2 != ""){
+					jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+				}
+			}	
+		}
+	});
+	
+	
+}
+
+
+function estoque_formGetItem(){
+	
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		dataType: "JSON",
+		data: {
+			"action": 'getItens',
+			"nonce":    nonce_getItens
+		},
+		success: function(data){
+			var t = jQuery("#estoque_item");
+			
+			
+			if(!data.error){
+				
+				t.empty();
+				t.append(new Option("",-1));
+				
+			
+				for(x of data.consultas){
+					
+					t.append(new Option(x[1],x[0]));
+					
+				}
+				
+			
+			}else{
+				jQuery("#msgTopoHistorico").html("Erro ao buscar histórico de itens, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+				
+				if(data.msg2 != ""){
+					jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+				}
+			}	
+		}
+	});
+	
+}
+
+
+

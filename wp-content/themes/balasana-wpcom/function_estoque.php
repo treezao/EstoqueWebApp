@@ -120,7 +120,7 @@ function getLocais(){
 
 	$cf_data["msg"] = "Recuperando consultas...";
 	
-	$sql = "SELECT * FROM localizacao ORDER BY localizacao.nome DESC";
+	$sql = "SELECT * FROM localizacao ORDER BY localizacao.nome ASC";
 	$result = $cf_conn->query($sql);
 	
 	
@@ -272,7 +272,7 @@ function getConsultaLocais(){
 	
 	$cf_data["msg"] = "Recuperando consultas...";
 	
-	$sql = "SELECT * FROM localizacao ORDER BY localizacao.nome DESC";
+	$sql = "SELECT * FROM localizacao ORDER BY localizacao.nome ASC";
 	$result = $cf_conn->query($sql);
 	
 	
@@ -342,7 +342,7 @@ function getItens(){
 
 	$cf_data["msg"] = "Recuperando consultas...";
 	
-	$sql = "SELECT * FROM item ORDER BY item.nome DESC";
+	$sql = "SELECT * FROM item ORDER BY item.nome ASC";
 	$result = $cf_conn->query($sql);
 	
 	
@@ -638,6 +638,224 @@ function get1Estoque(){
 	
 	finaliza();
 }
+
+add_action('wp_ajax_alteraEstoque','alteraEstoque');
+function alteraEstoque(){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_alteraEstoque') || !validaUsuario() || !conecta()){
+		finaliza(); // termina o programa aqui;
+	}
+
+	$cf_data["msg"] = "Alterando 1 estoque...";
+	$cf_data["msg2"] = "";
+	$cf_data["error"] = false;
+	
+	// verifica se o item existe
+	$sql = "SELECT * FROM item WHERE id=" . $_POST["idItem"] .";";
+	
+	$result = $cf_conn->query($sql);
+	
+	
+	if($result->num_rows == 1 ) {
+		
+		$row = $result->fetch_assoc();
+		
+		$tipoItem = $row["tipo"];
+		
+		if($tipoItem !== $_POST["tipo"]){
+			$cf_data["msg"] = "O tipo de item enviado não é igual ao tipo de item no banco de dados...";
+			
+			$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+			$cf_data["error"] = true;
+			finaliza();
+		}
+		
+
+	}else {
+		$cf_data["msg"] = "Nenhum Item com este ID foi encontrado...";
+		$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	// verifica se o local existe
+	$sql = "SELECT * FROM localizacao WHERE id=" . $_POST["idLocal"] .";";
+	
+	$result = $cf_conn->query($sql);
+	
+	if(!$result || $result->num_rows != 1 ) {
+		$cf_data["msg"] = "Nenhum Local com este ID foi encontrado...";
+		$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	
+	// Chama a função adequada de acordo com a operação
+	// as funções chamadas vão finalizar a execução
+	if($_POST["op"] === "Adicionar"){
+		addEstoque($_POST);
+	}
+	
+	
+	if($_POST["op"] === "Movimentar"){
+		
+	}
+	
+	if($_POST["op"] === "Remover"){
+		
+	}
+	
+	
+	// não deveria chegar aqui
+	$cf_data["msg"] = "Chegou onde não devia, função alteraEstoque...";
+	$cf_data["error"] = true;
+	finaliza();
+}
+
+
+function addEstoque($post){
+	global $cf_conn, $cf_data;
+
+
+	if($post["tipo"] === "Consumo"){
+		
+		// Buscando estoque
+		$sql = "SELECT * FROM estoque WHERE iditem=" . $post["idItem"] .
+											" AND idLocal=" . $post["idLocal"] . ";";
+		$result = $cf_conn->query($sql);
+		
+		if($result){
+			
+			// não existe este estoque registrado
+			if($result->num_rows == 0 ) {
+				
+				$sql = "INSERT INTO estoque (iditem,idLocal,qt) ".
+						" VALUES (" . $post["idItem"] . "," .
+									 $post["idLocal"] . "," .
+									 $post["addQt"] . ");";
+				
+			}else{ // existe estoque registrado
+				$sql = "UPDATE estoque SET qt = qt + " . $post["addQt"] . 
+						" WHERE iditem=" . $post["idItem"] .
+											" AND idLocal=" . $post["idLocal"] . ";";
+			}
+			
+			
+			// sql para histórico de movimentações
+			$sql2 = "INSERT INTO movimentacoes (idUsuario,idItem,idLocalOrigem,idLocalDestino,qt,tipo_movimentacao,obs) " .
+					"VALUES (" . get_current_user_id() . "," .
+								$post["idItem"] . "," .
+								$post["idLocal"] . "," .
+								$post["idLocal"] . "," .
+								$post["addQt"]. "," .
+								"'adicao', " .
+								"'" . $post["obs"] . "');";
+			
+			$result = $cf_conn->query($sql);
+			
+			if(!$result){
+				$cf_data["msg"] = "Problema na adição de estoque...";
+				$cf_data["msg2"]= "SQL: " . $sql  . " <br> Erro: " . $cf_conn->error;
+				$cf_data["error"] = true;
+				
+				finaliza();
+			}
+
+			$result = $cf_conn->query($sql2);
+			
+			if(!$result){
+				$cf_data["msg"] = "Problema na adição da movimentação...";
+				$cf_data["msg2"]= "SQL: " . $sql2  . " <br> Erro: " . $cf_conn->error;
+				$cf_data["error"] = true;
+				
+				finaliza();
+			}
+			
+			finaliza();
+			
+			
+		}else{
+			$cf_data["msg"] = "Problema com banco de dados...";
+			$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+			$cf_data["error"] = true;
+			finaliza();
+		}
+	}elseif($post["tipo"] === "Permanente"){
+		// Buscando estoque
+		$sql = "SELECT * FROM estoque WHERE patrimonio=" . $post["addPatr"] . ";";
+		$result = $cf_conn->query($sql);
+		
+		if($result){
+			
+			// não existe este patrimônio no estoque
+			if($result->num_rows == 0 ) {
+				
+				$sql = "INSERT INTO estoque (iditem,idLocal,qt,patrimonio) ".
+						" VALUES (" . $post["idItem"] . "," .
+									 $post["idLocal"] . "," .
+									 "1," .
+									 $post["addPatr"] . ");";
+				
+
+				
+			}else{ // existe estoque registrado com este patrimônio, finaliza!
+				$cf_data["msg"] = "Este patrimônio já está registrado...";
+				$cf_data["error"] = true;
+				finaliza();
+			}
+			
+			// sql para histórico de movimentações
+			$sql2 = "INSERT INTO movimentacoes (idUsuario,idItem,idLocalOrigem,idLocalDestino,patrimonio,qt,tipo_movimentacao,obs) " .
+					"VALUES (" . get_current_user_id() . "," .
+								$post["idItem"] . "," .
+								$post["idLocal"] . "," .
+								$post["idLocal"] . "," .
+								$post["addPatr"] . "," .
+								"1," .
+								"'adicao', " .
+								"'" . $post["obs"] . "');";
+			
+			$result = $cf_conn->query($sql);
+			
+			if(!$result){
+				$cf_data["msg"] = "Problema na adição de estoque...";
+				$cf_data["msg2"]= "SQL: " . $sql  . " <br> Erro: " . $cf_conn->error;
+				$cf_data["error"] = true;
+				
+				finaliza();
+			}
+
+			$result = $cf_conn->query($sql2);
+			
+			if(!$result){
+				$cf_data["msg"] = "Problema na adição da movimentação...";
+				$cf_data["msg2"]= "SQL: " . $sql2  . " <br> Erro: " . $cf_conn->error;
+				$cf_data["error"] = true;
+				
+				finaliza();
+			}
+			
+			finaliza();
+			
+			
+		}else{
+			$cf_data["msg"] = "Problema com banco de dados...";
+			$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+			$cf_data["error"] = true;
+			finaliza();
+		}
+	}
+	
+	// não deveria chegar aqui
+	$cf_data["msg"] = "Chegou onde não devia, função addEstoque...";
+	$cf_data["error"] = true;
+	finaliza();
+	
+}
+
 
 
 ?>

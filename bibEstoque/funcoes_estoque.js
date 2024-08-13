@@ -1,3 +1,14 @@
+
+function resetMsgTopo(){
+	jQuery("#msgTopoHistorico").html("");
+	jQuery("#msgDebug").html("");
+	jQuery("#msgResultado").html("");
+	jQuery("#msgAviso").html("");
+	jQuery("#msgErro").html("");
+	
+}
+
+
 /*
 	funções da página Locais
 */
@@ -443,6 +454,7 @@ function alteraItemCancelar(){
 	funções da página Estoque
 */
 
+
 function initTabelaEstoque(){
 	new DataTable('#tab_consulta_estoque',{
 		"language": {
@@ -570,7 +582,10 @@ function estoque_formGetItem(){
 			
 				for(x of data.consultas){
 					
-					t.append(new Option(x[1],x[0]));
+					//t.append(new Option(x[1],x[0]));
+					var opt = '<option value="' + x[0] + '" tipo="' + x[3] + '">' + x[1] + '</option>';
+					t.append(opt);
+					
 					
 				}
 				
@@ -589,7 +604,7 @@ function estoque_formGetItem(){
 
 
 function get1Estoque(){
-	
+	resetMsgTopo();
 	
 	var sel_local = jQuery("#estoque_local option:selected");
 	var sel_item = jQuery("#estoque_item option:selected");
@@ -610,31 +625,166 @@ function get1Estoque(){
 			success: function(data){
 				if(!data.error){
 					
-					if(data.tipo === "Consumo"){
+					var sel_op = jQuery("#estoque_op option:selected").text(); // operação selecionada
+					
+					// desabilita botão de alterar estoque, habilitação ocorre abaixo apenas em certos casos
+					jQuery("#btnAlteraEstoque").prop("disabled", true); 
+					
+					if(sel_op === "Adicionar"){
+					
+						jQuery("#btnAlteraEstoque").prop("disabled", false); // habilita botão de alterar estoque
 						
-						jQuery("#estoque_qt_add_patr").val("");
-						jQuery("#estoque_qt_add_patr").prop("disabled", true);
-						
-						if(data.encontrado){
-							jQuery("#estoque_qt_atual").val(data.consultas[1]);
-							jQuery("#estoque_qt_emprestada").val(data.consultas[2]);
-						
-						}else{
+						if(data.tipo === "Consumo"){
+							
+							jQuery("#estoque_qt_add").prop("disabled", false);
+							jQuery("#estoque_qt_add_patr").prop("disabled", true);
+							
+							if(data.encontrado){
+								jQuery("#estoque_qt_atual").val(data.consultas[1]);
+								jQuery("#estoque_qt_emprestada").val(data.consultas[2]);
+							
+							}else{
+								jQuery("#estoque_qt_atual").val(0);
+								jQuery("#estoque_qt_emprestada").val(0);
+							}
+							
+						}else if(data.tipo === "Permanente"){
+							jQuery("#estoque_qt_add").prop("disabled", true);
+							jQuery("#estoque_qt_add").val(1);
+
+							jQuery("#estoque_qt_add_patr").prop("disabled", false);
+							
 							jQuery("#estoque_qt_atual").val(0);
 							jQuery("#estoque_qt_emprestada").val(0);
+							
+						}else{
+								jQuery("#msgTopoHistorico").html("Erro ao buscar estoque, tipo de item errado: " + data.tipo + "<br>");
 						}
 						
-					}else if(data.tipo === "Permanente"){
-						jQuery("#estoque_qt_add_patr").val("");
-						jQuery("#estoque_qt_add_patr").prop("disabled", false);
-						
-						jQuery("#estoque_qt_atual").val(0);
-						jQuery("#estoque_qt_emprestada").val(0);
-						
-					}else{
-							jQuery("#msgTopoHistorico").html("Erro ao buscar estoque, tipo de item errado: " + data.tipo + "<br>");
+						return;
 					}
+					
+					if(sel_op === "Movimentar"){
+
+						if(data.tipo === "Consumo"){
+							
+							jQuery("#estoque_qt_mov_patr").empty();
+							jQuery("#estoque_qt_mov_patr").prop("disabled", true);
+							
+							if(data.encontrado){
+								jQuery("#btnAlteraEstoque").prop("disabled", false); // habilita botão de alterar estoque
+								
+								jQuery("#estoque_qt_mov").prop("disabled", false);
+								jQuery("#estoque_qt_atual").val(data.consultas[1]);
+								jQuery("#estoque_qt_emprestada").val(data.consultas[2]);
+							
+							}else{
+								jQuery("#estoque_qt_mov").prop("disabled", true);
+								jQuery("#estoque_qt_atual").val(0);
+								jQuery("#estoque_qt_emprestada").val(0);
+							}
+							
+						}else if(data.tipo === "Permanente"){
+							jQuery("#estoque_qt_mov").prop("disabled", true);
+							jQuery("#estoque_qt_mov").val(1);
+							
+							jQuery("#estoque_qt_mov_patr").empty();
+							
+							
+							if(data.encontrado){
+								jQuery("#btnAlteraEstoque").prop("disabled", false); // habilita botão de alterar estoque
+								jQuery("#estoque_qt_mov_patr").prop("disabled", false);
+								jQuery("#estoque_qt_atual").val(0);
+								jQuery("#estoque_qt_emprestada").val(0);
+								
+								var t = jQuery("#estoque_qt_mov_patr");
+								t.append(new Option("",-1));
+								
+								for(x of data.consultas){
+									t.append(new Option(x[4],x[0]));
+								}
+								
+								
+								jQuery("#estoque_qt_atual").val(0);
+								jQuery("#estoque_qt_emprestada").val(0);
+							
+							}else{
+								jQuery("#estoque_qt_mov_patr").prop("disabled", true);
+								jQuery("#estoque_qt_atual").val(0);
+								jQuery("#estoque_qt_emprestada").val(0);
+							}
+							
+							
+						}else{
+								jQuery("#msgTopoHistorico").html("Erro ao buscar estoque, tipo de item errado: " + data.tipo + "<br>");
+						}
+						
+						return;
+					}
+					
+					if(sel_op === "Remover"){
+						jQuery("#btnAlteraEstoque").prop("disabled", false); // habilita botão de alterar estoque
+						
+						if(data.tipo === "Consumo"){
+							
+							jQuery("#estoque_qt_rem").prop("disabled", false);
+							jQuery("#estoque_qt_rem_patr").empty();
+							jQuery("#estoque_qt_rem_patr").prop("disabled", true);
+							
+							if(data.encontrado){
+								jQuery("#estoque_qt_atual").val(data.consultas[1]);
+								jQuery("#estoque_qt_emprestada").val(data.consultas[2]);
+							
+							}else{
+								jQuery("#estoque_qt_atual").val(0);
+								jQuery("#estoque_qt_emprestada").val(0);
+							}
+							
+						}else if(data.tipo === "Permanente"){
+							jQuery("#estoque_qt_rem").prop("disabled", true);
+							jQuery("#estoque_qt_rem").val(1);
+							
+							jQuery("#estoque_qt_rem_patr").empty();
+							
+							
+							if(data.encontrado){
+								jQuery("#estoque_qt_rem_patr").prop("disabled", false);
+								jQuery("#estoque_qt_atual").val(0);
+								jQuery("#estoque_qt_emprestada").val(0);
+								
+								var t = jQuery("#estoque_qt_rem_patr");
+								t.append(new Option("",-1));
+								
+								for(x of data.consultas){
+									t.append(new Option(x[4],x[0]));
+								}
+								
+								
+								jQuery("#estoque_qt_atual").val(0);
+								jQuery("#estoque_qt_emprestada").val(0);
+							
+							}else{
+								jQuery("#estoque_qt_rem_patr").prop("disabled", true);
+								jQuery("#estoque_qt_atual").val(0);
+								jQuery("#estoque_qt_emprestada").val(0);
+							}
+							
+							
+						}else{
+								jQuery("#msgTopoHistorico").html("Erro ao buscar estoque, tipo de item errado: " + data.tipo + "<br>");
+						}
+						
+						return;
+					}
+					
+
+					
+					
+					
 				}else{
+					
+					jQuery("#btnAlteraEstoque").prop("disabled", true);
+					
 					jQuery("#msgTopoHistorico").html("Erro ao buscar estoque, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
 					
 					if(data.msg2 != ""){
@@ -646,10 +796,10 @@ function get1Estoque(){
 		
 		
 	}else{
-		jQuery("#estoque_qt_atual").val("");
-		jQuery("#estoque_qt_emprestada").val("");
-		jQuery("#estoque_qt_add_patr").val("");
-		jQuery("#estoque_qt_add_patr").prop("disabled", false);
+		// deixa botão desabilitado se não há um item ou local não selecionado
+		
+		jQuery("#btnAlteraEstoque").prop("disabled", true);
+		
 		
 	}
 	
@@ -657,4 +807,123 @@ function get1Estoque(){
 	
 }
 
+
+function alteraEstoque(){
+	window.scrollTo({ top: 0, behavior: 'smooth' });
+	resetMsgTopo();
+	
+	var sel_op = jQuery("#estoque_op option:selected").text(); // operação selecionada
+	var idLocal = jQuery("#estoque_local option:selected").val();
+	var idItem = jQuery("#estoque_item option:selected").val();
+
+	var tipoItem = 	jQuery("#estoque_item option:selected").attr("tipo");
+
+	var qtAtual = jQuery("#estoque_qt_atual").val();
+	var qtEmpr = jQuery("#estoque_qt_emprestada").val();
+	
+	var addQt = jQuery("#estoque_qt_add").val();
+	var addPatr = jQuery("#estoque_qt_add_patr").val();
+	
+	var remQt = jQuery("#estoque_qt_rem").val();
+	var remPatrId = jQuery("#estoque_qt_rem_patr option:selected").val();
+	
+	var movQt = jQuery("#estoque_qt_mov").val();
+	var movPatrId = jQuery("#estoque_qt_mov_patr option:selected").val();
+	var movLocalId = jQuery("#estoque_local_mov option:selected").val();
+	
+	var obs = jQuery("#estoque_obs").val();
+	
+	
+	// validações
+	if(idLocal <= 0){ 
+		jQuery("#msgErro").html('<p>ID do local incorreto.</p>');
+		return;
+	}
+	if(idItem <= 0){
+		jQuery("#msgErro").html('<p>ID do item incorreto.</p>');
+		return;
+	}
+	if(tipoItem !== "Consumo" && tipoItem !== "Permanente"){
+		jQuery("#msgErro").html('<p>Tipo do item incorreto.</p>');
+		return;
+	}
+	
+	
+	if(sel_op === "Adicionar"){
+		
+		if(tipoItem === "Consumo"){
+			if(addQt <=0){
+				jQuery("#msgErro").html('<p>Quantidade a adicionar precisar ser um inteiro positivo.</p>');
+				return;
+			}
+			
+			jQuery.post({
+				url: ajax_url,
+				type: "POST",
+				dataType: "JSON",
+				data: {
+					"action": 'alteraEstoque',
+					"nonce":    nonce_alteraEstoque,
+					"op": sel_op,
+					"idLocal": idLocal,
+					"idItem": idItem,
+					"tipo": tipoItem,
+					"addQt": addQt,
+					"obs": obs
+				},
+				success: alteraEstoque_retorno
+			});
+			
+			return;
+			
+		}else if(tipoItem === "Permanente"){
+			
+			if(addPatr <=0){
+				jQuery("#msgErro").html('<p>Número do patrimônio um inteiro positivo.</p>');
+				return;
+			}
+			
+			jQuery.post({
+				url: ajax_url,
+				type: "POST",
+				dataType: "JSON",
+				data: {
+					"action": 'alteraEstoque',
+					"nonce":    nonce_alteraEstoque,
+					"op": sel_op,
+					"idLocal": idLocal,
+					"idItem": idItem,
+					"tipo": tipoItem,
+					"addPatr": addPatr,
+					"obs": obs
+				},
+				success: alteraEstoque_retorno
+			});
+			
+			return;
+			
+		}
+	}
+}
+
+function alteraEstoque_retorno(data){
+	
+	if(!data.error){
+		jQuery("#formAlteraEstoque").trigger("reset");
+		jQuery("#formAlteraEstoque").hide();
+		jQuery("#btnAlteraEstoque").prop("disabled", true);
+		
+		getEstoque();
+		
+		jQuery("#msgResultado").html("Alteração feita com sucesso.<br>");
+	}else{
+		
+		jQuery("#msgResultado").html("<p>Erro ao alterar estoque, recarregue a página ou contacte o administrador!</p><p>Erro: " + data.msg + "</p>");
+		
+		if(data.msg2 != ""){
+			jQuery("#msgErro").html('<p>' + data.msg2 + '</p>');
+		}
+	}
+	
+}
 

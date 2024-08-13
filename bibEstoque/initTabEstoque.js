@@ -22,7 +22,6 @@ jQuery(document).ready( function () {
 			jQuery("#formRemoverEstoque").hide();
 			jQuery("#formMoverEstoque").hide();
 			
-			
 			return;
 		}
 		
@@ -41,12 +40,5 @@ jQuery(document).ready( function () {
 			
 			return;
 		}
-		
-		
-		
-		
 	});
-	
-	
-	
 } );

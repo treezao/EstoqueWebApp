@@ -1,9 +1,11 @@
 <div class="container">
-	<p id="msgTopoHistorico"></p>
-	<p id="msgDebug"></p>
-	<p id="msgResultado"></p>
-	<p id="msgAviso"></p>
-	<p id="msgErro"></p>
+	<div class="row mb-3 align-items-center">
+		<p id="msgTopoHistorico"></p>
+		<p id="msgDebug"></p>
+		<p id="msgResultado"></p>
+		<p id="msgAviso"></p>
+		<p id="msgErro"></p>
+	</div>
 
 	<input id="btnAlteraEstoqueToogle" class="btn btn-primary" type="button" value="Alterar Estoque">
 	<br><br>
@@ -80,7 +82,9 @@
 			
 			<div class="row mb-3 align-items-center">
 				<label for="estoque_qt_mov_patr" class="form-label col-auto" id="estoque_qt_mov_lab" >Patrimônio:</label>
-				<input type="number" class="form-control col" id="estoque_qt_mov_patr" placeholder="Estoque resultante precisa ser maior que o emprestado." min="0" max="9999999999" disabled>
+				<select class="form-control col" id="estoque_qt_mov_patr"  disabled>
+					</option>
+				</select>
 			</div>
 			
 
@@ -90,10 +94,18 @@
 					</option>
 				</select>
 			</div>
+			
 		</div>
+		
+		<div class="row mb-3 align-items-center" >
+			<label for="estoque_obs" class="form-label col-auto">Observação:</label>
+			<textarea class="form-control col" id="estoque_obs" rows="3" placeholder="Detalhes da alteração"></textarea>
+		</div>
+		
 
 
-		<input id="btnAlteraEstoque" class="btn btn-primary" type="button" onclick="xxx()" value="Alterar">
+
+		<input id="btnAlteraEstoque" class="btn btn-primary" type="button" onclick="alteraEstoque()" value="Alterar" disabled>
 		
 	</form>	
 

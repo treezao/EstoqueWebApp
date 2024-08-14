@@ -61,7 +61,7 @@
 		<div id="formRemoverEstoque" style="display: none;">
 			<div class="row mb-3 align-items-center">
 				<label for="estoque_qt_rem_patr" class="form-label col-auto"  id="estoque_qt_rem_patr_lab">Patrimonio:</label>
-				<select class="form-control col" id="estoque_qt_rem_patr"  disabled>
+				<select class="form-control col" id="estoque_qt_rem_patr" onchange="alteraQtMovRem('remover')" disabled>
 					</option>
 				</select>
 			</div>
@@ -76,16 +76,18 @@
 		<!-- Itens específicos - MOVER -->
 		<div id="formMoverEstoque" style="display: none;">
 			<div class="row mb-3 align-items-center">
+				<label for="estoque_qt_mov_patr" class="form-label col-auto" id="estoque_qt_mov_lab" >Patrimônio:</label>
+				<select class="form-control col" id="estoque_qt_mov_patr" onchange="alteraQtMovRem('mover')"  disabled>
+					</option>
+				</select>
+			</div>
+		
+			<div class="row mb-3 align-items-center">
 				<label for="estoque_qt_mov" class="form-label col-auto" id="estoque_qt_mov_lab" >Qt. a mover:</label>
 				<input type="number" class="form-control col" id="estoque_qt_mov" placeholder="Estoque resultante precisa ser maior que o emprestado." min="0" max="9999999999" >
 			</div>
 			
-			<div class="row mb-3 align-items-center">
-				<label for="estoque_qt_mov_patr" class="form-label col-auto" id="estoque_qt_mov_lab" >Patrimônio:</label>
-				<select class="form-control col" id="estoque_qt_mov_patr"  disabled>
-					</option>
-				</select>
-			</div>
+
 			
 
 			<div class="row mb-3 align-items-center" >

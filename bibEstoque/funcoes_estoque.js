@@ -640,8 +640,8 @@ function get1Estoque(){
 							jQuery("#estoque_qt_add_patr").prop("disabled", true);
 							
 							if(data.encontrado){
-								jQuery("#estoque_qt_atual").val(data.consultas[1]);
-								jQuery("#estoque_qt_emprestada").val(data.consultas[2]);
+								jQuery("#estoque_qt_atual").val(data.consultas[2]);
+								jQuery("#estoque_qt_emprestada").val(data.consultas[3]);
 							
 							}else{
 								jQuery("#estoque_qt_atual").val(0);
@@ -675,8 +675,8 @@ function get1Estoque(){
 								jQuery("#btnAlteraEstoque").prop("disabled", false); // habilita botão de alterar estoque
 								
 								jQuery("#estoque_qt_mov").prop("disabled", false);
-								jQuery("#estoque_qt_atual").val(data.consultas[1]);
-								jQuery("#estoque_qt_emprestada").val(data.consultas[2]);
+								jQuery("#estoque_qt_atual").val(data.consultas[2]);
+								jQuery("#estoque_qt_emprestada").val(data.consultas[3]);
 							
 							}else{
 								jQuery("#estoque_qt_mov").prop("disabled", true);
@@ -701,7 +701,10 @@ function get1Estoque(){
 								t.append(new Option("",-1));
 								
 								for(x of data.consultas){
-									t.append(new Option(x[4],x[0]));
+									
+									//t.append(new Option(x[4],x[0]));
+									var opt = '<option qtAtual="' + x[2] + '" qtEmpr="' + x[3] + '">' + x[4] + '</option>';
+									t.append(opt)
 								}
 								
 								
@@ -732,8 +735,8 @@ function get1Estoque(){
 							jQuery("#estoque_qt_rem_patr").prop("disabled", true);
 							
 							if(data.encontrado){
-								jQuery("#estoque_qt_atual").val(data.consultas[1]);
-								jQuery("#estoque_qt_emprestada").val(data.consultas[2]);
+								jQuery("#estoque_qt_atual").val(data.consultas[2]);
+								jQuery("#estoque_qt_emprestada").val(data.consultas[3]);
 							
 							}else{
 								jQuery("#estoque_qt_atual").val(0);
@@ -756,7 +759,9 @@ function get1Estoque(){
 								t.append(new Option("",-1));
 								
 								for(x of data.consultas){
-									t.append(new Option(x[4],x[0]));
+									//t.append(new Option(x[4],x[0]));
+									var opt = '<option qtAtual="' + x[2] + '" qtEmpr="' + x[3] + '">' + x[4] + '</option>';
+									t.append(opt)
 								}
 								
 								
@@ -828,7 +833,7 @@ function alteraEstoque(){
 	var remPatrId = jQuery("#estoque_qt_rem_patr option:selected").val();
 	
 	var movQt = jQuery("#estoque_qt_mov").val();
-	var movPatrId = jQuery("#estoque_qt_mov_patr option:selected").val();
+	var movPatr = jQuery("#estoque_qt_mov_patr option:selected").val();
 	var movLocalId = jQuery("#estoque_local_mov option:selected").val();
 	
 	var obs = jQuery("#estoque_obs").val();
@@ -879,7 +884,7 @@ function alteraEstoque(){
 		}else if(tipoItem === "Permanente"){
 			
 			if(addPatr <=0){
-				jQuery("#msgErro").html('<p>Número do patrimônio um inteiro positivo.</p>');
+				jQuery("#msgErro").html('<p>Número do patrimônio precisa ser um inteiro positivo.</p>');
 				return;
 			}
 			
@@ -903,6 +908,90 @@ function alteraEstoque(){
 			return;
 			
 		}
+	
+		return;
+	}
+	
+	if(sel_op === "Movimentar"){
+		
+		if(movLocalId <= 0 ){
+			jQuery("#msgErro").html('<p>É necessário escolher um local de destino válido.</p>');
+			return;
+		}
+		
+		if(movLocalId == idLocal ){
+			jQuery("#msgErro").html('<p>É necessário escolher um local de destino diferente do de origem.</p>');
+			return;
+		}
+		
+		
+		if(tipoItem === "Consumo"){
+			if(movQt <=0){
+				jQuery("#msgErro").html('<p>Quantidade a mover precisar ser um inteiro positivo.</p>');
+				return;
+			}
+			
+			if(movQt > (qtAtual-qtEmpr)){
+				jQuery("#msgErro").html('<p>Quantidade a mover precisa ser menor do que o estoque que não está emprestado. Estoque disponível para movimentação: ' + (qtAtual-qtEmpr) + '.</p>');
+				return;
+			}
+			
+			jQuery.post({
+				url: ajax_url,
+				type: "POST",
+				dataType: "JSON",
+				data: {
+					"action": 'alteraEstoque',
+					"nonce":    nonce_alteraEstoque,
+					"op": sel_op,
+					"idLocal": idLocal,
+					"idItem": idItem,
+					"tipo": tipoItem,
+					"movQt": movQt,
+					"movPatr": movPatr,
+					"movLocalId": movLocalId,
+					"obs": obs
+				},
+				success: alteraEstoque_retorno
+			});
+			
+			return;
+			
+		}else if(tipoItem === "Permanente"){
+			
+			if(movPatr <=0){
+				jQuery("#msgErro").html('<p>Deve ser selecionado um patrimônio válido a ser movimentado.</p>');
+				return;
+			}
+			if(movQt > (qtAtual-qtEmpr)){
+				jQuery("#msgErro").html('<p>Quantidade a mover precisa ser menor do que o estoque que não está emprestado. Estoque disponível para movimentação: ' + (qtAtual-qtEmpr) + '.</p>');
+				return;
+			}
+			
+			jQuery.post({
+				url: ajax_url,
+				type: "POST",
+				dataType: "JSON",
+				data: {
+					"action": 'alteraEstoque',
+					"nonce":    nonce_alteraEstoque,
+					"op": sel_op,
+					"idLocal": idLocal,
+					"idItem": idItem,
+					"tipo": tipoItem,
+					"movQt": movQt,
+					"movPatr": movPatr,
+					"movLocalId": movLocalId,
+					"obs": obs
+				},
+				success: alteraEstoque_retorno
+			});
+			
+			return;
+			
+		}
+	
+		return;
 	}
 }
 
@@ -912,6 +1001,13 @@ function alteraEstoque_retorno(data){
 		jQuery("#formAlteraEstoque").trigger("reset");
 		jQuery("#formAlteraEstoque").hide();
 		jQuery("#btnAlteraEstoque").prop("disabled", true);
+		
+		jQuery("#formAdicionarEstoque").hide();
+		jQuery("#formRemoverEstoque").hide();
+		jQuery("#formMoverEstoque").hide();
+		
+		jQuery("#estoque_qt_rem_patr").empty();
+		jQuery("#estoque_qt_mov_patr").empty();
 		
 		getEstoque();
 		
@@ -927,3 +1023,23 @@ function alteraEstoque_retorno(data){
 	
 }
 
+function alteraQtMovRem(tipo){
+	var sel;
+	
+	if(tipo === "mover"){
+		sel = "#estoque_qt_mov_patr";
+	}else if(tipo === "remover"){
+		sel = "#estoque_qt_rem_patr";
+	}else{
+		jQuery("#msgErro").html("<p>Alguma coisa deu errado ao selecionar patrimônio para mover/remover.</p>");
+		return;
+	}
+	
+	var qtAtual = jQuery(sel + " option:selected").attr("qtAtual");
+	var qtEmpr = jQuery(sel + " option:selected").attr("qtEmpr");
+	
+	jQuery("#estoque_qt_atual").val(qtAtual);
+	jQuery("#estoque_qt_emprestada").val(qtEmpr);
+	
+	
+}

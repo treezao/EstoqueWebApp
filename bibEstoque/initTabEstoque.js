@@ -40,5 +40,12 @@ jQuery(document).ready( function () {
 			
 			return;
 		}
+		
+		jQuery("#formAdicionarEstoque").hide();
+		jQuery("#formRemoverEstoque").hide();
+		jQuery("#formMoverEstoque").hide();
+		
+		return;
+		
 	});
 } );

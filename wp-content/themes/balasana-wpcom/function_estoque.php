@@ -1,6 +1,8 @@
 <?php
 
 global $cf_data, $cf_conn, $cf_timezone;
+global $path_debug_file;
+$path_debug_file = $_SERVER['DOCUMENT_ROOT'] . "/WPEstoque/bibEstoque/logs.txt";
 
 $cf_data["msg"] = "Falhou em algo";
 $cf_data["msg2"] = "";
@@ -8,6 +10,24 @@ $cf_data["error"] = true;
 $cf_data["consultas"] = [];
 
 $cf_timezone = "America/Sao_Paulo";
+
+
+
+/*
+	funções de debug
+*/
+
+function escreveDebug($msg){
+	global $path_debug_file;
+	
+	$myfile = fopen($path_debug_file, "a") or wp_die("Unable to open file!");
+	
+	fwrite($myfile, date("Y-m-d H:i:s") . ": " . $msg );
+	
+	fclose($myfile);
+	
+}
+
 
 /*
 	funções de validação 
@@ -705,6 +725,7 @@ function alteraEstoque(){
 	}
 	
 	if($_POST["op"] === "Remover"){
+		remEstoque($_POST);
 		
 	}
 	
@@ -1053,6 +1074,174 @@ function movEstoque($post){
 	finaliza();
 	
 }
+
+function remEstoque($post){
+	global $cf_conn, $cf_data;
+
+
+	if($post["tipo"] === "Consumo"){
+		
+		// Buscando estoque
+		$sql = "SELECT * FROM estoque WHERE iditem=" . $post["idItem"] .
+											" AND idLocal=" . $post["idLocal"] . ";";
+		$result = $cf_conn->query($sql);
+		
+		escreveDebug($sql . PHP_EOL);
+		
+		if(!$result){
+			$cf_data["msg"] = "Problema com banco de dados...";
+			$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+			$cf_data["error"] = true;
+			finaliza();
+		}
+		
+		// não existe este estoque registrado então não pode ser removido! (ou existem múltiplos estoque e tem algo errado no BD
+		if($result->num_rows != 1 ) {
+			$cf_data["msg"] = "O estoque a ser removido não existe ou está multiplicado...";
+			$cf_data["msg2"]= "SQL: " . $sql . " <br> Linhas encontradas: " . $result->num_rows;
+			$cf_data["error"] = true;
+			finaliza();
+		}
+		
+		// verifica se é possível remover a qt desejada
+		$row = $result->fetch_assoc();
+		$est_result = $row["qt"]-$row["qtEmprestada"]-$post["remQt"];
+		if($est_result < 0){
+			$cf_data["msg"] = "Problema no quantitativo a remover...";
+			$cf_data["msg2"]= "Estoque resultante será negativo: ". $est_result;
+			$cf_data["error"] = true;
+			finaliza();
+		}
+		
+		
+		// ao executar remoção, como não tem nada emprestado, estoque vai a zero e podemos eliminar a linha
+		// Prepara SQL para remoção de estoque
+		if($row["qt"]-$post["remQt"] == 0 && $row["qtEmprestada"] == 0){
+			$sql1 = "DELETE from estoque WHERE id=" . $row["id"] . ";";
+		}else{ // caso contrário, só atualiza row do DB
+			$sql1 = "UPDATE estoque SET qt = qt - " . $post["remQt"] . 
+					" WHERE iditem=" . $post["idItem"] .
+										" AND idLocal=" . $post["idLocal"] . ";";
+		}
+
+		// sql para histórico de movimentações
+		$sql2 = "INSERT INTO movimentacoes (idUsuario,idItem,idLocalOrigem,idLocalDestino,qt,tipo_movimentacao,obs) " .
+				"VALUES (" . get_current_user_id() . "," .
+							$post["idItem"] . "," .
+							$post["idLocal"] . "," .
+							$post["idLocal"] . "," .
+							$post["remQt"]. "," .
+							"'baixa', " .
+							"'" . $post["obs"] . "');";
+		
+		$result1 = $cf_conn->query($sql1);
+		
+		if(!$result1){
+			$cf_data["msg"] = "Problema na remoção de estoque...";
+			$cf_data["msg2"]= "SQL: " . $sql1  . " <br> Erro: " . $cf_conn->error;
+			$cf_data["error"] = true;
+			
+			escreveDebug("NÃO FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL);
+			
+			finaliza();
+		}
+
+		$result2 = $cf_conn->query($sql2);
+		
+		if(!$result2){
+			$cf_data["msg"] = "Problema na adição da movimentação...";
+			$cf_data["msg2"]= "SQL: " . $sql2  . " <br> Erro: " . $cf_conn->error;
+			$cf_data["error"] = true;
+			
+			escreveDebug("FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL);
+			
+			finaliza();
+		}
+		
+		finaliza();
+		
+		
+	}elseif($post["tipo"] === "Permanente"){
+		// Buscando estoque
+		$sql = "SELECT * FROM estoque WHERE patrimonio='" . $post["remPatr"] . "';";
+		$result = $cf_conn->query($sql);
+		
+		if(!$result){
+			$cf_data["msg"] = "Problema com banco de dados...";
+			$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+			$cf_data["error"] = true;
+			finaliza();
+		}
+		
+		// não existe este estoque registrado então não pode ser removido! (ou existem múltiplos estoque e tem algo errado no BD
+		if($result->num_rows != 1 ) {
+			$cf_data["msg"] = "O estoque a ser removido não existe ou está multiplicado...";
+			$cf_data["msg2"]= "SQL: " . $sql . " <br> Linhas encontradas: " . $result->num_rows;
+			$cf_data["error"] = true;
+			finaliza();
+		}
+		
+		// verifica se é possível remover a qt desejada
+		$row = $result->fetch_assoc();
+		$est_result = $row["qt"]-$row["qtEmprestada"]-$post["remQt"];
+		if($est_result < 0){
+			$cf_data["msg"] = "Problema no quantitativo a remover...";
+			$cf_data["msg2"]= "Estoque resultante será negativo: ". $est_result;
+			$cf_data["error"] = true;
+			finaliza();
+		}
+		
+		// Prepara SQL para remoção de estoque
+		$sql1 = "DELETE FROM estoque WHERE id=" . $row["id"] . ";"; 
+		
+
+		// sql para histórico de movimentações
+		$sql2 = "INSERT INTO movimentacoes (idUsuario,idItem,idLocalOrigem,idLocalDestino,patrimonio,qt,tipo_movimentacao,obs) " .
+				"VALUES (" . get_current_user_id() . "," .
+							$post["idItem"] . "," .
+							$post["idLocal"] . "," .
+							$post["idLocal"] . "," .
+							$post["remPatr"] . "," .
+							$post["remQt"]. "," .
+							"'baixa', " .
+							"'" . $post["obs"] . "');";
+		
+		$result1 = $cf_conn->query($sql1);
+		
+		if(!$result1){
+			$cf_data["msg"] = "Problema na remoção de estoque...";
+			$cf_data["msg2"]= "SQL: " . $sql1  . " <br> Erro: " . $cf_conn->error;
+			$cf_data["error"] = true;
+			
+			escreveDebug("NÃO FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL);
+			
+			finaliza();
+		}
+
+		$result2 = $cf_conn->query($sql2);
+		
+		if(!$result2){
+			$cf_data["msg"] = "Problema na adição da movimentação...";
+			$cf_data["msg2"]= "SQL: " . $sql2  . " <br> Erro: " . $cf_conn->error;
+			$cf_data["error"] = true;
+			
+			escreveDebug("FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL);
+			
+			finaliza();
+		}
+		
+		finaliza();
+
+	}
+	
+	
+	// não deveria chegar aqui
+	$cf_data["msg"] = "Chegou onde não devia, função remEstoque...";
+	$cf_data["error"] = true;
+	finaliza();
+	
+}
+
 
 
 ?>

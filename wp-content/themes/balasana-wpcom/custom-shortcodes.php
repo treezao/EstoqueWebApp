@@ -1,10 +1,7 @@
 <?php
 include('function_estoque.php');
 
-global $lib_jquery, $lib_jquery_datatables, $lib_jquery_datatables_css;
-
-global $path_pagina;
-
+global $lib_jquery, $lib_jquery_datatables, $lib_jquery_datatables_css, $lib_bootstrap_css, $lib_fontawesome_css;
 
 $lib_jquery = 'https://code.jquery.com/jquery-3.7.1.js';
 $lib_jquery_datatables = 'https://cdn.datatables.net/2.1.3/js/dataTables.js';
@@ -12,6 +9,9 @@ $lib_jquery_datatables_css = 'https://cdn.datatables.net/2.1.3/css/dataTables.da
 $lib_bootstrap_css = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css';
 $lib_fontawesome_css = 'https://use.fontawesome.com/releases/v5.3.1/css/all.css';
 
+
+
+global $path_pagina;
 $path_pagina = $_SERVER['DOCUMENT_ROOT'] . "/WPEstoque/bibEstoque/";
 
 

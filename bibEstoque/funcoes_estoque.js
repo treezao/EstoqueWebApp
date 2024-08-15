@@ -830,7 +830,7 @@ function alteraEstoque(){
 	var addPatr = jQuery("#estoque_qt_add_patr").val();
 	
 	var remQt = jQuery("#estoque_qt_rem").val();
-	var remPatrId = jQuery("#estoque_qt_rem_patr option:selected").val();
+	var remPatr = jQuery("#estoque_qt_rem_patr option:selected").val();
 	
 	var movQt = jQuery("#estoque_qt_mov").val();
 	var movPatr = jQuery("#estoque_qt_mov_patr option:selected").val();
@@ -924,6 +924,11 @@ function alteraEstoque(){
 			return;
 		}
 		
+		if(movQt > (qtAtual-qtEmpr)){
+			jQuery("#msgErro").html('<p>Quantidade a mover precisa ser menor do que o estoque que não está emprestado. Estoque disponível para movimentação: ' + (qtAtual-qtEmpr) + '.</p>');
+			return;
+		}
+		
 		
 		if(tipoItem === "Consumo"){
 			if(movQt <=0){
@@ -931,10 +936,7 @@ function alteraEstoque(){
 				return;
 			}
 			
-			if(movQt > (qtAtual-qtEmpr)){
-				jQuery("#msgErro").html('<p>Quantidade a mover precisa ser menor do que o estoque que não está emprestado. Estoque disponível para movimentação: ' + (qtAtual-qtEmpr) + '.</p>');
-				return;
-			}
+
 			
 			jQuery.post({
 				url: ajax_url,
@@ -963,10 +965,6 @@ function alteraEstoque(){
 				jQuery("#msgErro").html('<p>Deve ser selecionado um patrimônio válido a ser movimentado.</p>');
 				return;
 			}
-			if(movQt > (qtAtual-qtEmpr)){
-				jQuery("#msgErro").html('<p>Quantidade a mover precisa ser menor do que o estoque que não está emprestado. Estoque disponível para movimentação: ' + (qtAtual-qtEmpr) + '.</p>');
-				return;
-			}
 			
 			jQuery.post({
 				url: ajax_url,
@@ -993,6 +991,74 @@ function alteraEstoque(){
 	
 		return;
 	}
+	
+	if(sel_op === "Remover"){
+		
+		if(tipoItem === "Consumo"){
+			if(remQt <=0){
+				jQuery("#msgErro").html('<p>Quantidade a remover precisar ser um inteiro positivo.</p>');
+				return;
+			}
+			
+			if(remQt > (qtAtual-qtEmpr)){
+				jQuery("#msgErro").html('<p>Quantidade a remover precisa ser menor do que o estoque que não está emprestado. Estoque disponível para movimentação: ' + (qtAtual-qtEmpr) + '.</p>');
+				return;
+			}
+			
+			jQuery.post({
+				url: ajax_url,
+				type: "POST",
+				dataType: "JSON",
+				data: {
+					"action": 'alteraEstoque',
+					"nonce":    nonce_alteraEstoque,
+					"op": sel_op,
+					"idLocal": idLocal,
+					"idItem": idItem,
+					"tipo": tipoItem,
+					"remQt": remQt,
+					"remPatr": remPatr,
+					"obs": obs
+				},
+				success: alteraEstoque_retorno
+			});
+			
+			return;
+			
+		}else if(tipoItem === "Permanente"){
+			
+			if(remPatr <=0){
+				jQuery("#msgErro").html('<p>Deve ser selecionado um patrimônio válido a ser removido.</p>');
+				return;
+			}
+			if(remQt > (qtAtual-qtEmpr)){
+				jQuery("#msgErro").html('<p>Quantidade a remover precisa ser menor do que o estoque que não está emprestado. Estoque disponível para movimentação: ' + (qtAtual-qtEmpr) + '.</p>');
+				return;
+			}
+			
+			jQuery.post({
+				url: ajax_url,
+				type: "POST",
+				dataType: "JSON",
+				data: {
+					"action": 'alteraEstoque',
+					"nonce":    nonce_alteraEstoque,
+					"op": sel_op,
+					"idLocal": idLocal,
+					"idItem": idItem,
+					"tipo": tipoItem,
+					"remQt": remQt,
+					"remPatr": remPatr,
+					"obs": obs
+				},
+				success: alteraEstoque_retorno
+			});
+			
+			return;
+			
+		}
+		return;
+	}
 }
 
 function alteraEstoque_retorno(data){
@@ -1002,7 +1068,7 @@ function alteraEstoque_retorno(data){
 		jQuery("#formAlteraEstoque").hide();
 		jQuery("#btnAlteraEstoque").prop("disabled", true);
 		
-		jQuery("#formAdicionarEstoque").hide();
+		jQuery("#formAdicionarEstoque").show();
 		jQuery("#formRemoverEstoque").hide();
 		jQuery("#formMoverEstoque").hide();
 		

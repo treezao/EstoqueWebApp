@@ -52,16 +52,16 @@
 		
 				<!-- Itens específicos - ADICIONAR - apenas se permanente -->
 			<div class="row mb-3 align-items-center">
-				<label for="estoque_qt_add_patr" class="form-label col-auto" id="estoque_qt_add_patr_lab">Patrimonio:</label>
-				<input type="number" class="form-control col" id="estoque_qt_add_patr" placeholder="Etiqueta patrimônio" min="0" max="9999999999" disabled>
+				<label for="estoque_patr_add" class="form-label col-auto" id="estoque_patr_add_lab">Patrimonio:</label>
+				<input type="number" class="form-control col" id="estoque_patr_add" placeholder="Etiqueta patrimônio" min="0" max="9999999999" disabled>
 			</div>
 		</div>
 		
 		<!-- Itens específicos - REMOVER -->
 		<div id="formRemoverEstoque" style="display: none;">
 			<div class="row mb-3 align-items-center">
-				<label for="estoque_qt_rem_patr" class="form-label col-auto"  id="estoque_qt_rem_patr_lab">Patrimonio:</label>
-				<select class="form-control col" id="estoque_qt_rem_patr" onchange="alteraQtMovRem('remover')" disabled>
+				<label for="estoque_patr_rem" class="form-label col-auto"  id="estoque_patr_rem_lab">Patrimonio:</label>
+				<select class="form-control col" id="estoque_patr_rem" onchange="alteraQtMovRem('remover')" disabled>
 					</option>
 				</select>
 			</div>
@@ -76,8 +76,8 @@
 		<!-- Itens específicos - MOVER -->
 		<div id="formMoverEstoque" style="display: none;">
 			<div class="row mb-3 align-items-center">
-				<label for="estoque_qt_mov_patr" class="form-label col-auto" id="estoque_qt_mov_lab" >Patrimônio:</label>
-				<select class="form-control col" id="estoque_qt_mov_patr" onchange="alteraQtMovRem('mover')"  disabled>
+				<label for="estoque_patr_mov" class="form-label col-auto" id="estoque_patr_mov_lab" >Patrimônio:</label>
+				<select class="form-control col" id="estoque_patr_mov" onchange="alteraQtMovRem('mover')"  disabled>
 					</option>
 				</select>
 			</div>

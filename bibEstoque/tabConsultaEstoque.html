@@ -1,5 +1,5 @@
 <div class="container">
-	<div class="row mb-3 align-items-center">
+	<div class="row mb-2 align-items-center">
 		<p id="msgTopoHistorico"></p>
 		<p id="msgDebug"></p>
 		<p id="msgResultado"></p>
@@ -11,63 +11,63 @@
 	<br><br>
 	
 	<form id="formAlteraEstoque" style="display: none;">
-		<div class="row mb-3 align-items-center">
-			<label for="estoque_op" class="form-label col-auto">Operação:</label>
+		<div class="row mb-2 align-items-center">
+			<label for="estoque_op" class="form-label col-2">Operação:</label>
 			<select class="form-control col" id="estoque_op">
 				<option value="0">Adicionar</option>
 				<option value="1">Movimentar</option>
 				<option value="2">Remover</option>
 			</select>
 		</div>
-		<div class="row mb-3 align-items-center">
-			<label for="estoque_local" class="form-label col-auto">Local:</label>
+		<div class="row mb-2 align-items-center">
+			<label for="estoque_local" class="form-label col-2">Local:</label>
 			<select class="form-control col" id="estoque_local" onchange="get1Estoque()">
 				</option>
 			</select>
 		</div>
-		<div class="row mb-3 align-items-center">
-			<label for="estoque_item" class="form-label col-auto">Item:</label>
+		<div class="row mb-2 align-items-center">
+			<label for="estoque_item" class="form-label col-2">Item:</label>
 			<select class="form-control col" id="estoque_item" onchange="get1Estoque()">
 				</option>
 			</select>
 		</div>
 		
-		<div class="row mb-3 align-items-center">
-			<label for="estoque_qt_atual" class="form-label col-auto" id="estoque_qt_atual_lab">Qt. Atual:</label>
+		<div class="row mb-2 align-items-center">
+			<label for="estoque_qt_atual" class="form-label col-2" id="estoque_qt_atual_lab">Qt. Atual:</label>
 			<input type="number" class="form-control col" id="estoque_qt_atual" placeholder="valor" min="0" max="9999999999" disabled>
 		</div>
 		
-		<div class="row mb-3 align-items-center">
-			<label for="estoque_qt_emprestada" class="form-label col-auto" id="estoque_qt_emprestada_lab">Qt. Emprestada:</label>
+		<div class="row mb-2 align-items-center">
+			<label for="estoque_qt_emprestada" class="form-label col-2" id="estoque_qt_emprestada_lab">Qt. Emprestada:</label>
 			<input type="number" class="form-control col" id="estoque_qt_emprestada" placeholder="valor" min="0" max="9999999999" disabled>
 		</div>
 		
 		
 		<!-- Itens específicos - ADICIONAR -->
 		<div id="formAdicionarEstoque">
-			<div class="row mb-3 align-items-center">
-				<label for="estoque_qt_add" class="form-label col-auto" id="estoque_qt_add_lab">Qt. a adicionar:</label>
+			<div class="row mb-2 align-items-center">
+				<label for="estoque_qt_add" class="form-label col-2" id="estoque_qt_add_lab">Qt. a adicionar:</label>
 				<input type="number" class="form-control col" id="estoque_qt_add" placeholder="valor" min="1" max="9999999999">
 			</div>
 		
 				<!-- Itens específicos - ADICIONAR - apenas se permanente -->
-			<div class="row mb-3 align-items-center">
-				<label for="estoque_patr_add" class="form-label col-auto" id="estoque_patr_add_lab">Patrimonio:</label>
+			<div class="row mb-2 align-items-center">
+				<label for="estoque_patr_add" class="form-label col-2" id="estoque_patr_add_lab">Patrimônio:</label>
 				<input type="number" class="form-control col" id="estoque_patr_add" placeholder="Etiqueta patrimônio" min="0" max="9999999999" disabled>
 			</div>
 		</div>
 		
 		<!-- Itens específicos - REMOVER -->
 		<div id="formRemoverEstoque" style="display: none;">
-			<div class="row mb-3 align-items-center">
-				<label for="estoque_patr_rem" class="form-label col-auto"  id="estoque_patr_rem_lab">Patrimonio:</label>
+			<div class="row mb-2 align-items-center">
+				<label for="estoque_patr_rem" class="form-label col-2"  id="estoque_patr_rem_lab">Patrimônio:</label>
 				<select class="form-control col" id="estoque_patr_rem" onchange="alteraQtMovRem('remover')" disabled>
 					</option>
 				</select>
 			</div>
 			
-			<div class="row mb-3 align-items-center">
-				<label for="estoque_qt_rem" class="form-label col-auto"  id="estoque_qt_rem_lab">Qt. a remover:</label>
+			<div class="row mb-2 align-items-center">
+				<label for="estoque_qt_rem" class="form-label col-2"  id="estoque_qt_rem_lab">Qt. a remover:</label>
 				<input type="number" class="form-control col" id="estoque_qt_rem" placeholder="Estoque resultante precisa ser maior que o emprestado." min="0" max="9999999999" >
 			</div>
 		</div>
@@ -75,15 +75,15 @@
 		
 		<!-- Itens específicos - MOVER -->
 		<div id="formMoverEstoque" style="display: none;">
-			<div class="row mb-3 align-items-center">
-				<label for="estoque_patr_mov" class="form-label col-auto" id="estoque_patr_mov_lab" >Patrimônio:</label>
+			<div class="row mb-2 align-items-center">
+				<label for="estoque_patr_mov" class="form-label col-2" id="estoque_patr_mov_lab" >Patrimônio:</label>
 				<select class="form-control col" id="estoque_patr_mov" onchange="alteraQtMovRem('mover')"  disabled>
 					</option>
 				</select>
 			</div>
 		
-			<div class="row mb-3 align-items-center">
-				<label for="estoque_qt_mov" class="form-label col-auto" id="estoque_qt_mov_lab" >Qt. a mover:</label>
+			<div class="row mb-2 align-items-center">
+				<label for="estoque_qt_mov" class="form-label col-2" id="estoque_qt_mov_lab" >Qt. a mover:</label>
 				<input type="number" class="form-control col" id="estoque_qt_mov" placeholder="Estoque resultante precisa ser maior que o emprestado." min="0" max="9999999999" >
 			</div>
 			
@@ -91,7 +91,7 @@
 			
 
 			<div class="row mb-3 align-items-center" >
-				<label for="estoque_local_mov" class="form-label col-auto"  id="estoque_local_mov_lab">Local Destino:</label>
+				<label for="estoque_local_mov" class="form-label col-2"  id="estoque_local_mov_lab">Local Destino:</label>
 				<select class="form-control col" id="estoque_local_mov"  >
 					</option>
 				</select>
@@ -100,7 +100,7 @@
 		</div>
 		
 		<div class="row mb-3 align-items-center" >
-			<label for="estoque_obs" class="form-label col-auto">Observação:</label>
+			<label for="estoque_obs" class="form-label col-2">Observação:</label>
 			<textarea class="form-control col" id="estoque_obs" rows="3" placeholder="Detalhes da alteração"></textarea>
 		</div>
 		

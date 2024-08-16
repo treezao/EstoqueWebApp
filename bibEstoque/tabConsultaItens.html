@@ -1,5 +1,5 @@
 <div class="container">
-	<div class="row mb-3 align-items-center">
+	<div class="row mb-2 align-items-center">
 		<p id="msgTopoHistorico"></p>
 		<p id="msgDebug"></p>
 		<p id="msgResultado"></p>
@@ -10,60 +10,104 @@
 	<input id="btnAddItemToogle" class="btn btn-primary" type="button" value="Novo Item">
 	
 	<form id="formAddItem" style="display: none;">
-		<div class="mb-3">
-			<label for="item_nome" class="form-label">Nome:</label>
-			<input type="text" class="form-control" id="item_nome" placeholder="Nome/modelo do item (texto curto)">
+		<div class="row mb-2 align-items-center">
+			<div class="col-2">
+				<label for="item_nome" class="form-label">Nome:</label>
+			</div>
+			<div class="col">
+				<input type="text" class="form-control" id="item_nome" placeholder="Nome/modelo do item (texto curto)">
+			</div>
 		</div>
-		<div class="mb-3">
-			<label for="item_tipo" class="form-label">Tipo:</label>
-			<select class="form-control" id="item_tipo">
-				<option>Consumo</option>
-				<option>Permanente</option>
-			</select>
+		<div class="row mb-2 align-items-center">
+			<div class="col-2">
+				<label for="item_tipo" class="form-label col auto">Tipo:</label>
+			</div>
+			<div class="col">
+				<select class="form-control" id="item_tipo">
+					<option>Consumo</option>
+					<option>Permanente</option>
+				</select>
+			</div>
 		</div>
-		<div class="mb-3">
-			<label for="item_descricao" class="form-label">Descrição:</label>
-			<textarea class="form-control" id="item_descricao" rows="3" placeholder="Descrição do item"></textarea>
+		<div class="row mb-2 align-items-center">
+			<div class="col-2">
+				<label for="item_descricao" class="form-label col auto">Descrição:</label>
+			</div>
+			<div class="col">
+				<textarea class="form-control col" id="item_descricao" rows="3" placeholder="Descrição do item"></textarea>
+			</div>
 		</div>
-		<div class="mb-3">
-			<label for="item_datasheet" class="form-label">Datasheet:</label>
-			<input type="url" class="form-control" id="item_datasheet" placeholder="Link datasheet">
+		<div class="row mb-2 align-items-center">
+			<div class="col-2">
+				<label for="item_datasheet" class="form-label col auto">Datasheet:</label>
+			</div>
+			<div class="col">
+				<input type="url" class="form-control col" id="item_datasheet" placeholder="Link datasheet">
+			</div>
 		</div>
-		<div class="mb-3">
-			<label for="item_imagem" class="form-label">Imagem:</label>
-			<input type="url" class="form-control" id="item_imagem" placeholder="Link imagem">
+		<div class="row mb-2 align-items-center">
+			<div class="col-2">
+				<label for="item_imagem" class="form-label col auto">Imagem:</label>
+			</div>
+			<div class="col">
+				<input type="url" class="form-control col" id="item_imagem" placeholder="Link imagem">
+			</div>
 		</div>
 		<input id="btnAddItem" class="btn btn-primary" type="button" onclick="adicionaItem()" value="Adicionar Item">
 		
 	</form>
 	
 	<form id="formAlteraItem" style="display: none;">
-		<div class="mb-3">
-			<label for="altera_item_id" class="form-label">ID:</label>
-			<input type="text" class="form-control" id="altera_item_id" placeholder="ID" disabled>
+		<div class="row mb-2 align-items-center">
+			<div class="col-2">
+				<label for="altera_item_id" class="form-label col auto">ID:</label>
+			</div>
+			<div class="col">
+				<input type="text" class="form-control col" id="altera_item_id" placeholder="ID" disabled>
+			</div>
 		</div>
-		<div class="mb-3">
-			<label for="altera_item_nome" class="form-label">Nome:</label>
-			<input type="text" class="form-control" id="altera_item_nome" placeholder="Nome/modelo do item (texto curto)">
+		<div class="row mb-2 align-items-center">
+			<div class="col-2">
+				<label for="altera_item_nome" class="form-label col auto">Nome:</label>
+			</div>
+			<div class="col">
+				<input type="text" class="form-control col" id="altera_item_nome" placeholder="Nome/modelo do item (texto curto)">
+			</div>
 		</div>
-		<div class="mb-3">
-			<label for="altera_item_tipo" class="form-label">Tipo:</label>
-			<select class="form-control" id="altera_item_tipo" disabled>
-				<option Value="0">Consumo</option>
-				<option Value="1">Permanente</option>
-			</select>
+		<div class="row mb-2 align-items-center">
+			<div class="col-2">
+				<label for="altera_item_tipo" class="form-label col auto">Tipo:</label>
+			</div>
+			<div class="col">
+				<select class="form-control col" id="altera_item_tipo" disabled>
+					<option Value="0">Consumo</option>
+					<option Value="1">Permanente</option>
+				</select>
+			</div>
 		</div>
-		<div class="mb-3">
-			<label for="altera_item_descricao" class="form-label">Descrição:</label>
-			<textarea class="form-control" id="altera_item_descricao" rows="3" placeholder="Descrição do item"></textarea>
+		<div class="row mb-2 align-items-center">
+			<div class="col-2">
+				<label for="altera_item_descricao" class="form-label col auto">Descrição:</label>
+			</div>
+			<div class="col">
+				<textarea class="form-control col" id="altera_item_descricao" rows="3" placeholder="Descrição do item"></textarea>
+			</div>
 		</div>
-		<div class="mb-3">
-			<label for="altera_item_datasheet" class="form-label">Datasheet:</label>
-			<input type="url" class="form-control" id="altera_item_datasheet" placeholder="Link datasheet">
+		<div class="row mb-2 align-items-center">
+			<div class="col-2">
+				<label for="altera_item_datasheet" class="form-label col auto">Datasheet:</label>
+			</div>
+			<div class="col">
+				<input type="url" class="form-control col" id="altera_item_datasheet" placeholder="Link datasheet">
+			</div>
 		</div>
-		<div class="mb-3">
-			<label for="altera_item_imagem" class="form-label">Imagem:</label>
-			<input type="url" class="form-control" id="altera_item_imagem" placeholder="Link imagem">
+		<div class="row mb-2 align-items-center">
+			<div class="col-2">
+				<label for="altera_item_imagem" class="form-label col auto">Imagem:</label>
+			</div>
+			<div class="col">
+				<input type="url" class="form-control col" id="altera_item_imagem" placeholder="Link imagem">
+			</div>
 		</div>
 
 		<input id="btnAltera" class="btn btn-primary" type="button" onclick="alteraItem()" value="Alterar Item">

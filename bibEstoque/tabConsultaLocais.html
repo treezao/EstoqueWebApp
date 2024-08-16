@@ -1,5 +1,5 @@
 <div class="container">
-	<div class="row mb-3 align-items-center">
+	<div class="row mb-2 align-items-center">
 		<p id="msgTopoHistorico"></p>
 		<p id="msgDebug"></p>
 		<p id="msgResultado"></p>
@@ -10,13 +10,21 @@
 	<input id="btnAddLocalToogle" class="btn btn-primary" type="button" value="Novo Local">
 	
 	<form id="formAddLocal" style="display: none;">
-		<div class="mb-3">
-			<label for="local_nome" class="form-label">Nome:</label>
-			<input type="text" class="form-control" id="local_nome" placeholder="Sigla do local">
+		<div class="row mb-2 align-items-center">
+			<div class="col-2">
+				<label for="local_nome" class="form-label">Nome:</label>
+			</div>
+			<div class="col">
+				<input type="text" class="form-control" id="local_nome" placeholder="Sigla do local">
+			</div>
 		</div>
-		<div class="mb-3">
-			<label for="local_descricao" class="form-label">Descrição:</label>
-			<textarea class="form-control" id="local_descricao" rows="3" placeholder="Descrição do local"></textarea>
+		<div class="row mb-2 align-items-center">
+			<div class="col-2">
+				<label for="local_descricao" class="form-label">Descrição:</label>
+			</div>
+			<div class="col">
+				<textarea class="form-control" id="local_descricao" rows="3" placeholder="Descrição do local"></textarea>
+			</div>
 		</div>
 		
 		<input id="btnAddLocal" class="btn btn-primary" type="button" onclick="adiciona_Local()" value="Adicionar Local">
@@ -25,17 +33,29 @@
 	
 	
 	<form id="formAlteraLocal" style="display: none;" >
-		<div class="mb-3">
-			<label for="altera_local_id" class="form-label">ID:</label>
-			<input type="text" class="form-control" id="altera_local_id" placeholder="ID" disabled>
+		<div class="row mb-2 align-items-center">
+			<div class="col-2">
+				<label for="altera_local_id" class="form-label">ID:</label>
+			</div>
+			<div class="col">
+				<input type="text" class="form-control" id="altera_local_id" placeholder="ID" disabled>
+			</div>
 		</div>
-		<div class="mb-3">
-			<label for="altera_local_nome" class="form-label">Nome:</label>
-			<input type="text" class="form-control" id="altera_local_nome" placeholder="Sigla do local">
+		<div class="row mb-2 align-items-center">
+			<div class="col-2">
+				<label for="altera_local_nome" class="form-label">Nome:</label>
+			</div>
+			<div class="col">
+				<input type="text" class="form-control" id="altera_local_nome" placeholder="Sigla do local">
+			</div>
 		</div>
-		<div class="mb-3">
-			<label for="altera_local_descricao" class="form-label">Descrição:</label>
-			<textarea class="form-control" id="altera_local_descricao" rows="3" placeholder="Descrição do local"></textarea>
+		<div class="row mb-2 align-items-center">
+			<div class="col-2">
+				<label for="altera_local_descricao" class="form-label">Descrição:</label>
+			</div>
+			<div class="col">
+				<textarea class="form-control" id="altera_local_descricao" rows="3" placeholder="Descrição do local"></textarea>
+			</div>
 		</div>
 		
 		<input id="btnAltera" class="btn btn-primary" type="button" onclick="alteraLocal()" value="Alterar Local">

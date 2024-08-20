@@ -532,10 +532,12 @@ function getEstoque(){
 
 	$cf_data["msg"] = "Recuperando consultas...";
 	
-	$sql = "SELECT e.*, i.itemNome,i.itemTipo,l.localNome from estoque e ".
-			"INNER JOIN (SELECT id, nome as itemNome, tipo as itemTipo from item) i ON e.iditem=i.id ".
+	$sql = "SELECT e.*, i.itemNome,i.itemTipo,l.localNome, i.itemDescricao, i.link_manual,i.link_imagem from estoque e ".
+			"INNER JOIN (SELECT id, nome as itemNome, tipo as itemTipo, descricao as itemDescricao, link_manual, link_imagem  from item) i ON e.iditem=i.id ".
 			"INNER JOIN (SELECT id, nome as localNome from localizacao ) l ON e.idLocal=l.id;";
 	$result = $cf_conn->query($sql);
+	
+	//print($sql);
 	
 	
 	if(!$result){
@@ -558,7 +560,11 @@ function getEstoque(){
 										$row["patrimonio"], // link manual
 										$row["itemNome"], 
 										$row["itemTipo"], 
-										$row["localNome"], 
+										$row["localNome"],
+										$row["itemDescricao"],
+										$row["link_manual"],
+										$row["link_imagem"],
+										$row["id"]
 										];
 		}
 		

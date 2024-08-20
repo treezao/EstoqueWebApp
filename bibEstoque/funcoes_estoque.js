@@ -1,3 +1,7 @@
+/* 
+	Funções Gerais
+*/
+
 
 function resetMsgTopo(){
 	jQuery("#msgTopoHistorico").html("");
@@ -27,6 +31,10 @@ function initTabelaLocais(){
 			{width : '25%', targets : 1},
 			{width : '5%', targets : 3}
 			
+		],
+		lengthMenu: [
+			[25, 50, 100, -1],
+			[25, 50, 100, 'Tudo']
 		]
 	});
 
@@ -60,7 +68,7 @@ function atualizaTabLocais(data){
 					x[0],
 					x[1],
 					x[2],
-					'<i class="far fa-edit editLocal" onclick="get1Local(' + x[0] +')"></i> '
+					'<i class="far fa-edit editLocal" title="Alterar" onclick="get1Local(' + x[0] +')"></i> '
 					
 					]);
 		}
@@ -240,6 +248,10 @@ function initTabelaItens(){
 			{width : '25%', targets : 1},
 			{width : '7%', targets : 3},
 			{width : '5%', targets : 4},
+		],
+		lengthMenu: [
+			[25, 50, 100, -1],
+			[25, 50, 100, 'Tudo']
 		]
 	});
 
@@ -271,20 +283,67 @@ function atualizaTabItens(data){
 			t.row.add([
 					x[0],
 					x[1],
-					x[2],
+					//x[2],
+					accordionItem(x),
 					x[3],
-					'<i class="far fa-edit editItem" onclick="get1Item(' + x[0] +')"></i> '
+					'<i class="far fa-edit editItem" title="Alterar" onclick="get1Item(' + x[0] +')"></i> '
 					]);
 		}
 		
 		
 		t.draw();
 		
-	
 	}else{
 		jQuery("#msgTopoHistorico").html("Erro ao buscar histórico de locais, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
 	}
 }
+
+function accordionItem(data){
+	var nameAcc = 'accordionExample' + data[0];
+	var nameItem = 'collapseOne' + data[0];
+	
+	var linkDatasheet;
+	var linkImagem;
+	
+	if(data[4] === ""){
+		linkDatasheet = '<div class="col"><p class="col">Datasheet Indisponível </p></div>'
+	}else{
+		linkDatasheet = '<div class="col"><a href="'+ data[4] + '" target="blank">Datasheet</a></div>';
+	}
+	
+	if(data[5] === ""){
+		linkImagem = '<div class="col"><p class "col">Imagem indisponível</p></div>'
+	}else{
+		linkImagem = '<div class="col"><img src="'+ data[5] + '" class="img-thumbnail col" alt="imag_componente"></div>';
+	}
+	
+	
+	
+	
+	
+	var base = '<div class="accordion accordion-flush" id="' + nameAcc + '">' +
+					'<div class="accordion-item">' + 
+						'<h2 class="accordion-header">' + 
+							'<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#' + nameItem + '" aria-expanded="true" aria-controls="' + nameItem +'">' +
+							data[2] + 
+							'</button>' +
+						'</h2>' +
+						'<div id="' + nameItem + '" class="accordion-collapse collapse" data-bs-parent="' + nameAcc + '">' +
+							'<div class="accordion-body">'+
+								'<div class="row mb-2 align-items-center">' + 
+								linkImagem +
+								linkDatasheet + 
+								'</div>' + 
+							'</div>' +
+						'</div>'+
+					'</div>'+
+				'</div>';
+				
+	
+				
+	return base;
+}
+
 
 function adicionaItem() {
 
@@ -462,11 +521,15 @@ function initTabelaEstoque(){
 		},
 		"columnDefs": [
 			{width : '20%', targets : 0},
-			//{width : '20%', targets : 1},
+			{width : '47%', targets : 1},
 			{width : '7%', targets : 2},
 			{width : '7%', targets : 3},
 			{width : '12%', targets : 4},
-			{width : '5%', targets : 5},
+			{width : '7%', targets : 5},
+		],
+		lengthMenu: [
+			[25, 50, 100, -1],
+			[25, 50, 100, 'Tudo']
 		]
 	});
 
@@ -500,11 +563,14 @@ function atualizaTabEstoque(data){
 			
 			t.row.add([
 					x[7],
-					x[5],
+					//x[5],
+					accordionItemEstoque(x),
 					x[2],
 					x[3],
 					x[4],
-					'<i class="far fa-edit editEstoque" onclick="xxxx(' + x[0] +')"></i> '
+					'<i class="fas fa-reply" title="Adicionar" onclick="btnAdicionarEstoque(' + x[0] +','+ x[1] + ',' + x[4] + ')"></i> ' +
+					'<i class="	fas fa-sync-alt" title="Movimentar" onclick="btnMovimentarEstoque(' + x[0] +','+ x[1] + ',' + x[4] + ')"></i> ' +
+					'<i class="	far fa-trash-alt" title="Remover" onclick="btnRemoverEstoque(' + x[0] +','+ x[1] + ',' + x[4] + ')"></i> '
 					]);
 		}
 		
@@ -517,6 +583,72 @@ function atualizaTabEstoque(data){
 	}
 	
 }
+
+function btnAdicionarEstoque(idItem,idLocal,patrimonio){
+	jQuery("#estoque_op").val(0);
+	jQuery("#estoque_op").trigger("change");
+	
+	jQuery("#estoque_local").val(idLocal);
+	jQuery("#estoque_item").val(idItem);
+
+	jQuery("#estoque_local").trigger("change");
+	
+	
+	jQuery("#formAlteraEstoque").show();
+	
+	window.scrollTo({ top: 0, behavior: 'smooth' });
+
+
+}
+
+function btnMovimentarEstoque(idItem,idLocal,patrimonio){
+	jQuery("#estoque_op").val(1);
+	jQuery("#estoque_op").trigger("change");
+	
+	jQuery("#estoque_local").val(idLocal);
+	jQuery("#estoque_item").val(idItem);
+
+	jQuery("#estoque_local").trigger("change");
+	
+	if(patrimonio !== null){
+		jQuery("#msgTopoHistorico").html("entrou aqui:" + patrimonio);
+		jQuery("#estoque_patr_mov").val(patrimonio);
+		jQuery("#estoque_patr_mov").trigger("change");
+	}
+	
+	
+	jQuery("#formAlteraEstoque").show();
+	
+	window.scrollTo({ top: 0, behavior: 'smooth' });
+
+
+}
+
+function btnRemoverEstoque(idItem,idLocal,patrimonio){
+	jQuery("#estoque_op").val(2);
+	jQuery("#estoque_op").trigger("change");
+	
+	jQuery("#estoque_local").val(idLocal);
+	jQuery("#estoque_item").val(idItem);
+
+	jQuery("#estoque_local").trigger("change");
+	
+	if(patrimonio !== null){
+		jQuery("#estoque_patr_rem").val(patrimonio);
+		jQuery("#estoque_patr_rem").trigger("change");
+	}
+	
+	jQuery("#formAlteraEstoque").show();
+	
+	window.scrollTo({ top: 0, behavior: 'smooth' });
+
+
+}
+
+
+
+
+
 
 
 function estoque_formGetLocal(){
@@ -1074,3 +1206,52 @@ function alteraQtMovRem(tipo){
 	
 	
 }
+
+function accordionItemEstoque(data){
+	var nameAcc = 'accordionExample' + data[11];
+	var nameItem = 'collapseOne' + data[11];
+	var itemDescricao = data[8];
+	
+	var linkDatasheet;
+	var linkImagem;
+	
+	if(data[9] === ""){
+		linkDatasheet = '<div class="col"><p class="col">Datasheet Indisponível </p></div>'
+	}else{
+		linkDatasheet = '<div class="col"><a href="'+ data[9] + '" target="blank">Datasheet</a></div>';
+	}
+	
+	if(data[10] === ""){
+		linkImagem = '<div class="col"><p class "col">Imagem indisponível</p></div>'
+	}else{
+		linkImagem = '<div class="col"><img src="'+ data[10] + '" class="img-thumbnail col" alt="imag_componente"></div>';
+	}
+	
+	
+	var base = '<div class="accordion accordion-flush" id="' + nameAcc + '">' +
+					'<div class="accordion-item">' + 
+						'<h2 class="accordion-header">' + 
+							'<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#' + nameItem + '" aria-expanded="true" aria-controls="' + nameItem +'">' +
+							data[5] + 
+							'</button>' +
+						'</h2>' +
+						'<div id="' + nameItem + '" class="accordion-collapse collapse" data-bs-parent="' + nameAcc + '">' +
+							'<div class="accordion-body">'+
+								'<div class="row mb-2 align-items-center">' + 
+									'<p>' + itemDescricao + '</p>' +
+								'</div>'+
+								'<div class="row mb-2 align-items-center">' + 
+									linkImagem +
+									linkDatasheet + 
+								'</div>' + 
+							'</div>' +
+						'</div>'+
+					'</div>'+
+				'</div>';
+				
+	
+				
+	return base;
+}
+
+

@@ -214,22 +214,73 @@ function alteraLocal(){
 
 	$cf_data["msg"] = "Atualizando local...";
 	
-	$sql = "UPDATE localizacao SET nome='". $_POST["nome"] . "'," .
-			" descricao='" . $_POST["descricao"] . "' " .
-			" WHERE id=" . $_POST["idLocal"];
+	// verifica se nome já existe 
+	$sql = "SELECT * from localizacao WHERE nome='" . $_POST["nome"] . "';";
 	
+	$result = $cf_conn->query($sql);
 	
-	if($cf_conn->query($sql) === TRUE){
-		
-		$cf_data["msg"] = "Local atualizado.";
-		$cf_data["error"] = false;
-		
-	}else {
-		$cf_data["msg"] = "Problema na atualização do local. <br>";
-		$cf_data["msg2"] = $cf_conn->error . "<br>" . $sql . "<br>";
+	if(!$result){
+		$cf_data["msg"] = "Não foi possível alterar o local. SQL:" . $sql . "/erro: " . $cf_conn->error;
 		$cf_data["error"] = true;
+		finaliza();
 	}
 	
+	if($result->num_rows >0){// encontrou local com mesmo nome
+		$row = $result->fetch_assoc();
+	
+		// se o local encontrado for diferente do local a ser modificado...
+		if($_POST["idLocal"] != $row["id"]){
+			$cf_data["msg"] = "Nome do local já existe! Favor escolher um nome distinto.";
+			$cf_data["error"] = true;
+			finaliza();
+		}
+	}
+	
+	
+	// Se não tem o nome duplicado, faz modificação
+	$sql1 = "UPDATE localizacao SET nome='". $_POST["nome"] . "'," .
+			" descricao='" . $_POST["descricao"] . "' " .
+			" WHERE id=" . $_POST["idLocal"];
+
+	
+	// sql para histórico de movimentações
+	$obs  = "Alteração de local: " . $_POST["nome"] . PHP_EOL . "Descricao: " . $_POST["descricao"] . PHP_EOL;
+	
+	$sql2 = "INSERT INTO movimentacoes (idUsuario,idLocalOrigem,tipo_movimentacao,obs) " .
+			"VALUES (" . get_current_user_id() . "," .
+						$_POST["idLocal"] . "," .
+						"'altLocal', " .
+						"'" . $obs . "');";
+	
+	
+	
+	$result1 = $cf_conn->query($sql1);
+	
+	if(!$result1){
+		$cf_data["msg"] = "Problema na atualização do local. <br>";
+		$cf_data["msg2"] = $cf_conn->error . "<br>" . $sql1 . "<br>";
+		$cf_data["error"] = true;
+		
+		escreveDebug("NÃO FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL);
+		
+		finaliza();
+	}
+	
+	$result2 = $cf_conn->query($sql2);
+		
+	if(!$result2){
+		$cf_data["msg"] = "Problema no registro de movimentação da atualização do local...";
+		$cf_data["msg2"]= "SQL: " . $sql2  . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		
+		escreveDebug("FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL);
+		
+		finaliza();
+	}
+	
+	
+	$cf_data["msg"] = "Local atualizado.";
+	$cf_data["error"] = false;
 	finaliza();
 }
 
@@ -258,19 +309,66 @@ function addLocal(){
 	}
 	
 	
-	$sql = "INSERT INTO localizacao (id, nome, descricao) VALUES (NULL, '" . $_POST["nome"] . "', ' ". $_POST["descricao"] . "');";
+	// verifica se nome já existe 
+	$sql = "SELECT * from localizacao WHERE nome='" . $_POST["nome"] . "';";
+	
+	$result = $cf_conn->query($sql);
+	
+	if(!$result){
+		$cf_data["msg"] = "Não foi possível adicionar o novo local. SQL:" . $sql . "/erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	if($result->num_rows >0 ){
+		$cf_data["msg"] = "Nome do local já existe! Favor escolher um nome distinto.";
+		$cf_data["error"] = true;
+		finaliza();
+	}
 	
 	
-	if($cf_conn->query($sql) === TRUE){
-		$cf_data["msg"] = "Local adicionado!";
-		$cf_data["error"] = false;
-		
-	}else{
+	// se nome ainda não existe faz inserção
+	$sql1 = "INSERT INTO localizacao (id, nome, descricao) VALUES (NULL, '" . $_POST["nome"] . "', ' ". $_POST["descricao"] . "');";
+	
+	
+	$result1 = $cf_conn->query($sql1);
+	
+	$novoID = $cf_conn->insert_id;
+	$obs = "Novo local: ". $_POST["nome"] . PHP_EOL .  "Descricao: " . $_POST["descricao"] . PHP_EOL;
+	
+	// sql para histórico de movimentações
+	$sql2 = "INSERT INTO movimentacoes (idUsuario,idLocalOrigem,tipo_movimentacao,obs) " .
+			"VALUES (" . get_current_user_id() . "," .
+						$novoID . "," .
+						"'addLocal', " .
+						"'" . $obs . "');";
+	
+	
+	if(!$result1){
 		$cf_data["msg"] = "Não foi possível adicionar o novo local. SQL:" . $sql . "/erro: " . $cf_conn->error;
 		$cf_data["error"] = true;
 		
+		escreveDebug("NÃO FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL);
 	}
-
+	
+	
+	$result2 = $cf_conn->query($sql2);
+		
+	if(!$result2){
+		$cf_data["msg"] = "Problema no registro de movimentação na adição do local...";
+		$cf_data["msg2"]= "SQL: " . $sql2  . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		
+		escreveDebug("FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL);
+		
+		finaliza();
+	}
+	
+	
+	// se tudo deu certo
+	$cf_data["msg"] = "Local adicionado!";
+	$cf_data["error"] = false;
+	
 	finaliza();
 }
 
@@ -402,7 +500,7 @@ function addItem(){
 	}
 
 
-	$cf_data["msg"] = "Adicionando local...";
+	$cf_data["msg"] = "Adicionando item...";
 	
 	if(!isset($_POST["nome"])){
 		$cf_data["msg"] = "Nome não definido!";
@@ -422,25 +520,74 @@ function addItem(){
 	}
 	
 	
-	$sql = "INSERT INTO item (id, nome, tipo, descricao, link_manual, link_imagem ) ". 
+	// verifica se existe um item com o mesmo nome
+	$sql = "SELECT * from item WHERE nome='" . $_POST["nome"] . "';";
+	
+	$result = $cf_conn->query($sql);
+	
+	if(!$result){
+		$cf_data["msg"] = "Não foi possível adicionar o novo item. SQL:" . $sql . "/erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	if($result->num_rows >0 ){
+		$cf_data["msg"] = "Nome do item já existe! Favor escolher um nome distinto.";
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	
+	// se o nome não existe, fazer inserção
+	$sql1 = "INSERT INTO item (id, nome, tipo, descricao, link_manual, link_imagem ) ". 
 			"VALUES (NULL, '" . $_POST["nome"] . "', ".
 						"'". $_POST["tipo"] . "', " .
 						"'". $_POST["descricao"] . "', ".
 						"'". $_POST["datasheet"] . "', ".
 						"'". $_POST["img"] . "');";
-	 
 	
-	if($cf_conn->query($sql) === TRUE){
-		$cf_data["msg"] = "Item adicionado!";
-		$cf_data["error"] = false;
-		
-	}else{
+	$result1 = $cf_conn->query($sql1);
+	
+	$novoID = $cf_conn->insert_id;
+	$obs = "Novo item: ". $_POST["nome"] . PHP_EOL .  
+			"Descricao: " . $_POST["descricao"] . PHP_EOL . 
+			"img: " . $_POST["img"] . PHP_EOL . 
+			"datasheet: " . $_POST["datasheet"] . PHP_EOL;
+	
+	// sql para histórico de movimentações
+	$sql2 = "INSERT INTO movimentacoes (idUsuario,idItem,tipo_movimentacao,obs) " .
+			"VALUES (" . get_current_user_id() . "," .
+						$novoID . "," .
+						"'addItem', " .
+						"'" . $obs . "');";
+
+	if(!$result1){
 		$cf_data["msg"] = "Não foi possível adicionar o novo item. SQL:" . $sql . "/erro: " . $cf_conn->error;
 		$cf_data["error"] = true;
 		
+		escreveDebug("NÃO FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL);
 	}
-
+	
+	
+	$result2 = $cf_conn->query($sql2);
+		
+	if(!$result2){
+		$cf_data["msg"] = "Problema no registro de movimentação na adição do item...";
+		$cf_data["msg2"]= "SQL: " . $sql2  . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		
+		escreveDebug("FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL);
+		
+		finaliza();
+	}
+	
+	
+	// se tudo deu certo
+	$cf_data["msg"] = "Item adicionado!";
+	$cf_data["error"] = false;
+	
 	finaliza();
+	
 }
 
 add_action('wp_ajax_get1Item','get1Item');
@@ -493,9 +640,32 @@ function alteraItem(){
 		finaliza(); // termina o programa aqui;
 	}
 
-	$cf_data["msg"] = "Atualizando local...";
+	$cf_data["msg"] = "Atualizando item...";
 	
-	$sql = "UPDATE item SET ". 
+	// verifica se nome já existe 
+	$sql = "SELECT * from item WHERE nome='" . $_POST["nome"] . "';";
+	
+	$result = $cf_conn->query($sql);
+	
+	if(!$result){
+		$cf_data["msg"] = "Não foi possível alterar o item. SQL:" . $sql . "/erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	if($result->num_rows >0){// encontrou item com mesmo nome
+		$row = $result->fetch_assoc();
+	
+		// se o item encontrado for diferente do item a ser modificado...
+		if($_POST["idItem"] != $row["id"]){
+			$cf_data["msg"] = "Nome do item já existe! Favor escolher um nome distinto.";
+			$cf_data["error"] = true;
+			finaliza();
+		}
+	}
+	
+	// Se não tem o nome duplicado, faz modificação
+	$sql1 = "UPDATE item SET ". 
 				"nome='". $_POST["nome"] . "', ".
 				"tipo='". $_POST["tipo"] . "', " .
 				"descricao='". $_POST["descricao"] . "', ".
@@ -503,17 +673,48 @@ function alteraItem(){
 				"link_imagem='". $_POST["img"] . "' ".
 				" WHERE id=" . $_POST["idItem"] . ";";
 	
-	if($cf_conn->query($sql) === TRUE){
-		
-		$cf_data["msg"] = "Item atualizado.";
-		$cf_data["error"] = false;
-		
-	}else {
+	
+	// sql para histórico de movimentações
+	$obs = "Altera item: ". $_POST["nome"] . PHP_EOL .  
+			"Descricao: " . $_POST["descricao"] . PHP_EOL . 
+			"img: " . $_POST["img"] . PHP_EOL . 
+			"datasheet: " . $_POST["datasheet"] . PHP_EOL;
+	
+	$sql2 = "INSERT INTO movimentacoes (idUsuario,idItem,tipo_movimentacao,obs) " .
+			"VALUES (" . get_current_user_id() . "," .
+						$_POST["idItem"] . "," .
+						"'altItem', " .
+						"'" . $obs . "');";
+	
+	
+	
+	$result1 = $cf_conn->query($sql1);
+	
+	if(!$result1){
 		$cf_data["msg"] = "Problema na atualização do item. <br>";
-		$cf_data["msg2"] = $cf_conn->error . "<br>" . $sql . "<br>";
+		$cf_data["msg2"] = $cf_conn->error . "<br>" . $sql1 . "<br>";
 		$cf_data["error"] = true;
+		
+		escreveDebug("NÃO FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL);
+		
+		finaliza();
 	}
 	
+	$result2 = $cf_conn->query($sql2);
+		
+	if(!$result2){
+		$cf_data["msg"] = "Problema no registro de movimentação da atualização do item...";
+		$cf_data["msg2"]= "SQL: " . $sql2  . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		
+		escreveDebug("FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL);
+		
+		finaliza();
+	}
+	
+	
+	$cf_data["msg"] = "Item atualizado.";
+	$cf_data["error"] = false;
 	finaliza();
 }
 
@@ -1166,8 +1367,6 @@ function remEstoque($post){
 		$sql = "SELECT * FROM estoque WHERE iditem=" . $post["idItem"] .
 											" AND idLocal=" . $post["idLocal"] . ";";
 		$result = $cf_conn->query($sql);
-		
-		escreveDebug($sql . PHP_EOL);
 		
 		if(!$result){
 			$cf_data["msg"] = "Problema com banco de dados...";

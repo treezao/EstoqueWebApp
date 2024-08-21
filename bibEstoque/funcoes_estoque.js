@@ -85,7 +85,7 @@ function atualizaTabLocais(data){
 
 function adiciona_Local() {
 
-	jQuery("#msgTopoHistorico").html("");
+	resetMsgTopo();
 	
 	var str_nome = document.getElementById("local_nome");
 	var str_desc = document.getElementById("local_descricao");
@@ -113,6 +113,8 @@ function adiciona_Local() {
 
 
 function resultadoAdicionaLocal(data){
+	window.scrollTo({ top: 0, behavior: 'smooth' });
+	
 	if(!data.error){
 		
 		jQuery("#formAddLocal").trigger("reset");
@@ -172,7 +174,7 @@ function get1Local(id){
 
 function alteraLocal() {
 
-	jQuery("#msgTopoHistorico").html("");
+	resetMsgTopo();
 	
 	var str_id = document.getElementById("altera_local_id");
 	var str_nome = document.getElementById("altera_local_nome");
@@ -347,7 +349,7 @@ function accordionItem(data){
 
 function adicionaItem() {
 
-	jQuery("#msgTopoHistorico").html("");
+	resetMsgTopo();
 	
 	var str_nome = jQuery("#item_nome").val();
 	var str_desc = jQuery("#item_descricao").val();
@@ -376,7 +378,7 @@ function adicionaItem() {
 		dataType: "JSON",
 		success: function(data){
 			if(!data.error){
-		
+				jQuery("#msgResultado").html('Adição realizada!');
 				jQuery("#formAddItem").trigger("reset");
 				jQuery("#formAddItem").toggle();
 				
@@ -396,6 +398,8 @@ function adicionaItem() {
 }
 
 function get1Item(id){
+	resetMsgTopo();
+	
 	jQuery.post({
 		url: ajax_url,
 		type: "POST",
@@ -448,7 +452,7 @@ function get1Item(id){
 
 function alteraItem() {
 
-	jQuery("#msgTopoHistorico").html("");
+	resetMsgTopo();
 	
 	var id = Number(jQuery("#altera_item_id").val());
 	var str_nome = jQuery("#altera_item_nome").val();
@@ -483,7 +487,7 @@ function alteraItem() {
 		dataType: "JSON",
 		success: function(data){
 			if(!data.error){
-
+				jQuery("#msgResultado").html('Alteração realizada!');
 				jQuery("#btnAddItemToogle").show();
 				jQuery("#formAlteraItem").trigger("reset");
 				jQuery("#formAlteraItem").hide();
@@ -504,6 +508,8 @@ function alteraItem() {
 }
 
 function alteraItemCancelar(){
+	resetMsgTopo();
+	
 	jQuery("#btnAddItemToogle").show();
 	jQuery("#formAlteraItem").trigger("reset");
 	jQuery("#formAlteraItem").hide();
@@ -610,11 +616,13 @@ function btnMovimentarEstoque(idItem,idLocal,patrimonio){
 
 	jQuery("#estoque_local").trigger("change");
 	
+	/* não funciona pois as funções estão sendo executadas de forma assíncrona e esta termina antes do trigger ser chamado (ajax mais lento, tem callback na linha anterior) 
 	if(patrimonio !== null){
 		jQuery("#msgTopoHistorico").html("entrou aqui:" + patrimonio);
 		jQuery("#estoque_patr_mov").val(patrimonio);
 		jQuery("#estoque_patr_mov").trigger("change");
 	}
+	*/
 	
 	
 	jQuery("#formAlteraEstoque").show();
@@ -633,10 +641,12 @@ function btnRemoverEstoque(idItem,idLocal,patrimonio){
 
 	jQuery("#estoque_local").trigger("change");
 	
+	/* não funciona pois as funções estão sendo executadas de forma assíncrona e esta termina antes do trigger ser chamado (ajax mais lento, tem callback na linha anterior) 
 	if(patrimonio !== null){
 		jQuery("#estoque_patr_rem").val(patrimonio);
 		jQuery("#estoque_patr_rem").trigger("change");
 	}
+	*/
 	
 	jQuery("#formAlteraEstoque").show();
 	
@@ -644,11 +654,6 @@ function btnRemoverEstoque(idItem,idLocal,patrimonio){
 
 
 }
-
-
-
-
-
 
 
 function estoque_formGetLocal(){
@@ -855,7 +860,7 @@ function get1Estoque(){
 							for(x of data.consultas){
 								
 								//t.append(new Option(x[4],x[0]));
-								var opt = '<option qtAtual="' + x[2] + '" qtEmpr="' + x[3] + '">' + x[4] + '</option>';
+								var opt = '<option value="' + x[4] + '" qtAtual="' + x[2] + '" qtEmpr="' + x[3] + '">' + x[4] + '</option>';
 								t.append(opt);
 								t2.append(opt);
 							
@@ -1203,7 +1208,6 @@ function alteraQtMovRem(tipo){
 	
 	jQuery("#estoque_qt_atual").val(qtAtual);
 	jQuery("#estoque_qt_emprestada").val(qtEmpr);
-	
 	
 }
 

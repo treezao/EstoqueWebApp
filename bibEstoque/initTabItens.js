@@ -6,6 +6,7 @@ jQuery(document).ready( function () {
 	
 	// Event listeners
 	jQuery("#btnAddItemToogle").on("click", function(e){
+		resetMsgTopo();
 		jQuery("#formAddItem").toggle();
 	});
 	

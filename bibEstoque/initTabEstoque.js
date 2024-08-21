@@ -1,6 +1,6 @@
 jQuery(document).ready( function () {
 	initTabelaEstoque();
-	getEstoque();
+	getEstoque(atualizaTabEstoque);
 	
 	estoque_formGetLocal();
 	estoque_formGetItem();

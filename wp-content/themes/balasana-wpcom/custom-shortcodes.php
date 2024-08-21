@@ -140,17 +140,64 @@ function pagina_estoque(){
 	wp_localize_script( 'funcoes_estoque', 'nonce_alteraEstoque', 
 							wp_create_nonce('nonce_alteraEstoque'));
 	
-	/*
-	wp_localize_script( 'funcoes_estoque', 'nonce_alteraItem', 
-							wp_create_nonce('nonce_alteraItem'));
-	
-	
-	*/
 	
 	$path = $path_pagina . "tabConsultaEstoque.html";
 	
 	return file_get_contents($path);
 	
 }
+
+add_shortcode('estoque_solicitacoes', 'pagina_solicitacoes');
+function pagina_solicitacoes(){
+	global $path_pagina;
+	
+	enqueue_datatables();
+	enqueue_bootstrap();
+	enqueue_fontawesome();
+
+	
+	wp_enqueue_script('funcoes_estoque', '/bibEstoque/funcoes_estoque.js', '', '', true);
+	wp_enqueue_script('initTabLocais', '/bibEstoque/initSolicitacoes.js', '', '', true);
+	
+	
+	
+	
+	wp_localize_script( 'funcoes_estoque', 'ajax_url', [admin_url( 'admin-ajax.php' )]);
+	
+	
+	
+	
+	wp_localize_script( 'funcoes_estoque', 'nonce_getEstoque', 
+							wp_create_nonce('nonce_getEstoque'));
+	
+	/*
+	wp_localize_script( 'funcoes_estoque', 'nonce_getItens', 
+							wp_create_nonce('nonce_getItens'));
+	
+	wp_localize_script( 'funcoes_estoque', 'nonce_get_Locais', 
+							wp_create_nonce('nonce_get_Locais'));
+							
+	wp_localize_script( 'funcoes_estoque', 'nonce_get1Estoque', 
+							wp_create_nonce('nonce_get1Estoque'));
+	
+							
+	wp_localize_script( 'funcoes_estoque', 'nonce_alteraEstoque', 
+							wp_create_nonce('nonce_alteraEstoque'));
+	
+	
+	wp_localize_script( 'funcoes_estoque', 'nonce_alteraItem', 
+							wp_create_nonce('nonce_alteraItem'));
+	
+	
+	*/
+	
+	$path = $path_pagina . "tabSolicitacoes.html";
+	
+	return file_get_contents($path);
+	
+}
+
+
+
 ?>
 

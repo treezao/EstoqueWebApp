@@ -542,7 +542,7 @@ function initTabelaEstoque(){
 }
 
 
-function getEstoque(){
+function getEstoque(funcao){
 	
 	jQuery.post({
 		url: ajax_url,
@@ -552,7 +552,7 @@ function getEstoque(){
 			"action": 'getEstoque',
 			"nonce":    nonce_getEstoque
 		},
-		success: atualizaTabEstoque
+		success: funcao
 	});
 	
 }
@@ -585,7 +585,7 @@ function atualizaTabEstoque(data){
 		
 	
 	}else{
-		jQuery("#msgTopoHistorico").html("Erro ao buscar histórico de locais, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+		jQuery("#msgTopoHistorico").html("Erro ao buscar estoque, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
 	}
 	
 }
@@ -1257,5 +1257,63 @@ function accordionItemEstoque(data){
 				
 	return base;
 }
+
+/*
+	funções da página Solicitações
+*/
+
+function initTabelaEstoque_solicitacoes(){
+	new DataTable('#tab_consulta_estoque',{
+		"language": {
+			url: 'https://cdn.datatables.net/plug-ins/2.1.3/i18n/pt-BR.json'
+		},
+		"columnDefs": [
+			{width : '22%', targets : 0},
+			{width : '47%', targets : 1},
+			{width : '7%', targets : 2},
+			{width : '7%', targets : 3},
+			{width : '12%', targets : 4},
+			{width : '5%', targets : 5},
+		],
+		lengthMenu: [
+			[10, 20, 30, -1],
+			[10, 20, 30, 'Tudo']
+		]
+	});
+
+}
+
+
+function atualizaTabEstoque_solicitacoes(data){
+	
+	var t = jQuery("#tab_consulta_estoque").DataTable();
+	
+	if(!data.error){
+		
+		t.clear();
+	
+		for(x of data.consultas){
+			
+			t.row.add([
+					x[7],
+					//x[5],
+					accordionItemEstoque(x),
+					x[2],
+					x[3],
+					x[4],
+					'<i class="fas fa-cart-arrow-down" title="Solicitar" onclick="xxx(' + x[0] +','+ x[1] + ',' + x[4] + ')"></i> '
+					]);
+		}
+		
+		
+		t.draw();
+		
+	
+	}else{
+		jQuery("#msgTopoHistorico").html("Erro ao buscar estoque, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+	}
+	
+}
+
 
 

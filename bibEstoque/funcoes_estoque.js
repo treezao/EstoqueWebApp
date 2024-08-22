@@ -1283,6 +1283,24 @@ function initTabelaEstoque_solicitacoes(){
 
 }
 
+function initTabelaSolicitacoes_solicitacoes(){
+	new DataTable('#tab_consulta_solicitacoes',{
+		"language": {
+			url: 'https://cdn.datatables.net/plug-ins/2.1.3/i18n/pt-BR.json'
+		},
+		"columnDefs": [
+			{width : '18%', targets : 0},
+			{width : '7%', targets : 2},
+			{width : '5%', targets : 3},
+		],
+		lengthMenu: [
+			[10, 20, 30, -1],
+			[10, 20, 30, 'Tudo']
+		]
+	});
+
+}
+
 
 function atualizaTabEstoque_solicitacoes(data){
 	
@@ -1301,7 +1319,7 @@ function atualizaTabEstoque_solicitacoes(data){
 					x[2],
 					x[3],
 					x[4],
-					'<i class="fas fa-cart-arrow-down" title="Solicitar" onclick="xxx(' + x[0] +','+ x[1] + ',' + x[4] + ')"></i> '
+					'<i class="fas fa-cart-arrow-down" title="Solicitar" onclick="get1Estoque_solicitacao(' + x[0] +','+ x[1] + ',' + x[4] + ')"></i> '
 					]);
 		}
 		
@@ -1316,4 +1334,318 @@ function atualizaTabEstoque_solicitacoes(data){
 }
 
 
+function solicitacao_formGetLocal(){
+	
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		dataType: "JSON",
+		data: {
+			"action": 'getLocais',
+			"nonce":    nonce_get_Locais
+		},
+		success: function(data){
+			var t = jQuery("#solicitacao_local");
+			
+			
+			if(data.error){
+				jQuery("#msgTopoHistorico").html("Erro ao buscar histórico de locais, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+				
+				if(data.msg2 != ""){
+					jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+				}
+			}
 
+
+			t.empty();
+			t.append(new Option("",-1));
+			
+			for(x of data.consultas){
+				t.append(new Option(x[1],x[0]));
+			}
+			
+		}
+	});
+	
+}
+
+
+function solicitacao_formGetItem(){
+	
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		dataType: "JSON",
+		data: {
+			"action": 'getItens',
+			"nonce":    nonce_getItens
+		},
+		success: function(data){
+			var t = jQuery("#solicitacao_item");
+			
+			
+			if(data.error){
+				jQuery("#msgTopoHistorico").html("Erro ao buscar histórico de locais, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+				
+				if(data.msg2 != ""){
+					jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+				}
+			}
+
+
+			t.empty();
+			t.append(new Option("",-1));
+			
+			for(x of data.consultas){
+				//t.append(new Option(x[1],x[0]));
+				var opt = '<option value="' + x[0] + '" tipo="' + x[3] + '">' + x[1] + '</option>';
+				t.append(opt);
+			}
+			
+		}
+	});
+	
+}
+
+
+function get1Estoque_solicitacao(idItem,idLocal,patrimonio){
+	window.scrollTo({ top: 0, behavior: 'smooth' });
+	
+	resetMsgTopo();
+	
+	jQuery("#solicitacao_local").val(idLocal);
+	jQuery("#solicitacao_item").val(idItem);
+
+	jQuery("#solicitacao_qt").val("");
+	jQuery("#solicitacao_qt").prop("disabled", true); 
+	
+	jQuery("#solicitacao_patr").val(patrimonio);
+	jQuery("#solicitacao_patr").prop("disabled", true); 
+	
+	jQuery("#solicitacao_prof").val("");
+	jQuery("#solicitacao_prof").prop("disabled", true); 
+	
+	
+	jQuery("#formPatrimonio").hide();
+	jQuery("#formProfessor").hide();
+	
+	// desabilita botões do formulário
+	jQuery("#btnSolicitar").prop("disabled", true); 
+	jQuery("#btnSolicitar_cancela").prop("disabled", true); 
+	
+
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		dataType: "JSON",
+		data: {
+			"action": 'get1Estoque',
+			"nonce":    nonce_get1Estoque,
+			"idLocal": idLocal,
+			"idItem": idItem
+		},
+		success: function(data){
+			if(data.error){
+				jQuery("#msgTopoHistorico").html("Erro ao buscar estoque, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+				
+				if(data.msg2 != ""){
+					jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+				}
+				
+				return;
+			}
+			
+			
+			if(!data.encontrado){
+				jQuery("#msgTopoHistorico").html("Não foi encontrado o estoque buscado, atualize a página. Se o problema persistir contacte o administrador! <br>");
+				
+				return;
+			}
+			
+			
+			if(data.tipo === "Consumo"){
+				jQuery("#solicitacao_qt").prop("disabled", false); 
+				
+			}else if(data.tipo === "Permanente"){
+				jQuery("#solicitacao_qt").val(1);
+				
+				jQuery("#formPatrimonio").show();
+				
+				jQuery("#formProfessor").show();
+				jQuery("#solicitacao_prof").prop("disabled", false);
+				
+			}else{
+				jQuery("#msgTopoHistorico").html("Erro ao buscar estoque, tipo de item errado: " + data.tipo + "<br>");
+				return;
+			}
+			
+			jQuery("#formAlteraEstoque").show();
+			
+			jQuery("#btnSolicitar").prop("disabled", false); 
+			jQuery("#btnSolicitar_cancela").prop("disabled", false); 
+			
+			return;
+			
+			
+		}
+	});
+	
+}
+
+
+function adicionaSolicitacao() {
+	window.scrollTo({ top: 0, behavior: 'smooth' });
+	
+	resetMsgTopo();
+	
+	var idLocal = jQuery("#solicitacao_local option:selected").val();
+	var idItem = jQuery("#solicitacao_item option:selected").val();
+	var qt = jQuery("#solicitacao_qt").val();
+	var patr = jQuery("#solicitacao_patr").val();
+	var prof = jQuery("#solicitacao_prof").val();
+	var tipoItem = 	jQuery("#solicitacao_item option:selected").attr("tipo");
+	
+	// validações
+	if(qt <=0){
+		jQuery("#msgErro").html("A quantidade pedida deve ser maior do que 0. Favor ajustar o quantitativo.");
+		return;
+	}
+	
+	
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		data: {
+			"action": 'addSolicitacao',
+			"nonce":    nonce_addSolicitacao,
+			"idLocal": idLocal,
+			"idItem": idItem,
+			"qt": qt,
+			"patr": patr,
+			"prof": prof,
+			"tipo": tipoItem
+		},
+		dataType: "JSON",
+		success: function(data){
+			if(data.error){
+				jQuery("#msgResultado").html('');
+				jQuery("#msgErro").html("Erro ao adicionar o novo item, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+				
+				if(data.msg2 != ""){
+					jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+				}
+				return;
+			}
+			
+			jQuery("#msgResultado").html('Solicitação adicionada com sucesso.');
+			
+			getSolicitacoes();
+			
+		}
+	});
+	
+}
+
+
+function getSolicitacoes(){
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		data: {
+			"action": 'getSolicitacao',
+			"nonce":    nonce_getSolicitacao
+		},
+		dataType: "JSON",
+		success: atualizaTabSolicitacoes_solicitacoes
+	});	
+}
+
+
+function atualizaTabSolicitacoes_solicitacoes(data){
+	
+	if(data.error){
+		jQuery("#msgTopoHistorico").html("Erro ao buscar solicitações, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+		return;
+	}
+	
+	
+	var t = jQuery("#tab_consulta_solicitacoes").DataTable();
+	t.clear();
+
+	for(x of data.consultas){
+		var htmlBtn;
+		
+		if(x[7] !== "solicitado"){
+			htmlBtn = '';
+		}else{
+			htmlBtn = '<i class="fas fa-cart-arrow-down" title="Solicitar" onclick="xxxx()"></i> ';
+		}
+		
+		
+		t.row.add([
+				x[1].replace(" ", "<br>"),
+				accordionSolicitacao(x),
+				x[7],
+				htmlBtn
+				]);
+	}
+	
+	
+	t.draw();
+	
+}
+
+function accordionSolicitacao(data){
+	var nameAcc = 'accordionExample' + data[0];
+	var nameItem = 'collapseOne' + data[0];
+	
+	var dataSolicitacao = data[1];
+	var dataAtendimento = (data[2]===null)? '--' : data[2];
+	var dataDevolucao = (data[3]===null)? '--' : data[3];
+	var qtPedida = data[4];
+	var qtAtendida = (data[5]===null)? '--' : data[5];
+	var qtDevolvida = (data[6]===null)? '--' : data[6];
+	var obs = data[8];
+	var itemNome = data[9];
+	var itemTipo = data[10];
+	var localNome = data[11];
+	var patrimonio = (data[12]===null)? '--' : data[12];
+	var prof = (data[13]===null)? '--' : data[13];
+	
+	
+	
+	var base = '<div class="accordion accordion-flush" id="' + nameAcc + '">' +
+					'<div class="accordion-item">' + 
+						'<h2 class="accordion-header">' + 
+							'<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#' + nameItem + '" aria-expanded="true" aria-controls="' + nameItem +'">' +
+							"Item: " + itemNome + "<br>" +
+							"Local: " + localNome +
+							'</button>' +
+						'</h2>' +
+						'<div id="' + nameItem + '" class="accordion-collapse collapse" data-bs-parent="' + nameAcc + '">' +
+							'<div class="accordion-body">'+
+								addRowAccordion("Data atendimento:", dataAtendimento) + "<hr>"+
+								addRowAccordion("Data devolução:", dataDevolucao) + "<hr>"+
+								addRowAccordion("Qt. pedida:", qtPedida) +"<hr>"+
+								addRowAccordion("Qt. atendida:", qtAtendida) + "<hr>"+
+								addRowAccordion("Qt. devolvida:", qtDevolvida) +"<hr>"+
+								addRowAccordion("Tipo item:", itemTipo) +"<hr>"+
+								addRowAccordion("Patrimônio:", patrimonio) +"<hr>"+
+								addRowAccordion("Prof. responsável:", prof) +"<hr>"+
+								addRowAccordion("Obs:", obs)+
+							'</div>' +
+						'</div>'+
+					'</div>'+
+				'</div>';
+				
+	
+				
+	return base;
+}
+
+function addRowAccordion(i1, i2){
+	return '<div class="row mb-2 align-items-center">' + 
+				'<div class="col">' + i1 + '</div>' + 
+				'<div class="col">' + i2 + '</div>' +
+			'</div>';
+}

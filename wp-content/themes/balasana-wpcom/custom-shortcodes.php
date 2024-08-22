@@ -170,26 +170,21 @@ function pagina_solicitacoes(){
 	wp_localize_script( 'funcoes_estoque', 'nonce_getEstoque', 
 							wp_create_nonce('nonce_getEstoque'));
 	
-	/*
+	wp_localize_script( 'funcoes_estoque', 'nonce_get1Estoque', 
+							wp_create_nonce('nonce_get1Estoque'));
+	
+	
 	wp_localize_script( 'funcoes_estoque', 'nonce_getItens', 
 							wp_create_nonce('nonce_getItens'));
 	
 	wp_localize_script( 'funcoes_estoque', 'nonce_get_Locais', 
 							wp_create_nonce('nonce_get_Locais'));
 							
-	wp_localize_script( 'funcoes_estoque', 'nonce_get1Estoque', 
-							wp_create_nonce('nonce_get1Estoque'));
+	wp_localize_script( 'funcoes_estoque', 'nonce_addSolicitacao', 
+							wp_create_nonce('nonce_addSolicitacao'));
 	
-							
-	wp_localize_script( 'funcoes_estoque', 'nonce_alteraEstoque', 
-							wp_create_nonce('nonce_alteraEstoque'));
-	
-	
-	wp_localize_script( 'funcoes_estoque', 'nonce_alteraItem', 
-							wp_create_nonce('nonce_alteraItem'));
-	
-	
-	*/
+	wp_localize_script( 'funcoes_estoque', 'nonce_getSolicitacao', 
+							wp_create_nonce('nonce_getSolicitacao'));
 	
 	$path = $path_pagina . "tabSolicitacoes.html";
 	

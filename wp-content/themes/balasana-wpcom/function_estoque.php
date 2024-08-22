@@ -1523,5 +1523,202 @@ function remEstoque($post){
 }
 
 
+/*
+	Funções relacionadas a solicitações
+*/
+add_action('wp_ajax_addSolicitacao','addSolicitacao');
+function addSolicitacao($post){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_addSolicitacao') || !validaUsuario() || !conecta()){
+		finaliza(); // termina o programa aqui;
+	}
+
+	$cf_data["msg"] = "Adicionando solicitação...";
+	$cf_data["msg2"] = "";
+	$cf_data["error"] = false;
+	
+	
+	if($_POST["tipo"] === "Consumo"){
+		
+		// Buscando estoque
+		$sql = "SELECT * FROM estoque WHERE iditem=" . $_POST["idItem"] .
+											" AND idLocal=" . $_POST["idLocal"] . ";";
+		$result = $cf_conn->query($sql);
+		
+		if(!$result){
+			$cf_data["msg"] = "Problema com banco de dados...";
+			$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+			$cf_data["error"] = true;
+			finaliza();
+		}
+		
+		// se existirem múltiplas entradas , tem erro no BD ou não existe o estoque pedido
+		if($result->num_rows != 1) {
+			$cf_data["msg"] = "O estoque consultado não existe ou está multiplicado...";
+			$cf_data["msg2"]= "SQL: " . $sql . " <br> Linhas encontradas: " . $result->num_rows;
+			$cf_data["error"] = true;
+			finaliza();
+		}
+		
+		// busca linha do estoque 
+		$row = $result->fetch_assoc();
+		
+		// verifique se quantidade pedida está adequada
+		if($_POST["qt"] < 1){
+			$cf_data["msg"] = "A quantidade pedida é menor ou igual a 0. Favor ajustar o quantitativo.";
+			$cf_data["error"] = true;
+			finaliza();
+		}
+		
+		// sql para inserir solicitação
+		$sql1 = "INSERT INTO solicitacao (idUsuario,idItem,idLocalizacao,qtPedida,status) " .
+				"VALUES (" . get_current_user_id() . "," .
+							$_POST["idItem"] . "," .
+							$_POST["idLocal"] . "," .
+							$_POST["qt"] . "," .
+							"'solicitado');";
+		
+		$result1 = $cf_conn->query($sql1);
+		
+		if(!$result1){
+			$cf_data["msg"] = "Problema na adição da solicitação...";
+			$cf_data["msg2"]= "SQL: " . $sql1  . " <br> Erro: " . $cf_conn->error;
+			$cf_data["error"] = true;
+			
+			escreveDebug("NÃO FEZ 1 - " . $sql1 . PHP_EOL );
+			
+			finaliza();
+		}
+		
+		finaliza();
+		
+	}elseif($_POST["tipo"] === "Permanente"){
+		// Buscando estoque
+		$sql = "SELECT * FROM estoque WHERE patrimonio=" . $_POST["patr"] . ";";
+		$result = $cf_conn->query($sql);
+		
+		if(!$result){
+			$cf_data["msg"] = "Problema com banco de dados...";
+			$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+			$cf_data["error"] = true;
+			finaliza();
+		}
+		
+		// se existirem múltiplas entradas , tem erro no BD ou não existe o estoque pedido
+		if($result->num_rows != 1) {
+			$cf_data["msg"] = "O estoque consultado não existe ou está multiplicado...";
+			$cf_data["msg2"]= "SQL: " . $sql . " <br> Linhas encontradas: " . $result->num_rows;
+			$cf_data["error"] = true;
+			finaliza();
+		}
+		
+		// busca linha do estoque 
+		$row = $result->fetch_assoc();
+		
+		// verifique se quantidade pedida está adequada
+		if($_POST["qt"] < 1){
+			$cf_data["msg"] = "A quantidade pedida é menor ou igual a 0. Favor ajustar o quantitativo.";
+			$cf_data["error"] = true;
+			finaliza();
+		}
+		
+		// sql para inserir solicitação
+		$sql1 = "INSERT INTO solicitacao (idUsuario,idItem,idLocalizacao,qtPedida,profResponsavel,status) " .
+				"VALUES (" . get_current_user_id() . "," .
+							$_POST["idItem"] . "," .
+							$_POST["idLocal"] . "," .
+							$_POST["qt"] . "," .
+							"'" . $_POST["prof"] . "'," . 
+							"'solicitado');";
+		
+		$result1 = $cf_conn->query($sql1);
+		
+		if(!$result1){
+			$cf_data["msg"] = "Problema na adição da solicitação...";
+			$cf_data["msg2"]= "SQL: " . $sql1  . " <br> Erro: " . $cf_conn->error;
+			$cf_data["error"] = true;
+			
+			escreveDebug("NÃO FEZ 1 - " . $sql1 . PHP_EOL );
+			
+			finaliza();
+		}
+		
+		finaliza();
+		
+		
+	}
+	
+	// não deveria chegar aqui
+	$cf_data["msg"] = "Chegou onde não devia, função addSolicitacao...";
+	$cf_data["error"] = true;
+	finaliza();
+	
+}
+
+
+add_action('wp_ajax_getSolicitacao','getSolicitacao');
+function getSolicitacao($post){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_getSolicitacao') || !validaUsuario() || !conecta()){
+		finaliza(); // termina o programa aqui;
+	}
+
+	$cf_data["msg"] = "Buscando solicitações...";
+	$cf_data["msg2"] = "";
+	$cf_data["error"] = false;
+	
+	$sql = "SELECT s.*, i.itemNome,i.itemTipo,l.localNome from solicitacao s ".
+			"INNER JOIN (SELECT id, nome as itemNome, tipo as itemTipo from item) i ON s.iditem=i.id ".
+			"INNER JOIN (SELECT id, nome as localNome from localizacao ) l ON s.idLocalizacao=l.id WHERE s.idUsuario=". get_current_user_id() .";";
+	$result = $cf_conn->query($sql);
+	
+	
+	if(!$result){
+		$cf_data["msg"] = "Problema com banco de dados...";
+		$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	
+	if($result->num_rows > 0 ) {
+		// output data of each row
+		while($row = $result->fetch_assoc()) {
+			
+				$cf_data["consultas"][] = [
+											$row["id"], // id
+											$row["dataSolicitacao"],
+											$row["dataAtendimento"],
+											$row["dataDevolucao"],
+											$row["qtPedida"],
+											$row["qtAtendida"], 
+											$row["qtDevolvida"], 
+											$row["status"],
+											$row["obs"],
+											$row["itemNome"],
+											$row["itemTipo"],
+											$row["localNome"],
+											$row["patrimonio"],
+											$row["profResponsavel"],
+										];
+		}
+		
+		$cf_data["msg"] = "Solicitações encontradas: " . $result->num_rows;
+		$cf_data["error"] = false;
+		
+	}else {
+		$cf_data["msg"] = "Nenhuma solicitação foi encontrada...";
+		$cf_data["error"] = false;
+	}
+	
+	finaliza();
+	
+}
+
+
 
 ?>

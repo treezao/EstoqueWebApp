@@ -1537,7 +1537,11 @@ function adicionaSolicitacao() {
 				return;
 			}
 			
+			jQuery("#formAlteraEstoque").hide();
+			jQuery("#formAlteraEstoque").trigger("reset");
+			
 			jQuery("#msgResultado").html('Solicitação adicionada com sucesso.');
+			
 			
 			getSolicitacoes();
 			
@@ -1578,7 +1582,7 @@ function atualizaTabSolicitacoes_solicitacoes(data){
 		if(x[7] !== "solicitado"){
 			htmlBtn = '';
 		}else{
-			htmlBtn = '<i class="fas fa-cart-arrow-down" title="Solicitar" onclick="xxxx()"></i> ';
+			htmlBtn = '<i class="fas fa-cart-arrow-down" title="Cancelar" onclick="cancelaSolicitacao(' + x[0] + ')"></i> ';
 		}
 		
 		
@@ -1594,6 +1598,7 @@ function atualizaTabSolicitacoes_solicitacoes(data){
 	t.draw();
 	
 }
+
 
 function accordionSolicitacao(data){
 	var nameAcc = 'accordionExample' + data[0];
@@ -1643,9 +1648,45 @@ function accordionSolicitacao(data){
 	return base;
 }
 
+
 function addRowAccordion(i1, i2){
 	return '<div class="row mb-2 align-items-center">' + 
 				'<div class="col">' + i1 + '</div>' + 
 				'<div class="col">' + i2 + '</div>' +
 			'</div>';
+}
+
+function cancelaSolicitacao(idSolicitacao){
+	window.scrollTo({ top: 0, behavior: 'smooth' });
+	
+	resetMsgTopo();
+	
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		data: {
+			"action": 'cancelaSolicitacao',
+			"nonce":	nonce_cancelaSolicitacao,
+			"id": idSolicitacao
+		},
+		dataType: "JSON",
+		success: function(data){
+				if(data.error){
+					jQuery("#msgTopoHistorico").html("Erro ao cancelar solicitação, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+					
+					if(data.msg2 != ""){
+						jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+					}
+					
+					return;
+				}
+				
+				jQuery("#msgTopoHistorico").html("Solicitação cancelada com sucesso.");
+				
+				getSolicitacoes();
+				
+				return;
+			
+		}
+	});
 }

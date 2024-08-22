@@ -1719,6 +1719,91 @@ function getSolicitacao($post){
 	
 }
 
+add_action('wp_ajax_cancelaSolicitacao','cancelaSolicitacao');
+function cancelaSolicitacao($post){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_cancelaSolicitacao') || !validaUsuario() || !conecta()){
+		finaliza(); // termina o programa aqui;
+	}
+
+	$cf_data["msg"] = "Cancelando solicitação...";
+	$cf_data["msg2"] = "";
+	$cf_data["error"] = false;
+	
+	$sql = "SELECT * FROM solicitacao WHERE id=" . $_POST["id"] . ";";
+	$result = $cf_conn->query($sql);
+	
+	
+	if(!$result){
+		$cf_data["msg"] = "Problema com banco de dados...";
+		$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	
+	
+	if($result->num_rows == 0 ) {
+		$cf_data["msg"] = "Nenhuma solicitação com o id indicado foi encontrada... Atualize a página ou contacte o administrador.";
+		$cf_data["error"] = true;
+		
+		finaliza();
+	}
+	
+	$row = $result->fetch_assoc();
+	
+	$estadoAtual = $row["status"];
+	
+	if($estadoAtual !== 'solicitado'){
+		$cf_data["msg"] = "Solicitação não pode ser cancelada. Apenas solicitações não atendidas podem ser canceladas.<br> Estado: " + $estadoAtual;
+		$cf_data["error"] = true;
+		
+		finaliza();
+	}
+	
+	// sql de atualização
+	$sql1 = "UPDATE solicitacao SET status='cancelado'" . 
+				" WHERE id=" . $_POST["id"] . ";";
+	
+	$obs = "Usuário cancelou solicitação.";
+	
+	// sql para histórico de movimentações
+	$sql2 = "INSERT INTO movimentacoes (idUsuario,idSolicitacao,tipo_movimentacao,obs) " .
+			" VALUES (" . get_current_user_id() . "," .
+						$_POST["id"] . "," .
+						"'cancela', " . 
+						"'" . $obs . "');";
+	
+	$result1 = $cf_conn->query($sql1);
+	
+	if(!$result1){
+		$cf_data["msg"] = "Problema no cancelamento da solicitação...";
+		$cf_data["msg2"]= "SQL: " . $sql1  . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		
+		escreveDebug("NÃO FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL);
+		
+		finaliza();
+	}
+
+	$result2 = $cf_conn->query($sql2);
+	
+	if(!$result2){
+		$cf_data["msg"] = "Problema na adição do cancelamento da solicitação na movimentação...";
+		$cf_data["msg2"]= "SQL: " . $sql2  . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		
+		escreveDebug("FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL);
+		
+		finaliza();
+	}
+	
+	finaliza();
+	
+}
+
 
 
 ?>

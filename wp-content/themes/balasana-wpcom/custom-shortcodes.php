@@ -160,8 +160,6 @@ function pagina_solicitacoes(){
 	wp_enqueue_script('initTabLocais', '/bibEstoque/initSolicitacoes.js', '', '', true);
 	
 	
-	
-	
 	wp_localize_script( 'funcoes_estoque', 'ajax_url', [admin_url( 'admin-ajax.php' )]);
 	
 	
@@ -185,6 +183,9 @@ function pagina_solicitacoes(){
 	
 	wp_localize_script( 'funcoes_estoque', 'nonce_getSolicitacao', 
 							wp_create_nonce('nonce_getSolicitacao'));
+	
+	wp_localize_script( 'funcoes_estoque', 'nonce_cancelaSolicitacao', 
+							wp_create_nonce('nonce_cancelaSolicitacao'));
 	
 	$path = $path_pagina . "tabSolicitacoes.html";
 	

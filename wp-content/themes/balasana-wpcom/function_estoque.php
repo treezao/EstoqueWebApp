@@ -1805,5 +1805,72 @@ function cancelaSolicitacao($post){
 }
 
 
+/*
+	Funções relacionadas gerência de solicitações
+*/
+add_action('wp_ajax_getSolicitacaoTudo','getSolicitacaoTudo');
+function getSolicitacaoTudo($post){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_getSolicitacaoTudo') || !validaUsuario() || !conecta()){
+		finaliza(); // termina o programa aqui;
+	}
+
+	$cf_data["msg"] = "Buscando solicitações...";
+	$cf_data["msg2"] = "";
+	$cf_data["error"] = false;
+	
+	$sql = "SELECT s.*, i.itemNome,i.itemTipo,l.localNome, u.user_nicename from solicitacao s ".
+		"INNER JOIN (SELECT id, nome as itemNome, tipo as itemTipo from item) i ON s.iditem=i.id " . 
+		"INNER JOIN (SELECT id, nome as localNome from localizacao ) l ON s.idLocalizacao=l.id " .
+		"INNER JOIN (SELECT id, user_nicename from wpestoque.wp_users) u ON s.idUsuario=u.id; ";
+		
+	$result = $cf_conn->query($sql);
+	
+	
+	if(!$result){
+		$cf_data["msg"] = "Problema com banco de dados...";
+		$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	
+	if($result->num_rows > 0 ) {
+		// output data of each row
+		while($row = $result->fetch_assoc()) {
+			
+				$cf_data["consultas"][] = [
+											$row["id"], // id
+											$row["dataSolicitacao"],
+											$row["dataAtendimento"],
+											$row["dataDevolucao"],
+											$row["qtPedida"],
+											$row["qtAtendida"], 
+											$row["qtDevolvida"], 
+											$row["status"],
+											$row["obs"],
+											$row["itemNome"],
+											$row["itemTipo"],
+											$row["localNome"],
+											$row["patrimonio"],
+											$row["profResponsavel"],
+											$row["user_nicename"]
+										];
+		}
+		
+		$cf_data["msg"] = "Solicitações encontradas: " . $result->num_rows;
+		$cf_data["error"] = false;
+		
+	}else {
+		$cf_data["msg"] = "Nenhuma solicitação foi encontrada...";
+		$cf_data["error"] = false;
+	}
+	
+	finaliza();
+	
+}
+
 
 ?>

@@ -2,7 +2,6 @@
 	Funções Gerais
 */
 
-
 function resetMsgTopo(){
 	jQuery("#msgTopoHistorico").html("");
 	jQuery("#msgDebug").html("");
@@ -16,7 +15,6 @@ function resetMsgTopo(){
 /*
 	funções da página Locais
 */
-
 
 function initTabelaLocais(){
 	new DataTable('#tab_consulta_locais',{
@@ -229,8 +227,6 @@ function altera_Local_cancelar(){
 	jQuery("#formAlteraLocal").trigger("reset");
 	jQuery("#formAlteraLocal").hide();
 }
-
-
 
 
 /*
@@ -515,10 +511,10 @@ function alteraItemCancelar(){
 	jQuery("#formAlteraItem").hide();
 }
 
+
 /*
 	funções da página Estoque
 */
-
 
 function initTabelaEstoque(){
 	new DataTable('#tab_consulta_estoque',{
@@ -1258,6 +1254,7 @@ function accordionItemEstoque(data){
 	return base;
 }
 
+
 /*
 	funções da página Solicitações
 */
@@ -1296,7 +1293,11 @@ function initTabelaSolicitacoes_solicitacoes(){
 		lengthMenu: [
 			[10, 20, 30, -1],
 			[10, 20, 30, 'Tudo']
-		]
+		],
+		order: {
+			idx: 0,
+			dir: 'desc'
+		}
 	});
 
 }
@@ -1582,7 +1583,7 @@ function atualizaTabSolicitacoes_solicitacoes(data){
 		if(x[7] !== "solicitado"){
 			htmlBtn = '';
 		}else{
-			htmlBtn = '<i class="fas fa-cart-arrow-down" title="Cancelar" onclick="cancelaSolicitacao(' + x[0] + ')"></i> ';
+			htmlBtn = '<i class="fas fa-trash-alt" title="Cancelar" onclick="cancelaSolicitacao(' + x[0] + ')"></i> ';
 		}
 		
 		
@@ -1689,4 +1690,106 @@ function cancelaSolicitacao(idSolicitacao){
 			
 		}
 	});
+}
+
+
+/*
+	funções da página gerência
+*/
+
+function getSolicitacoesTudo(){
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		data: {
+			"action": 'getSolicitacaoTudo',
+			"nonce":    nonce_getSolicitacaoTudo
+		},
+		dataType: "JSON",
+		success: atualizaTabSolicitacoes_gerencia
+	});	
+}
+
+function atualizaTabSolicitacoes_gerencia(data){
+	
+	if(data.error){
+		jQuery("#msgTopoHistorico").html("Erro ao buscar solicitações, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+		return;
+	}
+	
+	
+	var t = jQuery("#tab_consulta_solicitacoes").DataTable();
+	t.clear();
+
+	for(x of data.consultas){
+		var htmlBtn = '';
+		
+		/*
+		if(x[7] !== "solicitado"){
+			htmlBtn = '';
+		}else{
+			htmlBtn = '<i class="fas fa-cart-arrow-down" title="Cancelar" onclick="xxx(' + x[0] + ')"></i> ';
+		}
+		*/
+		
+		t.row.add([
+				x[1].replace(" ", "<br>"),
+				accordionSolicitacao_gerencia(x),
+				x[7],
+				htmlBtn
+				]);
+	}
+	
+	
+	t.draw();
+	
+}
+
+function accordionSolicitacao_gerencia(data){
+	var nameAcc = 'accordionExample' + data[0];
+	var nameItem = 'collapseOne' + data[0];
+	
+	var dataSolicitacao = data[1];
+	var dataAtendimento = (data[2]===null)? '--' : data[2];
+	var dataDevolucao = (data[3]===null)? '--' : data[3];
+	var qtPedida = data[4];
+	var qtAtendida = (data[5]===null)? '--' : data[5];
+	var qtDevolvida = (data[6]===null)? '--' : data[6];
+	var obs = data[8];
+	var itemNome = data[9];
+	var itemTipo = data[10];
+	var localNome = data[11];
+	var patrimonio = (data[12]===null)? '--' : data[12];
+	var prof = (data[13]===null)? '--' : data[13];
+	var nomeUsuario = data[14];
+	
+	
+	var base = '<div class="accordion accordion-flush" id="' + nameAcc + '">' +
+					'<div class="accordion-item">' + 
+						'<h2 class="accordion-header">' + 
+							'<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#' + nameItem + '" aria-expanded="true" aria-controls="' + nameItem +'">' +
+							"Item: " + itemNome + "<br>" +
+							"Local: " + localNome + "<br>" + 
+							"Solicitante: " + nomeUsuario +
+							'</button>' +
+						'</h2>' +
+						'<div id="' + nameItem + '" class="accordion-collapse collapse" data-bs-parent="' + nameAcc + '">' +
+							'<div class="accordion-body">'+
+								addRowAccordion("Data atendimento:", dataAtendimento) + "<hr>"+
+								addRowAccordion("Data devolução:", dataDevolucao) + "<hr>"+
+								addRowAccordion("Qt. pedida:", qtPedida) +"<hr>"+
+								addRowAccordion("Qt. atendida:", qtAtendida) + "<hr>"+
+								addRowAccordion("Qt. devolvida:", qtDevolvida) +"<hr>"+
+								addRowAccordion("Tipo item:", itemTipo) +"<hr>"+
+								addRowAccordion("Patrimônio:", patrimonio) +"<hr>"+
+								addRowAccordion("Prof. responsável:", prof) +"<hr>"+
+								addRowAccordion("Obs:", obs)+
+							'</div>' +
+						'</div>'+
+					'</div>'+
+				'</div>';
+				
+	
+				
+	return base;
 }

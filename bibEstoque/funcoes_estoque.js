@@ -1724,13 +1724,13 @@ function atualizaTabSolicitacoes_gerencia(data){
 	for(x of data.consultas){
 		var htmlBtn = '';
 		
-		/*
-		if(x[7] !== "solicitado"){
+		
+		if(x[7] === "cancelado" || x[7] === "devolvido"){
 			htmlBtn = '';
 		}else{
-			htmlBtn = '<i class="fas fa-cart-arrow-down" title="Cancelar" onclick="xxx(' + x[0] + ')"></i> ';
+			htmlBtn = '<i class="far fa-edit" title="Alterar" onclick="get1Solicitacao_gerencia(' + x[0] + ')"></i> ';
 		}
-		*/
+		
 		
 		t.row.add([
 				x[1].replace(" ", "<br>"),
@@ -1793,3 +1793,94 @@ function accordionSolicitacao_gerencia(data){
 				
 	return base;
 }
+
+
+function get1Solicitacao_gerencia(idSolicitacao){
+	window.scrollTo({ top: 0, behavior: 'smooth' });
+	
+	resetMsgTopo();
+	
+	jQuery("#formAlteraSolicitacao").trigger("reset");
+	
+	// desabilita botões do formulário
+	jQuery("#btnAtender").prop("disabled", true); 
+	jQuery("#btnDevolver").prop("disabled", true); 
+
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		dataType: "JSON",
+		data: {
+			"action": 'get1Solicitacao',
+			"nonce":    nonce_get1Solicitacao,
+			"idSolicitacao": idSolicitacao
+		},
+		success: function(data){
+			if(data.error){
+				jQuery("#msgTopoHistorico").html("Erro ao buscar solicitação, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+				
+				if(data.msg2 != ""){
+					jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+				}
+				
+				return;
+			}
+			
+			
+			if(!data.encontrado){
+				jQuery("#msgTopoHistorico").html("Não foi encontrado a solicitação buscada, atualize a página. Se o problema persistir contacte o administrador! <br>");
+				
+				return;
+			}
+			
+			
+			jQuery("#gerencia_id").val(data.consultas[0]);
+			jQuery("#gerencia_solicitante").val(data.consultas[14]);
+			jQuery("#gerencia_item").val(data.consultas[9]);
+			jQuery("#gerencia_local").val(data.consultas[11]);
+			jQuery("#gerencia_data").val(data.consultas[1]);
+			jQuery("#gerencia_qt").val(data.consultas[4]);
+			jQuery("#gerencia_qt_at").val(data.consultas[5]);
+			jQuery("#gerencia_qt_dev").val(data.consultas[6]);
+			jQuery("#gerencia_patr").val(data.consultas[12]);
+			jQuery("#gerencia_prof").val(data.consultas[13]);
+			jQuery("#gerencia_obs").val(data.consultas[8]);
+			
+			var estado = 0;
+			switch(data.consultas[7]){
+				case "solicitado":
+					estado = 0;
+					break;
+				
+				case "atendido":
+					estado = 1;
+					break;
+				
+				case "devolvido":
+					estado = 2;
+					break;
+				
+				case "cancelado":
+					estado = 3;
+					break;
+				
+				default:
+					estado = 0;
+					break;
+			}
+			
+			jQuery("#gerencia_estado").val(estado);
+			
+			jQuery("#formAlteraSolicitacao").show();
+			
+			//jQuery("#btnSolicitar").prop("disabled", false); 
+			//jQuery("#btnSolicitar_cancela").prop("disabled", false); 
+			
+			return;
+			
+			
+		}
+	});
+	
+}
+

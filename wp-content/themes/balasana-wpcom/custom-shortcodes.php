@@ -215,11 +215,11 @@ function pagina_gerencia_solicitacoes(){
 	wp_localize_script( 'funcoes_estoque', 'nonce_getSolicitacaoTudo', 
 							wp_create_nonce('nonce_getSolicitacaoTudo'));
 	
+	
+	wp_localize_script( 'funcoes_estoque', 'nonce_get1Solicitacao', 
+							wp_create_nonce('nonce_get1Solicitacao'));
+	
 	/*
-	wp_localize_script( 'funcoes_estoque', 'nonce_get1Estoque', 
-							wp_create_nonce('nonce_get1Estoque'));
-	
-	
 	wp_localize_script( 'funcoes_estoque', 'nonce_getItens', 
 							wp_create_nonce('nonce_getItens'));
 	

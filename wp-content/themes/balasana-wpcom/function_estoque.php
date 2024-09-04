@@ -1625,11 +1625,12 @@ function addSolicitacao($post){
 		}
 		
 		// sql para inserir solicitação
-		$sql1 = "INSERT INTO solicitacao (idUsuario,idItem,idLocalizacao,qtPedida,profResponsavel,status) " .
+		$sql1 = "INSERT INTO solicitacao (idUsuario,idItem,idLocalizacao,qtPedida,patrimonio,profResponsavel,status) " .
 				"VALUES (" . get_current_user_id() . "," .
 							$_POST["idItem"] . "," .
 							$_POST["idLocal"] . "," .
 							$_POST["qt"] . "," .
+							$_POST["patr"] . "," .
 							"'" . $_POST["prof"] . "'," . 
 							"'solicitado');";
 		
@@ -1867,6 +1868,73 @@ function getSolicitacaoTudo($post){
 		$cf_data["msg"] = "Nenhuma solicitação foi encontrada...";
 		$cf_data["error"] = false;
 	}
+	
+	finaliza();
+	
+}
+
+
+add_action('wp_ajax_get1Solicitacao','get1Solicitacao');
+function get1Solicitacao($post){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_get1Solicitacao') || !validaUsuario() || !conecta()){
+		finaliza(); // termina o programa aqui;
+	}
+
+	$cf_data["msg"] = "Buscando solicitação...";
+	$cf_data["msg2"] = "";
+	$cf_data["error"] = false;
+	$cf_data["encontrado"] = false;
+	
+	
+	$sql = "SELECT s.*, i.itemNome,i.itemTipo,l.localNome, u.user_nicename from solicitacao s ".
+		"INNER JOIN (SELECT id, nome as itemNome, tipo as itemTipo from item) i ON s.iditem=i.id " . 
+		"INNER JOIN (SELECT id, nome as localNome from localizacao ) l ON s.idLocalizacao=l.id " .
+		"INNER JOIN (SELECT id, user_nicename from wpestoque.wp_users) u ON s.idUsuario=u.id " .
+		" WHERE s.id=". $_POST["idSolicitacao"] .";";
+	$result = $cf_conn->query($sql);
+	
+	
+	if(!$result){
+		$cf_data["msg"] = "Problema com banco de dados...";
+		$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	if($result->num_rows != 1 ) 
+	{
+		$cf_data["msg"] = "Nenhum Item com este ID foi encontrado ou multiplicado...";
+		$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	$cf_data["encontrado"] = true;
+	$row = $result->fetch_assoc();
+		
+	$cf_data["consultas"] = [
+								$row["id"], // id
+								$row["dataSolicitacao"],
+								$row["dataAtendimento"],
+								$row["dataDevolucao"],
+								$row["qtPedida"],
+								$row["qtAtendida"], 
+								$row["qtDevolvida"], 
+								$row["status"],
+								$row["obs"],
+								$row["itemNome"],
+								$row["itemTipo"],
+								$row["localNome"],
+								$row["patrimonio"],
+								$row["profResponsavel"],
+								$row["user_nicename"]
+							];
+	
+	$cf_data["msg"] = "Solicitações encontradas: " . $result->num_rows;
+	
 	
 	finaliza();
 	

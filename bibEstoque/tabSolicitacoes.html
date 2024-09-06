@@ -1,0 +1,89 @@
+<div class="container">
+	<div class="row mb-2 align-items-center">
+		<p id="msgTopoHistorico"></p>
+		<p id="msgDebug"></p>
+		<p id="msgResultado"></p>
+		<p id="msgAviso"></p>
+		<p id="msgErro"></p>
+		<hr>
+	</div>
+
+	
+	<form id="formAlteraEstoque" style="display: none;">
+		<div class="row mb-2 align-items-center">
+			<label for="solicitacao_local" class="form-label col-2">Local:</label>
+			<select class="form-control col" id="solicitacao_local" disabled>
+				</option>
+			</select>
+		</div>
+
+		<div class="row mb-2 align-items-center">
+			<label for="solicitacao_item" class="form-label col-2">Item:</label>
+			<select class="form-control col" id="solicitacao_item" disabled>
+				</option>
+			</select>
+		</div>
+
+		<div class="row mb-2 align-items-center">
+			<label for="solicitacao_qt" class="form-label col-2" id="solicitacao_qt_lab">Qt.:</label>
+			<input type="number" class="form-control col" id="solicitacao_qt" placeholder="Quantidade a solicitar" min="0" max="9999999999" disabled>
+		</div>
+		
+		<div class="row mb-2 align-items-center" id="formPatrimonio">
+			<label for="solicitacao_patr" class="form-label col-2" id="solicitacao_patr_lab">Patrimônio:</label>
+			<input type="number" class="form-control col" id="solicitacao_patr" placeholder="Patrimônio do equipamento" min="0" max="9999999999" disabled>
+		</div>
+		
+		<div class="row mb-2 align-items-center" id="formProfessor">
+			<label for="solicitacao_prof" class="form-label col-2" id="solicitacao_prof_lab">Prof. Responsável:</label>
+			<input type="text" class="form-control col" id="solicitacao_prof" placeholder="Nome do professor responsável" disabled>
+		</div>
+		
+
+		<input id="btnSolicitar" class="btn btn-primary" type="button" onclick="adicionaSolicitacao()" value="Solicitar" disabled>
+		<input id="btnSolicitar_cancela" class="btn btn-primary" type="button" value="Cancelar" disabled>
+	</form>	
+
+	<br>
+	<div class="row mb-3 align-items-center" >
+		<hr>
+		<h3> Estoque de materiais </h3>
+		<hr>
+	</div>
+
+	<table id="tab_consulta_estoque" class="display compact" style="width:100%">
+		<thead>
+			<tr>
+				<th>Local</th>
+				<th>Item</th>
+				<th>Qt.</th>
+				<th>Qt. Empr.</th>
+				<th>Patr.</th>
+				<th>Op.</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+
+	<div class="row mb-3 align-items-center" >
+		<hr>
+		<h3> Histórico de solicitações </h3>
+		<hr>
+	</div>
+
+	<table id="tab_consulta_solicitacoes" class="display" style="width:100%">
+		<thead>
+			<tr>
+				<th>Dt. Sol.</th>
+				<th>Descrição</th>
+				<th>Estado</th>
+				<th>Op.</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+
+
+</div>

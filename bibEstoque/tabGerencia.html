@@ -1,0 +1,111 @@
+<div class="container">
+	<div class="row mb-2 align-items-center">
+		<p id="msgTopoHistorico"></p>
+		<p id="msgDebug"></p>
+		<p id="msgResultado"></p>
+		<p id="msgAviso"></p>
+		<p id="msgErro"></p>
+		<hr>
+	</div>
+
+	
+	<form id="formAlteraSolicitacao" style="display: none;">
+		<div class="align-items-center">
+			<h3 class="text-center">  Alteração de solicitação</h3>
+		</div>
+		<div class="row mb-2 align-items-center">
+			<label for="gerencia_id" class="form-label col-2">ID:</label>
+			<input class="form-control col" id="gerencia_id" disabled>
+		</div>
+		<div class="row mb-2 align-items-center">
+			<label for="gerencia_solicitante" class="form-label col-2">Solicitante:</label>
+			<input class="form-control col" id="gerencia_solicitante" disabled>
+		</div>
+		
+		<div class="row mb-2 align-items-center">
+			<label for="gerencia_item" class="form-label col-2">Item:</label>
+			<input class="form-control col" id="gerencia_item" disabled>
+		</div>
+		
+		<div class="row mb-2 align-items-center">
+			<label for="gerencia_local" class="form-label col-2">Local:</label>
+			<input class="form-control col" id="gerencia_local" disabled>
+		</div>
+		
+		<div class="row mb-2 align-items-center">
+			<label for="gerencia_data" class="form-label col-2">Data sol.:</label>
+			<input class="form-control col" id="gerencia_data" disabled>
+		</div>
+	
+		<div class="row mb-2 align-items-center">
+			<label for="gerencia_estado" class="form-label col-2">Estado:</label>
+			<select class="form-control col" id="gerencia_estado" disabled>
+				<option value="0">solicitado</option>
+				<option value="1">atendido</option>
+				<option value="2">devolvido</option>
+				<option value="3">cancelado</option>
+			</select>
+		</div>
+		
+		<div class="row mb-2 align-items-center">
+			<label for="gerencia_qt" class="form-label col-2">Qt. solicitada:</label>
+			<input type="number" min="0" max="9999999999" class="form-control col" id="gerencia_qt" disabled>
+		</div>
+		
+		<div class="row mb-2 align-items-center">
+			<label for="gerencia_qt_at" class="form-label col-2">Qt. atendida:</label>
+			<input type="number" min="0" max="9999999999" class="form-control col" id="gerencia_qt_at" disabled>
+		</div>
+		
+		<div class="row mb-2 align-items-center">
+			<label for="gerencia_qt_dev" class="form-label col-2">Qt. devolvida:</label>
+			<input type="number" min="0" max="9999999999" class="form-control col" id="gerencia_qt_dev" disabled>
+		</div>
+		
+		
+		<div class="row mb-2 align-items-center" id="formPatrimonio">
+			<label for="gerencia_patr" class="form-label col-2" id="solicitacao_patr_lab">Patrimônio:</label>
+			<input type="number" class="form-control col" id="gerencia_patr"  min="0" max="9999999999" disabled>
+		</div>
+		
+		
+		<div class="row mb-2 align-items-center" id="formProfessor">
+			<label for="gerencia_prof" class="form-label col-2" id="solicitacao_prof_lab">Prof. Resp.:</label>
+			<input type="text" class="form-control col" id="gerencia_prof" disabled>
+		</div>
+		
+		<div class="row mb-2 align-items-center" >
+			<label for="gerencia_obs" class="form-label col-2">Observação:</label>
+			<textarea class="form-control col" id="gerencia_obs" rows="3" placeholder="Detalhes da alteração"></textarea>
+		</div>
+
+		<input id="btnAtender" class="btn btn-primary" type="button" onclick="atendeSolicitacao()" value="Atender" disabled>
+		<input id="btnDevolver" class="btn btn-primary" type="button" onclick="xxx()" value="Devolução" disabled>
+		<input id="btnCancelar" class="btn btn-primary" type="button" onclick="cancelaSolicitacaoGerencia()" value="Cancelar Solicitação" disabled>
+		<input id="btnFechar" class="btn btn-primary" type="button" value="Fechar">
+	</form>	
+
+	<br>
+
+
+	<div class="row mb-3 align-items-center" >
+		<hr>
+		<h3> Histórico de solicitações </h3>
+		<hr>
+	</div>
+
+	<table id="tab_consulta_solicitacoes" class="display" style="width:100%">
+		<thead>
+			<tr>
+				<th>Dt. Sol.</th>
+				<th>Descrição</th>
+				<th>Estado</th>
+				<th>Op.</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+
+
+</div>

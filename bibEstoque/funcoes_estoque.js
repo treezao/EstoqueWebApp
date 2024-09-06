@@ -1512,6 +1512,11 @@ function adicionaSolicitacao() {
 		return;
 	}
 	
+	if(tipoItem === "Permanente" && !prof){
+		jQuery("#msgErro").html("Favor inserir um professor responsável.");
+		return;
+	}
+	
 	
 	jQuery.post({
 		url: ajax_url,
@@ -1802,9 +1807,20 @@ function get1Solicitacao_gerencia(idSolicitacao){
 	
 	jQuery("#formAlteraSolicitacao").trigger("reset");
 	
-	// desabilita botões do formulário
+	// desabilita botões e campos do formulário
 	jQuery("#btnAtender").prop("disabled", true); 
 	jQuery("#btnDevolver").prop("disabled", true); 
+	jQuery("#btnCancelar").prop("disabled", true); 
+	
+	jQuery("#btnAtender").hide(); 
+	jQuery("#btnDevolver").hide(); 
+	jQuery("#btnCancelar").hide(); 
+	
+	jQuery("#gerencia_qt_at").prop("disabled", true); 
+	jQuery("#gerencia_qt_dev").prop("disabled", true); 
+	
+	jQuery("#gerencia_prof").prop("disabled", true); 
+	
 
 	jQuery.post({
 		url: ajax_url,
@@ -1850,10 +1866,24 @@ function get1Solicitacao_gerencia(idSolicitacao){
 			switch(data.consultas[7]){
 				case "solicitado":
 					estado = 0;
+					jQuery("#btnAtender").prop("disabled", false);
+					jQuery("#btnAtender").show();
+					
+					jQuery("#btnCancelar").prop("disabled", false);
+					jQuery("#btnCancelar").show();
+					
+					jQuery("#gerencia_qt_at").prop("disabled", false); 
+					
 					break;
 				
 				case "atendido":
 					estado = 1;
+					
+					jQuery("#btnDevolver").prop("disabled", false);
+					jQuery("#btnDevolver").show();
+					
+					jQuery("#gerencia_qt_dev").prop("disabled", false); 
+					
 					break;
 				
 				case "devolvido":
@@ -1883,4 +1913,109 @@ function get1Solicitacao_gerencia(idSolicitacao){
 	});
 	
 }
+
+function cancelaSolicitacaoGerencia(){
+	window.scrollTo({ top: 0, behavior: 'smooth' });
+	
+	resetMsgTopo();
+	
+	
+	var idSolicitacao = jQuery("#gerencia_id").val();
+	var obs = jQuery("#gerencia_obs").val();
+	
+	
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		data: {
+			"action": 'cancelaSolicitacaoGerencia',
+			"nonce":	nonce_cancelaSolicitacaoGerencia,
+			"id": idSolicitacao,
+			"obs": obs
+		},
+		dataType: "JSON",
+		success: function(data){
+				if(data.error){
+					jQuery("#msgTopoHistorico").html("Erro ao cancelar solicitação, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+					
+					if(data.msg2 != ""){
+						jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+					}
+					
+					return;
+				}
+				
+				jQuery("#msgTopoHistorico").html("Solicitação cancelada com sucesso.");
+				
+				jQuery("#formAlteraSolicitacao").hide();
+				jQuery("#formAlteraSolicitacao").trigger("reset");
+				
+				getSolicitacoesTudo();
+				
+				return;
+			
+		}
+	});
+}
+
+function atendeSolicitacao(){
+	window.scrollTo({ top: 0, behavior: 'smooth' });
+	
+	resetMsgTopo();
+	
+	var idSolicitacao = jQuery("#gerencia_id").val();
+	var qtPedida = jQuery("#gerencia_qt").val();
+	var qtAtendida = jQuery("#gerencia_qt_at").val();
+	
+	var obs = jQuery("#gerencia_obs").val();
+	
+	// validações 
+	if(qtAtendida > qtPedida){
+		jQuery("#msgAviso").html('<p>Quantidade atendida não pode ser maior que a pedida... </p>');
+		return;
+	}
+	
+	if(qtAtendida == 0){
+		jQuery("#msgAviso").html('<p>Quantidade atendida deve ser maior que zero... </p>');
+		return;
+	}
+	
+	
+	
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		data: {
+			"action": 'atendeSolicitacao',
+			"nonce":	nonce_atendeSolicitacao,
+			"id": idSolicitacao,
+			"qt": qtAtendida,
+			"obs": obs
+		},
+		dataType: "JSON",
+		success: function(data){
+				if(data.error){
+					jQuery("#msgTopoHistorico").html("Erro ao atender solicitação, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+					
+					if(data.msg2 != ""){
+						jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+					}
+					
+					return;
+				}
+				
+				jQuery("#msgTopoHistorico").html("Solicitação atendida com sucesso.");
+				
+				jQuery("#formAlteraSolicitacao").hide();
+				jQuery("#formAlteraSolicitacao").trigger("reset");
+				
+				getSolicitacoesTudo();
+				
+				return;
+			
+		}
+	});
+}
+
+
 

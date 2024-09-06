@@ -1659,6 +1659,7 @@ function addSolicitacao($post){
 }
 
 
+// busca solicitações do próprio usuário
 add_action('wp_ajax_getSolicitacao','getSolicitacao');
 function getSolicitacao($post){
 	global $cf_conn, $cf_data;
@@ -1935,6 +1936,262 @@ function get1Solicitacao($post){
 	
 	$cf_data["msg"] = "Solicitações encontradas: " . $result->num_rows;
 	
+	
+	finaliza();
+	
+}
+
+
+add_action('wp_ajax_cancelaSolicitacaoGerencia','cancelaSolicitacaoGerencia');
+function cancelaSolicitacaoGerencia($post){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_cancelaSolicitacaoGerencia') || !validaUsuario() || !conecta()){
+		finaliza(); // termina o programa aqui;
+	}
+
+	$cf_data["msg"] = "Cancelando solicitação...";
+	$cf_data["msg2"] = "";
+	$cf_data["error"] = false;
+	
+	$sql = "SELECT * FROM solicitacao WHERE id=" . $_POST["id"] . ";";
+	$result = $cf_conn->query($sql);
+	
+	
+	if(!$result){
+		$cf_data["msg"] = "Problema com banco de dados...";
+		$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	
+	
+	if($result->num_rows == 0 ) {
+		$cf_data["msg"] = "Nenhuma solicitação com o id indicado foi encontrada... Atualize a página ou contacte o administrador.";
+		$cf_data["error"] = true;
+		
+		finaliza();
+	}
+	
+	$row = $result->fetch_assoc();
+	
+	$estadoAtual = $row["status"];
+	
+	if($estadoAtual !== 'solicitado'){
+		$cf_data["msg"] = "Solicitação não pode ser cancelada. Apenas solicitações não atendidas podem ser canceladas.<br> Estado: " + $estadoAtual;
+		$cf_data["error"] = true;
+		
+		finaliza();
+	}
+	
+	// sql de atualização
+	$sql1 = "UPDATE solicitacao SET status='cancelado', obs = '" . $_POST["obs"] . "'" .
+				" WHERE id=" . $_POST["id"] . ";";
+	
+	
+	// sql para histórico de movimentações
+	$obs = "Gerência cancelou solicitação.";
+	$sql2 = "INSERT INTO movimentacoes (idUsuario,idSolicitacao,tipo_movimentacao,obs) " .
+			" VALUES (" . get_current_user_id() . "," .
+						$_POST["id"] . "," .
+						"'cancela', " . 
+						"'" . $obs . "');";
+	
+	$result1 = $cf_conn->query($sql1);
+	
+	if(!$result1){
+		$cf_data["msg"] = "Problema no cancelamento da solicitação...";
+		$cf_data["msg2"]= "SQL: " . $sql1  . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		
+		escreveDebug("NÃO FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL);
+		
+		finaliza();
+	}
+
+	$result2 = $cf_conn->query($sql2);
+	
+	if(!$result2){
+		$cf_data["msg"] = "Problema na adição do cancelamento da solicitação na movimentação...";
+		$cf_data["msg2"]= "SQL: " . $sql2  . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		
+		escreveDebug("FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL);
+		
+		finaliza();
+	}
+	
+	finaliza();
+	
+}
+
+
+add_action('wp_ajax_atendeSolicitacao','atendeSolicitacao');
+function atendeSolicitacao($post){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_atendeSolicitacao') || !validaUsuario() || !conecta()){
+		finaliza(); // termina o programa aqui;
+	}
+
+	$cf_data["msg"] = "Atendendo solicitação...";
+	$cf_data["msg2"] = "";
+	$cf_data["error"] = false;
+	
+	
+	// busca solicitação e valida
+	$sql = "SELECT * FROM solicitacao WHERE id=" . $_POST["id"] . ";";
+	$result = $cf_conn->query($sql);
+	
+	
+	if(!$result){
+		$cf_data["msg"] = "Problema com banco de dados...";
+		$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	
+	
+	if($result->num_rows == 0 ) {
+		$cf_data["msg"] = "Nenhuma solicitação com o id indicado foi encontrada... Atualize a página ou contacte o administrador.";
+		$cf_data["error"] = true;
+		
+		finaliza();
+	}
+	
+	$row = $result->fetch_assoc();
+	
+	$estadoAtual = $row["status"];
+	$qtPedida = $row["qtPedida"];
+	$idLocal = $row["idLocalizacao"];
+	$idItem = $row["idItem"];
+	$patr = $row["patrimonio"];
+	
+	if($estadoAtual !== 'solicitado'){
+		$cf_data["msg"] = "Solicitação não pode ser atendida. Apenas solicitações com estado 'solicitado' podem ser atendidas.<br> Estado: " + $estadoAtual;
+		$cf_data["error"] = true;
+		
+		finaliza();
+	}
+	
+	if($_POST["qt"] > $qtPedida) {
+		$cf_data["msg"] = "Quantidade atendida não pode ser maior que quantidade solicitada.<br> Qt. solicitada: " . $qtPedida . ", qt. atendida: " . $_POST["qt"] . "<br>";
+		$cf_data["error"] = true;
+		
+		finaliza();
+	}
+	
+	
+	// busca estoque e valida
+	if(is_null($patr)){ // se for consumo
+		$sql = "SELECT * from estoque WHERE idItem =" . $idItem .  
+											" AND idLocal=" . $idLocal . ";";
+	}else{// se for permanente
+		$sql = "SELECT * from estoque WHERE patrimonio =" . $patr . ";";
+	}
+	
+	$result = $cf_conn->query($sql);
+	
+	if(!$result){
+		$cf_data["msg"] = "Problema com banco de dados...";
+		$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	
+	if($result->num_rows == 0 ) {
+		$cf_data["msg"] = "Nenhuma estoque condizente com a solicitação foi encontrado... Atualize a página ou contacte o administrador.";
+		$cf_data["error"] = true;
+		
+		finaliza();
+	}
+	
+	$row = $result->fetch_assoc();
+
+	$estoqueId = $row["id"];
+	$estoqueQt = $row["qt"];
+	$estoqueQtEmpr = $row["qtEmprestada"];
+	$estoqueSaldo = $estoqueQt - $estoqueQtEmpr;
+	
+	
+	
+	
+	if($_POST["qt"] > $estoqueSaldo) {
+		$cf_data["msg"] = "Quantidade a ser atendida é maior que o saldo atual!<br> Qt. a ser atendida: " . $_POST["qt"] . ", saldo atual do estoque: " . $estoqueSaldo . "<br>";
+		$cf_data["error"] = true;
+		
+		finaliza();
+	}
+	
+	
+	
+	
+	
+	// Se chegou aqui, é possível realizar empréstimo
+	
+	// sql de atualização da solictação 
+	$sql1 = "UPDATE solicitacao SET status='atendido', " .
+									" obs = '" . $_POST["obs"] . "', " . 
+									" dataAtendimento = CURRENT_TIMESTAMP(), " . 
+									" qtAtendida = " . $_POST["qt"] . 
+								" WHERE id=" . $_POST["id"] . ";";
+	
+	
+	// sql para atualizar estoque
+	$sql2 = "UPDATE estoque SET qtEmprestada= qtEmprestada + " . $_POST["qt"] .
+								" WHERE id=" . $estoqueId . ";";
+	
+	
+	
+	
+	// sql para histórico de movimentações
+	$obs = "Atendimento de solicitação.";
+	$sql3 = "INSERT INTO movimentacoes (idUsuario,idSolicitacao,tipo_movimentacao,obs) " .
+			" VALUES (" . get_current_user_id() . "," .
+						$_POST["id"] . "," .
+						"'emprestimo', " . 
+						"'" . $obs . "');";
+	
+	$result1 = $cf_conn->query($sql1);
+		
+	if(!$result1){
+		$cf_data["msg"] = "Problema na atualização da solicitação...";
+		$cf_data["msg2"]= "SQL: " . $sql1  . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		
+		escreveDebug("NÃO FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL . "NÃO FEZ 3:" . $sql3 . PHP_EOL);
+		
+		finaliza();
+	}
+
+	$result2 = $cf_conn->query($sql2);
+	
+	if(!$result2){
+		$cf_data["msg"] = "Problema na atualização do estoque...";
+		$cf_data["msg2"]= "SQL: " . $sql2  . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		
+		escreveDebug("FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL . "NÃO FEZ 3:" . $sql3 . PHP_EOL);
+		
+		finaliza();
+	}
+	
+	$result3 = $cf_conn->query($sql3);
+	
+	if(!$result3){
+		$cf_data["msg"] = "Problema na adição da movimentação...";
+		$cf_data["msg2"]= "SQL: " . $sql3  . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		
+		escreveDebug("FEZ 1 - " . $sql1 . PHP_EOL . "FEZ 2:" . $sql2 . PHP_EOL . "NÃO FEZ 3:" . $sql3 . PHP_EOL);
+		
+		finaliza();
+	}
 	
 	finaliza();
 	

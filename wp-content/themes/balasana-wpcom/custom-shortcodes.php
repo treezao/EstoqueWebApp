@@ -219,23 +219,16 @@ function pagina_gerencia_solicitacoes(){
 	wp_localize_script( 'funcoes_estoque', 'nonce_get1Solicitacao', 
 							wp_create_nonce('nonce_get1Solicitacao'));
 	
-	/*
-	wp_localize_script( 'funcoes_estoque', 'nonce_getItens', 
-							wp_create_nonce('nonce_getItens'));
+	wp_localize_script( 'funcoes_estoque', 'nonce_cancelaSolicitacaoGerencia', 
+							wp_create_nonce('nonce_cancelaSolicitacaoGerencia'));
 	
-	wp_localize_script( 'funcoes_estoque', 'nonce_get_Locais', 
-							wp_create_nonce('nonce_get_Locais'));
-							
-	wp_localize_script( 'funcoes_estoque', 'nonce_addSolicitacao', 
-							wp_create_nonce('nonce_addSolicitacao'));
 	
-	wp_localize_script( 'funcoes_estoque', 'nonce_getSolicitacao', 
-							wp_create_nonce('nonce_getSolicitacao'));
+	wp_localize_script( 'funcoes_estoque', 'nonce_atendeSolicitacao', 
+							wp_create_nonce('nonce_atendeSolicitacao'));
 	
-	wp_localize_script( 'funcoes_estoque', 'nonce_cancelaSolicitacao', 
-							wp_create_nonce('nonce_cancelaSolicitacao'));
-	
-	*/
+
+
+
 	$path = $path_pagina . "tabGerencia.html";
 	
 	

@@ -1964,14 +1964,14 @@ function atendeSolicitacao(){
 	resetMsgTopo();
 	
 	var idSolicitacao = jQuery("#gerencia_id").val();
-	var qtPedida = jQuery("#gerencia_qt").val();
-	var qtAtendida = jQuery("#gerencia_qt_at").val();
+	var qtPedida = Number.parseInt(jQuery("#gerencia_qt").val());
+	var qtAtendida = Number.parseInt(jQuery("#gerencia_qt_at").val());
 	
 	var obs = jQuery("#gerencia_obs").val();
 	
 	// validações 
 	if(qtAtendida > qtPedida){
-		jQuery("#msgAviso").html('<p>Quantidade atendida não pode ser maior que a pedida... </p>');
+		jQuery("#msgAviso").html('<p>Quantidade atendida não pode ser maior que a pedida... ' + qtPedida + "/" + qtAtendida + '</p>');
 		return;
 	}
 	

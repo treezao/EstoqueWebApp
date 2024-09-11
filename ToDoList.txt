@@ -1,0 +1,18 @@
+isset post
+
+id visível na parte de solicitações
+
+refazer DB para tabela de solicitações referenciar diretametne id do estoque
+
+if else automático no serverdata
+
+nas observações, ir "somando" as observações" para manter histórico?
+
+
+atualização de accordions só quando clica, tem q ter novas funções
+
+
+estoque agora tem ID, rever funções mais velhas em q isso não existia.
+
+quando tem baixa de permanente... o que fazer com o histórico? 
+	hj está removendo linha do consumo somente, é o melhor?

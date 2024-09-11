@@ -2017,5 +2017,57 @@ function atendeSolicitacao(){
 	});
 }
 
-
+function devolveSolicitacao(){
+	window.scrollTo({ top: 0, behavior: 'smooth' });
+	
+	resetMsgTopo();
+	
+	var idSolicitacao = jQuery("#gerencia_id").val();
+	var qtPedida = Number.parseInt(jQuery("#gerencia_qt").val());
+	var qtAtendida = Number.parseInt(jQuery("#gerencia_qt_at").val());
+	var qtDevolvida = Number.parseInt(jQuery("#gerencia_qt_dev").val());
+	
+	var obs = jQuery("#gerencia_obs").val();
+	
+	// validações 
+	if(qtDevolvida > qtAtendida ){
+		jQuery("#msgAviso").html('<p>Quantidade devolvida não pode ser maior que a atendida... ' + qtDevolvida + "/" + qtAtendida + '</p>');
+		return;
+	}
+	
+	
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		data: {
+			"action": 'devolveSolicitacao',
+			"nonce":	nonce_devolveSolicitacao,
+			"id": idSolicitacao,
+			"qt": qtDevolvida,
+			"obs": obs
+		},
+		dataType: "JSON",
+		success: function(data){
+				if(data.error){
+					jQuery("#msgTopoHistorico").html("Erro ao devolver solicitação, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+					
+					if(data.msg2 != ""){
+						jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+					}
+					
+					return;
+				}
+				
+				jQuery("#msgTopoHistorico").html("Solicitação devolvida com sucesso.");
+				
+				jQuery("#formAlteraSolicitacao").hide();
+				jQuery("#formAlteraSolicitacao").trigger("reset");
+				
+				getSolicitacoesTudo();
+				
+				return;
+			
+		}
+	});
+}
 

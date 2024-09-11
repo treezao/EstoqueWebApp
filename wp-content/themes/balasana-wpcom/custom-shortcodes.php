@@ -226,6 +226,8 @@ function pagina_gerencia_solicitacoes(){
 	wp_localize_script( 'funcoes_estoque', 'nonce_atendeSolicitacao', 
 							wp_create_nonce('nonce_atendeSolicitacao'));
 	
+	wp_localize_script( 'funcoes_estoque', 'nonce_devolveSolicitacao', 
+							wp_create_nonce('nonce_devolveSolicitacao'));
 
 
 

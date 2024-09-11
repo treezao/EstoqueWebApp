@@ -1,5 +1,7 @@
 <?php
 
+require $_SERVER['DOCUMENT_ROOT'] . '/private/serverdata.php';
+
 global $cf_data, $cf_conn, $cf_timezone;
 global $path_debug_file;
 $path_debug_file = $_SERVER['DOCUMENT_ROOT'] . "/WPEstoque/bibEstoque/logs.txt";
@@ -81,19 +83,8 @@ function validaUsuario(){
 function conecta(){
 	global $cf_data, $cf_conn;
 	
-	// $servername = "dbserver.dev.e5fdf7b7-89ab-420e-b66e-65eaa2e54805.drush.in";
-	// $username = "pantheon";
-	// $password = "80b37e330cc64e1aa0aed2f4b5bd80d1";
-	// $port = 14581;
-	// $dbname = "pantheon";
+	global $servername, $username, $password, $dbname, $port;
 	
-	
-	// localhost
-	$servername = "localhost";
-	$username = "wp";
-	$password = "wp";
-	$dbname = "test";
-	$port = 3306;
 	
 	$cf_conn = new mysqli($servername, $username, $password,$dbname,$port);
 	
@@ -2192,6 +2183,195 @@ function atendeSolicitacao($post){
 		
 		finaliza();
 	}
+	
+	finaliza();
+	
+}
+
+
+add_action('wp_ajax_devolveSolicitacao','devolveSolicitacao');
+function devolveSolicitacao($post){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_devolveSolicitacao') || !validaUsuario() || !conecta()){
+		finaliza(); // termina o programa aqui;
+	}
+
+	$cf_data["msg"] = "Devolvendo solicitação...";
+	$cf_data["msg2"] = "";
+	$cf_data["error"] = false;
+	
+	
+	// busca solicitação e valida
+	$sql = "SELECT * FROM solicitacao WHERE id=" . $_POST["id"] . ";";
+	$result = $cf_conn->query($sql);
+	
+	
+	if(!$result){
+		$cf_data["msg"] = "Problema com banco de dados...";
+		$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	
+	
+	if($result->num_rows == 0 ) {
+		$cf_data["msg"] = "Nenhuma solicitação com o id indicado foi encontrada... Atualize a página ou contacte o administrador.";
+		$cf_data["error"] = true;
+		
+		finaliza();
+	}
+	
+	$row = $result->fetch_assoc();
+	
+	$estadoAtual = $row["status"];
+	$qtAtendida = $row["qtAtendida"];
+	$idLocal = $row["idLocalizacao"];
+	$idItem = $row["idItem"];
+	$patr = $row["patrimonio"];
+	
+	if($estadoAtual !== 'atendido'){
+		$cf_data["msg"] = "Solicitação não pode ser devolvida. Apenas solicitações com estado 'atendido' podem ser devolvidas.<br> Estado: " + $estadoAtual;
+		$cf_data["error"] = true;
+		
+		finaliza();
+	}
+	
+	if($_POST["qt"] > $qtAtendida) {
+		$cf_data["msg"] = "Quantidade devolvida não pode ser maior que quantidade atendida.<br> Qt. a devolver: " . $_POST["qt"] . ", qt. atendida: " . $qtAtendida . "<br>";
+		$cf_data["error"] = true;
+		
+		finaliza();
+	}
+	
+	// verifica se é devolução com baixa
+	$devComBaixa = false;
+	if($_POST["qt"] < $qtAtendida){
+		$devComBaixa = true;
+		$qtBaixa = $qtAtendida - $_POST["qt"];
+	}
+	
+	
+	// busca estoque e valida
+	if(is_null($patr)){ // se for consumo
+		$sql = "SELECT * from estoque WHERE idItem =" . $idItem .  
+											" AND idLocal=" . $idLocal . ";";
+	}else{// se for permanente
+		$sql = "SELECT * from estoque WHERE patrimonio =" . $patr . ";";
+	}
+	
+	$result = $cf_conn->query($sql);
+	
+	if(!$result){
+		$cf_data["msg"] = "Problema com banco de dados...";
+		$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	
+	if($result->num_rows == 0 ) {
+		$cf_data["msg"] = "Nenhum estoque condizente com a solicitação foi encontrado... Atualize a página ou contacte o administrador.";
+		$cf_data["error"] = true;
+		
+		finaliza();
+	}
+	
+	$row = $result->fetch_assoc();
+
+	$estoqueId = $row["id"];
+	$estoqueQt = $row["qt"];
+	$estoqueQtEmpr = $row["qtEmprestada"];
+
+	if($_POST["qt"] > $estoqueQtEmpr) {
+		$cf_data["msg"] = "Quantidade a ser devolvida é maior que a qt emprestada no estoque!<br> Qt. a ser devolvida: " . $_POST["qt"] . ", qt emprestada: " . $estoqueQtEmpr . "<br>";
+		$cf_data["error"] = true;
+		
+		finaliza();
+	}
+	
+	
+	
+	
+	// Se chegou aqui, é possível realizar devolução
+	
+	// sql de atualização da solicitação 	
+	$sql1 = "UPDATE solicitacao SET status='devolvido', " .
+									" obs = '" . $_POST["obs"] . "', " . 
+									" dataDevolucao = CURRENT_TIMESTAMP(), " . 
+									" qtDevolvida = " . $_POST["qt"] . 
+								" WHERE id=" . $_POST["id"] . ";";
+	
+	
+	// sql para atualizar estoque
+	if($devComBaixa){// se teve baixa, tem que atualizar a qt do estoque
+		$sql2 = "UPDATE estoque SET qtEmprestada= qtEmprestada - " . $qtAtendida . ", " .
+									" qt = qt - " . $qtBaixa .
+								" WHERE id=" . $estoqueId . ";";
+	}else{
+		$sql2 = "UPDATE estoque SET qtEmprestada= qtEmprestada - " . $_POST["qt"] .
+								" WHERE id=" . $estoqueId . ";";
+	}
+	
+	// sql para histórico de movimentações
+	if($devComBaixa){
+		$obs = "Devolução de solicitação com baixa.";
+		$sql3 = "INSERT INTO movimentacoes (idUsuario,idSolicitacao,tipo_movimentacao,qt,obs) " .
+				" VALUES (" . get_current_user_id() . "," .
+							$_POST["id"] . "," .
+							"'devolucaoEBaixa', " .
+							$qtBaixa . ", " . 
+							"'" . $obs . "');";
+	}else{
+		$obs = "Devolução de solicitação.";
+		$sql3 = "INSERT INTO movimentacoes (idUsuario,idSolicitacao,tipo_movimentacao,obs) " .
+				" VALUES (" . get_current_user_id() . "," .
+							$_POST["id"] . "," .
+							"'devolucao', " . 
+							"'" . $obs . "');";
+							
+	}
+	
+	
+	
+	$result1 = $cf_conn->query($sql1);
+		
+	if(!$result1){
+		$cf_data["msg"] = "Problema na atualização da solicitação...";
+		$cf_data["msg2"]= "SQL: " . $sql1  . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		
+		escreveDebug("NÃO FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL . "NÃO FEZ 3:" . $sql3 . PHP_EOL);
+		
+		finaliza();
+	}
+
+	$result2 = $cf_conn->query($sql2);
+	
+	if(!$result2){
+		$cf_data["msg"] = "Problema na atualização do estoque...";
+		$cf_data["msg2"]= "SQL: " . $sql2  . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		
+		escreveDebug("FEZ 1 - " . $sql1 . PHP_EOL . "NÃO FEZ 2:" . $sql2 . PHP_EOL . "NÃO FEZ 3:" . $sql3 . PHP_EOL);
+		
+		finaliza();
+	}
+	
+	$result3 = $cf_conn->query($sql3);
+	
+	if(!$result3){
+		$cf_data["msg"] = "Problema na adição da movimentação...";
+		$cf_data["msg2"]= "SQL: " . $sql3  . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		
+		escreveDebug("FEZ 1 - " . $sql1 . PHP_EOL . "FEZ 2:" . $sql2 . PHP_EOL . "NÃO FEZ 3:" . $sql3 . PHP_EOL);
+		
+		finaliza();
+	}
+	
 	
 	finaliza();
 	

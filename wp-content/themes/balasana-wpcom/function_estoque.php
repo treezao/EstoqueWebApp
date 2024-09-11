@@ -1817,7 +1817,7 @@ function getSolicitacaoTudo($post){
 	$sql = "SELECT s.*, i.itemNome,i.itemTipo,l.localNome, u.user_nicename from solicitacao s ".
 		"INNER JOIN (SELECT id, nome as itemNome, tipo as itemTipo from item) i ON s.iditem=i.id " . 
 		"INNER JOIN (SELECT id, nome as localNome from localizacao ) l ON s.idLocalizacao=l.id " .
-		"INNER JOIN (SELECT id, user_nicename from wpestoque.wp_users) u ON s.idUsuario=u.id; ";
+		"INNER JOIN (SELECT id, user_nicename from wp_users) u ON s.idUsuario=u.id; ";
 		
 	$result = $cf_conn->query($sql);
 	
@@ -1884,7 +1884,7 @@ function get1Solicitacao($post){
 	$sql = "SELECT s.*, i.itemNome,i.itemTipo,l.localNome, u.user_nicename from solicitacao s ".
 		"INNER JOIN (SELECT id, nome as itemNome, tipo as itemTipo from item) i ON s.iditem=i.id " . 
 		"INNER JOIN (SELECT id, nome as localNome from localizacao ) l ON s.idLocalizacao=l.id " .
-		"INNER JOIN (SELECT id, user_nicename from wpestoque.wp_users) u ON s.idUsuario=u.id " .
+		"INNER JOIN (SELECT id, user_nicename from wp_users) u ON s.idUsuario=u.id " .
 		" WHERE s.id=". $_POST["idSolicitacao"] .";";
 	$result = $cf_conn->query($sql);
 	

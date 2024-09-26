@@ -16,3 +16,33 @@ estoque agora tem ID, rever funções mais velhas em q isso não existia.
 
 quando tem baixa de permanente... o que fazer com o histórico? 
 	hj está removendo linha do consumo somente, é o melhor?
+	
+	
+Mudar SQL para latin1 ou o que ficar mais fácil.
+	- feito, testar 
+	
+Não remover estoques zerados para consumo.
+
+
+Página de relatórios
+
+indicação de estoque mínimo
+
+
+Banco de dados 
+	- fazer planilha no google
+	- lista dos estoques, adicionar coluna de tipo (permanente/consumo)
+		- talvez o melhor seja planilhas diferentes
+	- encontrar as descrições únicas
+		- verificar se tem algumas parecidas e juntar se for o caso
+		- criar ids 
+	- encontrar os locais únicos 
+		- verificar se tem alguns parecidos e juntar se for o caso 
+		- criar ids
+		
+	- nas planilhas dos itens, associar com os ids de locais e itens 
+	- produzir "testo" de inserção do SQL 
+	
+
+Itens/Locais
+	- fazer accordion de busca de itens, locais associados?

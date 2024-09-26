@@ -24,11 +24,11 @@ function initTabelaLocais(){
 		"columnDefs": [
 			{
 				targets: 0,
-				visible: false
+				visible: true
 			},
+			{width : '5%', targets: 0},
 			{width : '25%', targets : 1},
-			{width : '5%', targets : 3}
-			
+			{width : '5%', targets : 3},
 		],
 		lengthMenu: [
 			[25, 50, 100, -1],
@@ -241,8 +241,9 @@ function initTabelaItens(){
 		"columnDefs": [
 			{
 				targets: 0,
-				visible: false
+				visible: true
 			},
+			{width : '5%', targets: 0},
 			{width : '25%', targets : 1},
 			{width : '7%', targets : 3},
 			{width : '5%', targets : 4},
@@ -1286,9 +1287,10 @@ function initTabelaSolicitacoes_solicitacoes(){
 			url: 'https://cdn.datatables.net/plug-ins/2.1.3/i18n/pt-BR.json'
 		},
 		"columnDefs": [
-			{width : '18%', targets : 0},
-			{width : '7%', targets : 2},
-			{width : '5%', targets : 3},
+			{width : '5%', targets : 0},
+			{width : '18%', targets : 1},
+			{width : '7%', targets : 3},
+			{width : '5%', targets : 4},
 		],
 		lengthMenu: [
 			[10, 20, 30, -1],
@@ -1593,6 +1595,7 @@ function atualizaTabSolicitacoes_solicitacoes(data){
 		
 		
 		t.row.add([
+				x[0],
 				x[1].replace(" ", "<br>"),
 				accordionSolicitacao(x),
 				x[7],
@@ -1738,6 +1741,7 @@ function atualizaTabSolicitacoes_gerencia(data){
 		
 		
 		t.row.add([
+				x[0],
 				x[1].replace(" ", "<br>"),
 				accordionSolicitacao_gerencia(x),
 				x[7],

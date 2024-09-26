@@ -1,5 +1,5 @@
 <div class="container">
-	<div class="row mb-2 align-items-center">
+	<div class="mb-2 align-items-center">
 		<p id="msgTopoHistorico"></p>
 		<p id="msgDebug"></p>
 		<p id="msgResultado"></p>
@@ -8,8 +8,9 @@
 		<hr>
 	</div>
 
-	<input id="btnAlteraEstoqueToogle" class="btn btn-primary" type="button" value="Alterar Estoque">
-	<br><br>
+	<div class="mb-2 align-items-center">
+		<input id="btnAlteraEstoqueToogle" class="btn btn-primary" type="button" value="Alterar Estoque">
+	</div>
 	
 	<form id="formAlteraEstoque" style="display: none;">
 		<div class="row mb-2 align-items-center">
@@ -112,23 +113,23 @@
 		
 	</form>	
 
-	<div class="row mb-3 align-items-center" >
+	<div class="mb-2 align-items-center" >
 		<hr> 
+		<table id="tab_consulta_estoque" class="display compact" style="width:100%">
+			<thead>
+				<tr>
+					<th>Local</th>
+					<th>Item</th>
+					<th>Qt.</th>
+					<th>Qt. Empr.</th>
+					<th>Patr.</th>
+					<th>Op.</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
 	</div>
-	<table id="tab_consulta_estoque" class="display compact" style="width:100%">
-		<thead>
-			<tr>
-				<th>Local</th>
-				<th>Item</th>
-				<th>Qt.</th>
-				<th>Qt. Empr.</th>
-				<th>Patr.</th>
-				<th>Op.</th>
-			</tr>
-		</thead>
-		<tbody>
-		</tbody>
-	</table>
 
 
 	

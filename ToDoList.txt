@@ -16,12 +16,12 @@ estoque agora tem ID, rever funções mais velhas em q isso não existia.
 
 quando tem baixa de permanente... o que fazer com o histórico? 
 	hj está removendo linha do consumo somente, é o melhor?
+	Não remover estoques zerados para consumo.
 	
 	
 Mudar SQL para latin1 ou o que ficar mais fácil.
 	- feito, testar 
 	
-Não remover estoques zerados para consumo.
 
 
 Página de relatórios
@@ -44,5 +44,34 @@ Banco de dados
 	- produzir "testo" de inserção do SQL 
 	
 
-Itens/Locais
-	- fazer accordion de busca de itens, locais associados?
+Tamanho de fontes
+	- tem que adicionar novas categorias no Sass map, links abaixo
+	https://getbootstrap.com/docs/5.0/utilities/api/#using-the-api
+	https://getbootstrap.com/docs/5.0/utilities/text/
+	
+	Bootstrap 4: There're range of classes you can use to customize your text:
+
+	h1 - h6
+	display-1 - display-4
+	small
+	lead
+
+
+Relatorios
+	-de Itens
+		- fazer um aglomerado de todos os locais que tem o item e descrever os qts associados 
+		- apresentar na msm página e logo depois?
+		- talvez o melhor seja no próprio accordion 
+			- daí o melhor seria o preenchimento do accordion no click, e não na busca... para deixar mais "leve"
+		- a partir daqui já dá uma visão do que está faltando ou não. Pode adicionar colunas ou linha na descrição com a qt total+emprestada
+			
+	- de Locais 
+		- fazer um aglomerado de itens presente no local 
+		
+	- de empréstimos
+		- já tem o gerência, que permite buscas por item/local/usuário
+		- filtragem nas tabelas 
+		
+		
+		
+		

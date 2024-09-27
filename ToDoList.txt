@@ -72,6 +72,8 @@ Relatorios
 		- já tem o gerência, que permite buscas por item/local/usuário
 		- filtragem nas tabelas 
 		
+	- gerencia
+		- eventualmente vai ter muitos dados... seria interessante puxar somente os ativos, e dar a opção de puxar tudo se for o caso
 		
 		
 		

@@ -1555,6 +1555,7 @@ function addSolicitacao($post){
 		
 		// busca linha do estoque 
 		$row = $result->fetch_assoc();
+		$estoque_id = $row["id"];
 		
 		// verifique se quantidade pedida está adequada
 		if($_POST["qt"] < 1){
@@ -1564,10 +1565,9 @@ function addSolicitacao($post){
 		}
 		
 		// sql para inserir solicitação
-		$sql1 = "INSERT INTO solicitacao (idUsuario,idItem,idLocalizacao,qtPedida,status) " .
+		$sql1 = "INSERT INTO solicitacao (idUsuario,idEstoque,qtPedida,status) " .
 				"VALUES (" . get_current_user_id() . "," .
-							$_POST["idItem"] . "," .
-							$_POST["idLocal"] . "," .
+							$estoque_id . "," .
 							$_POST["qt"] . "," .
 							"'solicitado');";
 		
@@ -1607,6 +1607,7 @@ function addSolicitacao($post){
 		
 		// busca linha do estoque 
 		$row = $result->fetch_assoc();
+		$estoque_id = $row["id"];
 		
 		// verifique se quantidade pedida está adequada
 		if($_POST["qt"] < 1){
@@ -1616,12 +1617,10 @@ function addSolicitacao($post){
 		}
 		
 		// sql para inserir solicitação
-		$sql1 = "INSERT INTO solicitacao (idUsuario,idItem,idLocalizacao,qtPedida,patrimonio,profResponsavel,status) " .
+		$sql1 = "INSERT INTO solicitacao (idUsuario,idEstoque,qtPedida,profResponsavel,status) " .
 				"VALUES (" . get_current_user_id() . "," .
-							$_POST["idItem"] . "," .
-							$_POST["idLocal"] . "," .
+							$estoque_id . "," .
 							$_POST["qt"] . "," .
-							$_POST["patr"] . "," .
 							"'" . $_POST["prof"] . "'," . 
 							"'solicitado');";
 		
@@ -1664,9 +1663,12 @@ function getSolicitacao($post){
 	$cf_data["msg2"] = "";
 	$cf_data["error"] = false;
 	
-	$sql = "SELECT s.*, i.itemNome,i.itemTipo,l.localNome from solicitacao s ".
-			"INNER JOIN (SELECT id, nome as itemNome, tipo as itemTipo from item) i ON s.iditem=i.id ".
-			"INNER JOIN (SELECT id, nome as localNome from localizacao ) l ON s.idLocalizacao=l.id WHERE s.idUsuario=". get_current_user_id() .";";
+	
+	$sql = "SELECT s.*, e.patrimonio, i.itemNome,i.itemTipo,l.localNome FROM solicitacao s " .
+			"INNER JOIN (SELECT * from estoque) e ON s.idEstoque = e.id " .
+			"INNER JOIN (SELECT id, nome as itemNome, tipo as itemTipo FROM item) i ON e.iditem=i.id " .
+			"INNER JOIN (SELECT id, nome as localNome FROM localizacao ) l ON e.idLocal=l.id ". 
+			"WHERE s.idUsuario=". get_current_user_id() . ";";
 	$result = $cf_conn->query($sql);
 	
 	
@@ -1814,9 +1816,10 @@ function getSolicitacaoTudo($post){
 	$cf_data["msg2"] = "";
 	$cf_data["error"] = false;
 	
-	$sql = "SELECT s.*, i.itemNome,i.itemTipo,l.localNome, u.user_nicename from solicitacao s ".
-		"INNER JOIN (SELECT id, nome as itemNome, tipo as itemTipo from item) i ON s.iditem=i.id " . 
-		"INNER JOIN (SELECT id, nome as localNome from localizacao ) l ON s.idLocalizacao=l.id " .
+	$sql = "SELECT s.*, e.patrimonio, i.itemNome,i.itemTipo,l.localNome, u.user_nicename from solicitacao s ".
+		"INNER JOIN (SELECT * from estoque) e ON s.idEstoque = e.id " .
+		"INNER JOIN (SELECT id, nome as itemNome, tipo as itemTipo FROM item) i ON e.iditem=i.id " .
+		"INNER JOIN (SELECT id, nome as localNome FROM localizacao ) l ON e.idLocal=l.id ". 
 		"INNER JOIN (SELECT id, user_nicename from wp_users) u ON s.idUsuario=u.id; ";
 		
 	$result = $cf_conn->query($sql);
@@ -1881,11 +1884,13 @@ function get1Solicitacao($post){
 	$cf_data["encontrado"] = false;
 	
 	
-	$sql = "SELECT s.*, i.itemNome,i.itemTipo,l.localNome, u.user_nicename from solicitacao s ".
-		"INNER JOIN (SELECT id, nome as itemNome, tipo as itemTipo from item) i ON s.iditem=i.id " . 
-		"INNER JOIN (SELECT id, nome as localNome from localizacao ) l ON s.idLocalizacao=l.id " .
+	$sql = "SELECT s.*, e.patrimonio, i.itemNome,i.itemTipo,l.localNome, u.user_nicename from solicitacao s ".
+		"INNER JOIN (SELECT * from estoque) e ON s.idEstoque = e.id " .
+		"INNER JOIN (SELECT id, nome as itemNome, tipo as itemTipo from item) i ON e.iditem=i.id " . 
+		"INNER JOIN (SELECT id, nome as localNome from localizacao ) l ON e.idLocal=l.id " .
 		"INNER JOIN (SELECT id, user_nicename from wp_users) u ON s.idUsuario=u.id " .
 		" WHERE s.id=". $_POST["idSolicitacao"] .";";
+	
 	$result = $cf_conn->query($sql);
 	
 	
@@ -2058,9 +2063,7 @@ function atendeSolicitacao($post){
 	
 	$estadoAtual = $row["status"];
 	$qtPedida = $row["qtPedida"];
-	$idLocal = $row["idLocalizacao"];
-	$idItem = $row["idItem"];
-	$patr = $row["patrimonio"];
+	$idEstoque = $row["idEstoque"];
 	
 	if($estadoAtual !== 'solicitado'){
 		$cf_data["msg"] = "Solicitação não pode ser atendida. Apenas solicitações com estado 'solicitado' podem ser atendidas.<br> Estado: " + $estadoAtual;
@@ -2077,13 +2080,7 @@ function atendeSolicitacao($post){
 	}
 	
 	
-	// busca estoque e valida
-	if(is_null($patr)){ // se for consumo
-		$sql = "SELECT * from estoque WHERE idItem =" . $idItem .  
-											" AND idLocal=" . $idLocal . ";";
-	}else{// se for permanente
-		$sql = "SELECT * from estoque WHERE patrimonio =" . $patr . ";";
-	}
+	$sql = "SELECT * from estoque WHERE id =" . $idEstoque . ";";
 	
 	$result = $cf_conn->query($sql);
 	
@@ -2096,7 +2093,7 @@ function atendeSolicitacao($post){
 	
 	
 	if($result->num_rows == 0 ) {
-		$cf_data["msg"] = "Nenhuma estoque condizente com a solicitação foi encontrado... Atualize a página ou contacte o administrador.";
+		$cf_data["msg"] = "Nenhum estoque condizente com a solicitação foi encontrado... Atualize a página ou contacte o administrador.";
 		$cf_data["error"] = true;
 		
 		finaliza();
@@ -2104,12 +2101,9 @@ function atendeSolicitacao($post){
 	
 	$row = $result->fetch_assoc();
 
-	$estoqueId = $row["id"];
 	$estoqueQt = $row["qt"];
 	$estoqueQtEmpr = $row["qtEmprestada"];
 	$estoqueSaldo = $estoqueQt - $estoqueQtEmpr;
-	
-	
 	
 	
 	if($_POST["qt"] > $estoqueSaldo) {
@@ -2118,9 +2112,6 @@ function atendeSolicitacao($post){
 		
 		finaliza();
 	}
-	
-	
-	
 	
 	
 	// Se chegou aqui, é possível realizar empréstimo
@@ -2135,10 +2126,7 @@ function atendeSolicitacao($post){
 	
 	// sql para atualizar estoque
 	$sql2 = "UPDATE estoque SET qtEmprestada= qtEmprestada + " . $_POST["qt"] .
-								" WHERE id=" . $estoqueId . ";";
-	
-	
-	
+								" WHERE id=" . $idEstoque . ";";
 	
 	// sql para histórico de movimentações
 	$obs = "Atendimento de solicitação.";
@@ -2228,9 +2216,7 @@ function devolveSolicitacao($post){
 	
 	$estadoAtual = $row["status"];
 	$qtAtendida = $row["qtAtendida"];
-	$idLocal = $row["idLocalizacao"];
-	$idItem = $row["idItem"];
-	$patr = $row["patrimonio"];
+	$idEstoque = $row["idEstoque"];
 	
 	if($estadoAtual !== 'atendido'){
 		$cf_data["msg"] = "Solicitação não pode ser devolvida. Apenas solicitações com estado 'atendido' podem ser devolvidas.<br> Estado: " + $estadoAtual;
@@ -2255,12 +2241,7 @@ function devolveSolicitacao($post){
 	
 	
 	// busca estoque e valida
-	if(is_null($patr)){ // se for consumo
-		$sql = "SELECT * from estoque WHERE idItem =" . $idItem .  
-											" AND idLocal=" . $idLocal . ";";
-	}else{// se for permanente
-		$sql = "SELECT * from estoque WHERE patrimonio =" . $patr . ";";
-	}
+	$sql = "SELECT * from estoque WHERE id =" . $idEstoque . ";";
 	
 	$result = $cf_conn->query($sql);
 	
@@ -2281,7 +2262,6 @@ function devolveSolicitacao($post){
 	
 	$row = $result->fetch_assoc();
 
-	$estoqueId = $row["id"];
 	$estoqueQt = $row["qt"];
 	$estoqueQtEmpr = $row["qtEmprestada"];
 
@@ -2309,10 +2289,10 @@ function devolveSolicitacao($post){
 	if($devComBaixa){// se teve baixa, tem que atualizar a qt do estoque
 		$sql2 = "UPDATE estoque SET qtEmprestada= qtEmprestada - " . $qtAtendida . ", " .
 									" qt = qt - " . $qtBaixa .
-								" WHERE id=" . $estoqueId . ";";
+								" WHERE id=" . $idEstoque . ";";
 	}else{
 		$sql2 = "UPDATE estoque SET qtEmprestada= qtEmprestada - " . $_POST["qt"] .
-								" WHERE id=" . $estoqueId . ";";
+								" WHERE id=" . $idEstoque . ";";
 	}
 	
 	// sql para histórico de movimentações

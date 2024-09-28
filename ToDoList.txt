@@ -3,6 +3,15 @@ isset post
 id visível na parte de solicitações
 
 refazer DB para tabela de solicitações referenciar diretametne id do estoque
+	ao alterar estoque (remover/mover) tem, possivelmente, um delete
+	se tiver solicitação em cima disso, tem que testar e/ou cancelar automaticamente
+	
+	não deleta, até para manter o histórico
+		- mas se mover de volta pode dar problema
+		
+		pode ter patrimônios duplicados então, com estoque =0 
+	- gera mais problemas do que conserta, ao colocar na solicitação as infos de item/local, fica "imune" a variações de estoque
+
 
 if else automático no serverdata
 
@@ -29,7 +38,7 @@ Página de relatórios
 indicação de estoque mínimo
 
 
-Banco de dados 
+Banco de dados inicial a partir da planilha google
 	- fazer planilha no google
 	- lista dos estoques, adicionar coluna de tipo (permanente/consumo)
 		- talvez o melhor seja planilhas diferentes
@@ -41,7 +50,7 @@ Banco de dados
 		- criar ids
 		
 	- nas planilhas dos itens, associar com os ids de locais e itens 
-	- produzir "testo" de inserção do SQL 
+	- produzir "texto" de inserção do SQL 
 	
 
 Tamanho de fontes

@@ -1186,6 +1186,8 @@ function alteraEstoque_retorno(data){
 		}
 	}
 	
+	getEstoque(atualizaTabEstoque);
+	
 }
 
 function alteraQtMovRem(tipo){

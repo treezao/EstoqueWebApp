@@ -1,5 +1,14 @@
 isset post
 
+solicitação tem estoque associado, o problema está na alteração de estoque 
+	- por questão de manter os registros passados, não dá para deletar os estoques antigos
+	- para consumo
+		- podem existir vários estoques zerados, mas não tem problema, porém, ao realizar qq operação, terá q ser verificado a existência da combinação item/local 
+	- para permanente 
+		- pode existir vários estoques com o msm patrimônio, vai interferir em algumas funções, terão que ser reescritas 
+
+
+
 id visível na parte de solicitações
 
 refazer DB para tabela de solicitações referenciar diretametne id do estoque

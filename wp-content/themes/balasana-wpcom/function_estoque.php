@@ -950,6 +950,7 @@ function alteraEstoque(){
 		movEstoque($_POST);
 	}
 	
+	
 	if($_POST["op"] === "Remover"){
 		remEstoque($_POST);
 		
@@ -957,7 +958,7 @@ function alteraEstoque(){
 	
 	
 	// não deveria chegar aqui
-	$cf_data["msg"] = "Chegou onde não devia, função alteraEstoque...";
+	$cf_data["msg"] = "Chegou onde não devia, operação indicada errada: " . $_POST["op"] . "/função alteraEstoque...";
 	$cf_data["error"] = true;
 	finaliza();
 }
@@ -983,7 +984,7 @@ function addEstoque($post){
 		
 		// se existirem múltiplas entradas, tem erro no BD
 		if($result->num_rows > 1) {
-			$cf_data["msg"] = "O estoque a ser adiciona já existe e está multiplicado...";
+			$cf_data["msg"] = "O estoque a ser adicionado já existe e está multiplicado...";
 			$cf_data["msg2"]= "SQL: " . $sql . " <br> Linhas encontradas: " . $result->num_rows;
 			$cf_data["error"] = true;
 			finaliza();
@@ -1006,10 +1007,9 @@ function addEstoque($post){
 		
 		
 		// sql para histórico de movimentações
-		$sql2 = "INSERT INTO movimentacoes (idUsuario,idItem,idLocalOrigem,idLocalDestino,qt,tipo_movimentacao,obs) " .
+		$sql2 = "INSERT INTO movimentacoes (idUsuario,idItem,idLocalDestino,qt,tipo_movimentacao,obs) " .
 				"VALUES (" . get_current_user_id() . "," .
 							$post["idItem"] . "," .
-							$post["idLocal"] . "," .
 							$post["idLocal"] . "," .
 							$post["addQt"]. "," .
 							"'adicao', " .
@@ -1042,8 +1042,8 @@ function addEstoque($post){
 		finaliza();
 		
 	}elseif($post["tipo"] === "Permanente"){
-		// Buscando estoque
-		$sql = "SELECT * FROM estoque WHERE patrimonio=" . $post["addPatr"] . ";";
+		// Primeiro verifica se patrimônio já está registrado
+		$sql = "SELECT * FROM estoque WHERE patrimonio='" . $post["addPatr"] . "';";
 		$result = $cf_conn->query($sql);
 		
 		if(!$result){
@@ -1052,27 +1052,48 @@ function addEstoque($post){
 			$cf_data["error"] = true;
 			finaliza();
 		}
+		
+		// se existe este patrimônio no estoque, verifica se a qt é zero
+		if($result->num_rows >= 1 ) {
 			
-		// não existe este patrimônio no estoque
-		if($result->num_rows == 0 ) {
+			$qtTotal = 0;
+			while($row = $result->fetch_assoc()) {
+				
+				$id = $row["id"];
+				$iditem = $row["iditem"];
+				$idlocal = $row["idLocal"];
+				$qt_est = $row["qt"];
+				
+				// se já tem estoque registrado com este patrimônio, não pode adicionar duplicado.
+				if($qt_est > 0){
+					$cf_data["msg"] = "Este patrimônio já está registrado com estoque não nulo...";
+					$cf_data["error"] = true;
+					finaliza();
+				}
+				
+				//combinação local/item/patrimonio já tem registro, mas com estoque 0, então só atualiza estoque
+				if($iditem == $post["idItem"] && $idlocal == $post["idLocal"]){
+					
+					$sql1 = "UPDATE estoque SET qt = 1 WHERE id =" . $id . ";";
+					
+				}
+			}
+			
+			
+		}else{ // se não existe estoque registrado com este patrimônio
 			
 			$sql1 = "INSERT INTO estoque (iditem,idLocal,qt,patrimonio) ".
-					" VALUES (" . $post["idItem"] . "," .
-								 $post["idLocal"] . "," .
-								 "1," .
-								 $post["addPatr"] . ");";
-			
-		}else{ // existe estoque registrado com este patrimônio, finaliza!
-			$cf_data["msg"] = "Este patrimônio já está registrado...";
-			$cf_data["error"] = true;
-			finaliza();
+							" VALUES (" . $post["idItem"] . "," .
+										 $post["idLocal"] . "," .
+										 "1," .
+										 $post["addPatr"] . ");";
+		
 		}
 		
 		// sql para histórico de movimentações
-		$sql2 = "INSERT INTO movimentacoes (idUsuario,idItem,idLocalOrigem,idLocalDestino,patrimonio,qt,tipo_movimentacao,obs) " .
+		$sql2 = "INSERT INTO movimentacoes (idUsuario,idItem,idLocalDestino,patrimonio,qt,tipo_movimentacao,obs) " .
 				"VALUES (" . get_current_user_id() . "," .
 							$post["idItem"] . "," .
-							$post["idLocal"] . "," .
 							$post["idLocal"] . "," .
 							$post["addPatr"] . "," .
 							"1," .
@@ -1173,18 +1194,6 @@ function movEstoque($post){
 			finaliza();
 		}
 		
-		
-		// Prepara SQL para remoção de estoque
-		// se existe estoque na origem, prepara sql.
-		// ao executar movimentação, se não tem nada emprestado, estoque vai a zero e podemos eliminar a linha
-		if($row["qt"]-$post["movQt"] == 0 && $row["qtEmprestada"] == 0){
-			$sql1 = "DELETE from estoque WHERE id=" . $row["id"] . ";";
-		}else{ // caso contrário, só atualiza row do BD
-			$sql1 = "UPDATE estoque SET qt = qt - " . $post["movQt"] . 
-					" WHERE iditem=" . $post["idItem"] .
-							" AND idLocal=" . $post["idLocal"] . ";";
-		}
-		
 		// Se existe ou não estoque no destino, é necessário SQLs diferentes
 		// se tem múltiplas entradas, BD com problema!
 		if($result2->num_rows > 1) {
@@ -1193,6 +1202,16 @@ function movEstoque($post){
 			$cf_data["error"] = true;
 			finaliza();
 		}
+		
+		
+		
+		
+		// Prepara SQL para atualização do estoque na origem
+		$sql1 = "UPDATE estoque SET qt = qt - " . $post["movQt"] . 
+					" WHERE iditem=" . $post["idItem"] .
+							" AND idLocal=" . $post["idLocal"] . ";";
+		
+
 		// estoque no destino não existe
 		if($result2->num_rows == 0 ) {
 			$sql2 = "INSERT INTO estoque (iditem,idLocal,qt) ".
@@ -1254,8 +1273,8 @@ function movEstoque($post){
 		finaliza();
 	
 	}elseif($post["tipo"] === "Permanente"){
-		// Buscando estoque
-		$sql = "SELECT * FROM estoque WHERE patrimonio=" . $post["movPatr"] . ";";
+		// Buscando estoque com o patrimonio e estoque 1
+		$sql = "SELECT * FROM estoque WHERE patrimonio=" . $post["movPatr"] . " AND qt = 1;";
 		$result = $cf_conn->query($sql);
 		
 		if(!$result){
@@ -1273,7 +1292,7 @@ function movEstoque($post){
 			finaliza();
 		}
 		
-		// sql para remover patrimonio do estoque atual
+		// verifica se o item está emprestado, se sim, não pode mover.
 		$row = $result->fetch_assoc();
 		if($row["qtEmprestada"]>0){
 			$cf_data["msg"] = "Este patrimônio está emprestado, precisa ser devolvido primeiro...";
@@ -1281,16 +1300,46 @@ function movEstoque($post){
 			finaliza();
 		}
 		
-		// remove estoque atual
-		$sql1 = "DELETE FROM estoque WHERE id=" . $row["id"] . ";"; 
 		
-		// cria novo estoque 
-		$sql2 = "INSERT INTO estoque (iditem,idLocal,qt,patrimonio) ".
-					" VALUES (" . $post["idItem"] . "," .
-								 $post["movLocalId"] . "," .
-								 "1," .
-								 $post["movPatr"] . ");";
+		// sql para remover patrimonio do estoque atual
+		$sql1 = "UPDATE estoque SET qt = 0 WHERE id=" . $row["id"] . ";"; 
 		
+		
+		// verifica se o estoque de destino existe 
+		$sql = "SELECT * FROM estoque WHERE patrimonio=" . $post["movPatr"] . " AND idLocal = " . $post["movLocalId"] . ";";
+		$result2 = $cf_conn->query($sql);
+		
+		if(!$result2){
+			$cf_data["msg"] = "Problema com banco de dados...";
+			$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+			$cf_data["error"] = true;
+			finaliza();
+		}
+		
+		// existem múltiplos estoques de destinos com o mesmo patrimônio, algo de errado no BD
+		if($result2->num_rows > 1 ) {
+			$cf_data["msg"] = "O estoque de destino está multiplicado...";
+			$cf_data["msg2"]= "SQL: " . $sql . " <br> Linhas encontradas: " . $result2->num_rows;
+			$cf_data["error"] = true;
+			finaliza();
+		}
+		
+		
+		// estoque de destino já existe
+		if($result2->num_rows == 1){
+			$row = $result2->fetch_assoc();
+			$sql2 = "UPDATE estoque SET qt = 1 WHERE id=" . $row["id"] . ";";
+
+		}else{// estoque de destino não existe
+			// cria novo estoque 
+			$sql2 = "INSERT INTO estoque (iditem,idLocal,qt,patrimonio) ".
+						" VALUES (" . $post["idItem"] . "," .
+									 $post["movLocalId"] . "," .
+									 "1," .
+									 $post["movPatr"] . ");";
+									 
+		}
+			
 		// sql para histórico de movimentações
 		$sql3 = "INSERT INTO movimentacoes (idUsuario,idItem,idLocalOrigem,idLocalDestino,patrimonio,qt,tipo_movimentacao,obs) " .
 				"VALUES (" . get_current_user_id() . "," .
@@ -1385,21 +1434,17 @@ function remEstoque($post){
 		}
 		
 		
-		// ao executar remoção, como não tem nada emprestado, estoque vai a zero e podemos eliminar a linha
-		// Prepara SQL para remoção de estoque
-		if($row["qt"]-$post["remQt"] == 0 && $row["qtEmprestada"] == 0){
-			$sql1 = "DELETE from estoque WHERE id=" . $row["id"] . ";";
-		}else{ // caso contrário, só atualiza row do DB
-			$sql1 = "UPDATE estoque SET qt = qt - " . $post["remQt"] . 
+
+		// Prepara SQL para atualização do estoque (estoque com valor 0 nunca é removido para manter histórico)
+		$sql1 = "UPDATE estoque SET qt = qt - " . $post["remQt"] . 
 					" WHERE iditem=" . $post["idItem"] .
 										" AND idLocal=" . $post["idLocal"] . ";";
-		}
+		
 
 		// sql para histórico de movimentações
-		$sql2 = "INSERT INTO movimentacoes (idUsuario,idItem,idLocalOrigem,idLocalDestino,qt,tipo_movimentacao,obs) " .
+		$sql2 = "INSERT INTO movimentacoes (idUsuario,idItem,idLocalOrigem,qt,tipo_movimentacao,obs) " .
 				"VALUES (" . get_current_user_id() . "," .
 							$post["idItem"] . "," .
-							$post["idLocal"] . "," .
 							$post["idLocal"] . "," .
 							$post["remQt"]. "," .
 							"'baixa', " .
@@ -1433,8 +1478,8 @@ function remEstoque($post){
 		
 		
 	}elseif($post["tipo"] === "Permanente"){
-		// Buscando estoque
-		$sql = "SELECT * FROM estoque WHERE patrimonio='" . $post["remPatr"] . "';";
+		// Buscando estoque com o patrimônio em que a qt é 1
+		$sql = "SELECT * FROM estoque WHERE patrimonio='" . $post["remPatr"] . "' AND qt = 1;";
 		$result = $cf_conn->query($sql);
 		
 		if(!$result){
@@ -1444,7 +1489,7 @@ function remEstoque($post){
 			finaliza();
 		}
 		
-		// não existe este estoque registrado então não pode ser removido! (ou existem múltiplos estoque e tem algo errado no BD
+		// não existe este estoque registrado então não pode ser removido! (ou existem múltiplos estoque com qt = 1 e tem algo errado no BD
 		if($result->num_rows != 1 ) {
 			$cf_data["msg"] = "O estoque a ser removido não existe ou está multiplicado...";
 			$cf_data["msg2"]= "SQL: " . $sql . " <br> Linhas encontradas: " . $result->num_rows;
@@ -1462,15 +1507,16 @@ function remEstoque($post){
 			finaliza();
 		}
 		
-		// Prepara SQL para remoção de estoque
+		// Prepara SQL para atualização de estoque
 		$sql1 = "DELETE FROM estoque WHERE id=" . $row["id"] . ";"; 
 		
+		$sql1 = "UPDATE estoque SET qt = qt - 1 " . 
+								" WHERE id = " . $row["id"] . ";";
 
 		// sql para histórico de movimentações
-		$sql2 = "INSERT INTO movimentacoes (idUsuario,idItem,idLocalOrigem,idLocalDestino,patrimonio,qt,tipo_movimentacao,obs) " .
+		$sql2 = "INSERT INTO movimentacoes (idUsuario,idItem,idLocalOrigem,patrimonio,qt,tipo_movimentacao,obs) " .
 				"VALUES (" . get_current_user_id() . "," .
 							$post["idItem"] . "," .
-							$post["idLocal"] . "," .
 							$post["idLocal"] . "," .
 							$post["remPatr"] . "," .
 							$post["remQt"]. "," .

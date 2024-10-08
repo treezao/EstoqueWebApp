@@ -1633,7 +1633,10 @@ function addSolicitacao($post){
 		
 	}elseif($_POST["tipo"] === "Permanente"){
 		// Buscando estoque
-		$sql = "SELECT * FROM estoque WHERE patrimonio=" . $_POST["patr"] . ";";
+		$sql = "SELECT * FROM estoque WHERE patrimonio=" . $_POST["patr"] . 
+											" AND iditem = " . $_POST["idItem"] . 
+											" AND idLocal = " . $_POST["idLocal"] . 
+											";";
 		$result = $cf_conn->query($sql);
 		
 		if(!$result){

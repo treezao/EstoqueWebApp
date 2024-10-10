@@ -239,6 +239,31 @@ function pagina_gerencia_solicitacoes(){
 	
 }
 
+add_shortcode('estoque_gerencia_relatorios', 'pagina_gerencia_relatorios');
+function pagina_gerencia_relatorios(){
+	global $path_pagina;
+	
+	enqueue_datatables();
+	enqueue_bootstrap();
+	enqueue_fontawesome();
 
+	
+	wp_enqueue_script('funcoes_estoque', '/bibEstoque/funcoes_estoque.js', '', '', true);
+	
+	wp_localize_script( 'funcoes_estoque', 'ajax_url', [admin_url( 'admin-ajax.php' )]);
+	
+	
+	wp_localize_script( 'funcoes_estoque', 'nonce_getRelatorioEstoque', 
+							wp_create_nonce('nonce_getRelatorioEstoque'));
+	
+	
+
+	$path = $path_pagina . "tabRelatorios.html";
+	
+	
+	
+	return file_get_contents($path);
+	
+}
 ?>
 

@@ -47,6 +47,11 @@ Tamanho de fontes
 	display-1 - display-4
 	small
 	lead
+	
+	
+Emails
+	- notificar individualmente
+	- notificação geral 
 
 
 Relatorios
@@ -66,6 +71,8 @@ Relatorios
 		
 	- gerencia
 		- eventualmente vai ter muitos dados... seria interessante puxar somente os ativos, e dar a opção de puxar tudo se for o caso
+		
+	- página de relatório de movimentações
 		
 		
 		

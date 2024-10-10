@@ -324,7 +324,9 @@ function accordionItem(data){
 					'<div class="accordion-item">' + 
 						'<h2 class="accordion-header">' + 
 							'<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#' + nameItem + '" aria-expanded="true" aria-controls="' + nameItem +'">' +
-							data[2] + 
+							data[2] +
+							'<br>Qt. Total: ' + data[6] +
+							'<br>Qt. Total Empr.: ' + data[7] + 
 							'</button>' +
 						'</h2>' +
 						'<div id="' + nameItem + '" class="accordion-collapse collapse" data-bs-parent="' + nameAcc + '">' +
@@ -1233,11 +1235,11 @@ function accordionItemEstoque(data){
 	
 	var base = '<div class="accordion accordion-flush" id="' + nameAcc + '">' +
 					'<div class="accordion-item">' + 
-						'<h2 class="accordion-header">' + 
+						'<h4 class="accordion-header">' + 
 							'<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#' + nameItem + '" aria-expanded="true" aria-controls="' + nameItem +'">' +
 							data[5] + 
 							'</button>' +
-						'</h2>' +
+						'</h4>' +
 						'<div id="' + nameItem + '" class="accordion-collapse collapse" data-bs-parent="' + nameAcc + '">' +
 							'<div class="accordion-body">'+
 								'<div class="row mb-2 align-items-center">' + 
@@ -1632,12 +1634,12 @@ function accordionSolicitacao(data){
 	
 	var base = '<div class="accordion accordion-flush" id="' + nameAcc + '">' +
 					'<div class="accordion-item">' + 
-						'<h2 class="accordion-header">' + 
+						'<h4 class="accordion-header">' + 
 							'<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#' + nameItem + '" aria-expanded="true" aria-controls="' + nameItem +'">' +
 							"Item: " + itemNome + "<br>" +
 							"Local: " + localNome +
 							'</button>' +
-						'</h2>' +
+						'</h4>' +
 						'<div id="' + nameItem + '" class="accordion-collapse collapse" data-bs-parent="' + nameAcc + '">' +
 							'<div class="accordion-body">'+
 								addRowAccordion("Data atendimento:", dataAtendimento) + "<hr>"+
@@ -1777,13 +1779,13 @@ function accordionSolicitacao_gerencia(data){
 	
 	var base = '<div class="accordion accordion-flush" id="' + nameAcc + '">' +
 					'<div class="accordion-item">' + 
-						'<h2 class="accordion-header">' + 
+						'<h4 class="accordion-header">' + 
 							'<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#' + nameItem + '" aria-expanded="true" aria-controls="' + nameItem +'">' +
 							"Item: " + itemNome + "<br>" +
 							"Local: " + localNome + "<br>" + 
 							"Solicitante: " + nomeUsuario +
 							'</button>' +
-						'</h2>' +
+						'</h4>' +
 						'<div id="' + nameItem + '" class="accordion-collapse collapse" data-bs-parent="' + nameAcc + '">' +
 							'<div class="accordion-body">'+
 								addRowAccordion("Data atendimento:", dataAtendimento) + "<hr>"+
@@ -2075,5 +2077,83 @@ function devolveSolicitacao(){
 			
 		}
 	});
+}
+
+
+
+/*
+	funções da página relatórios
+*/
+
+function getRelatorioEstoque(){
+	window.scrollTo({ top: 0, behavior: 'smooth' });
+	
+	resetMsgTopo();
+	
+	jQuery("#btnRelatorioEstoque").prop("disabled", true); 
+	jQuery("#btnRelatorioSolicitacoes").prop("disabled", true); 
+	jQuery("#btnRelatorioMovimentacoes").prop("disabled", true); 
+	
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		dataType: "JSON",
+		data: {
+			"action": 'getRelatorioEstoque',
+			"nonce":    nonce_getRelatorioEstoque,
+		},
+		success: function(data){
+			if(data.error){
+				jQuery("#msgTopoHistorico").html("Erro ao buscar solicitação, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+				
+				if(data.msg2 != ""){
+					jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+				}
+				
+				jQuery("#btnRelatorioEstoque").prop("disabled", false); 
+				jQuery("#btnRelatorioSolicitacoes").prop("disabled", false); 
+				jQuery("#btnRelatorioMovimentacoes").prop("disabled", false); 
+				
+				return;
+			}
+			
+			var csv = arrayToCsv(data.consultas);
+			downloadBlob(csv, 'relatorioEstoque.csv', 'text/csv;charset=utf-8;')
+			
+			jQuery("#btnRelatorioEstoque").prop("disabled", false); 
+			jQuery("#btnRelatorioSolicitacoes").prop("disabled", false); 
+			jQuery("#btnRelatorioMovimentacoes").prop("disabled", false); 
+			
+			return;
+			
+			
+		}
+	});
+	
+}
+
+/**
+ * Convert a 2D array into a CSV string
+ * https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
+ */
+function arrayToCsv(data){
+  return data.map(row => row.join(',')  // comma-separated
+					).join('\r\n');  // rows starting on new lines
+}
+
+/**
+ * Download contents as a file
+ * Source: https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
+ */
+function downloadBlob(content, filename, contentType) {
+  // Create a blob
+  var blob = new Blob([content], { type: contentType });
+  var url = URL.createObjectURL(blob);
+
+  // Create a link to download it
+  var pom = document.createElement('a');
+  pom.href = url;
+  pom.setAttribute('download', filename);
+  pom.click();
 }
 

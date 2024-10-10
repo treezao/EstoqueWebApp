@@ -451,7 +451,9 @@ function getItens(){
 
 	$cf_data["msg"] = "Recuperando consultas...";
 	
-	$sql = "SELECT * FROM item ORDER BY item.nome ASC";
+	//$sql = "SELECT * FROM item ORDER BY item.nome ASC";
+	$sql = "SELECT i.*, e.total, e.totalEmpr from item as i " . 
+				"INNER JOIN (SELECT iditem, sum(qt) as total, sum(qtEmprestada) as totalEmpr from estoque group by iditem) e ON i.id = e.iditem;";
 	$result = $cf_conn->query($sql);
 	
 	
@@ -465,7 +467,9 @@ function getItens(){
 										$row["descricao"], // descricao
 										$row["tipo"], // tipo
 										$row["link_manual"], // link manual
-										$row["link_imagem"] // link imagem 
+										$row["link_imagem"], // link imagem 
+										$row["total"], // qt total do item em estoque 
+										$row["totalEmpr"] // qt total emprestada do item
 										];
 		}
 		
@@ -2406,5 +2410,72 @@ function devolveSolicitacao($post){
 	
 }
 
+
+/*
+	Funções relacionadas a relatórios
+*/
+add_action('wp_ajax_getRelatorioEstoque','getRelatorioEstoque');
+function getRelatorioEstoque($post){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_getRelatorioEstoque') || !validaUsuario() || !conecta()){
+		finaliza(); // termina o programa aqui;
+	}
+
+	$cf_data["msg"] = "Gerando relatório estoque...";
+	$cf_data["msg2"] = "";
+	$cf_data["error"] = false;
+	$cd_data["consultas"] = [];
+	
+	
+	$sql = "SELECT e.id, i.nome as item, i.tipo, l.nome as local, e.patrimonio, e.qt, e.qtEmprestada FROM estoque e " . 
+		" INNER JOIN (SELECT * FROM item) i ON e.iditem = i.id " . 
+		" INNER JOIN (SELECT * FROM localizacao) l ON e.idLocal = l.id;";
+	
+	$result = $cf_conn->query($sql);
+	
+	
+	if(!$result){
+		$cf_data["msg"] = "Problema com banco de dados...";
+		$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	
+	if($result->num_rows > 0 ) {
+		// output data of each row
+		
+		$cf_data["consultas"][] = ['id', 'item', 'tipo', 'local', 'patrimonio', 'qt', 'qtEmprestada'];
+		
+		while($row = $result->fetch_assoc()) {
+			
+				$cf_data["consultas"][] = [ 
+											$row["id"], // id
+											$row["item"],
+											$row["tipo"],
+											$row["local"],
+											$row["patrimonio"],
+											$row["qt"], 
+											$row["qtEmprestada"]
+										];
+
+		}
+
+		
+		$cf_data["msg"] = "Estoques encontrados: " . $result->num_rows . "<br>Download iniciado.";
+		$cf_data["error"] = false;
+		$cf_data["sql"] = $sql;
+		
+	}else {
+		$cf_data["msg"] = "Nenhuma estoque foi encontrado...";
+		$cf_data["error"] = false;
+	}
+	
+	
+	finaliza();
+	
+}
 
 ?>

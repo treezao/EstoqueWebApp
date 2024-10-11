@@ -2469,7 +2469,7 @@ function getRelatorioEstoque($post){
 		$cf_data["sql"] = $sql;
 		
 	}else {
-		$cf_data["msg"] = "Nenhuma estoque foi encontrado...";
+		$cf_data["msg"] = "Nenhum estoque foi encontrado...";
 		$cf_data["error"] = false;
 	}
 	
@@ -2477,5 +2477,86 @@ function getRelatorioEstoque($post){
 	finaliza();
 	
 }
+
+
+add_action('wp_ajax_getRelatorioSolicitacao','getRelatorioSolicitacao');
+function getRelatorioSolicitacao($post){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_getRelatorioSolicitacao') || !validaUsuario() || !conecta()){
+		finaliza(); // termina o programa aqui;
+	}
+
+	$cf_data["msg"] = "Gerando relatório estoque...";
+	$cf_data["msg2"] = "";
+	$cf_data["error"] = false;
+	$cd_data["consultas"] = [];
+	
+	
+	$sql = "SELECT s.*, u.user_nicename, u.user_email, e.iditem, i.nome as nomeItem, i.tipo, e.patrimonio, e.idLocal, l.nome as nomeLocal ".
+		" FROM solicitacao s " .
+		" INNER JOIN (SELECT ID, user_nicename, user_email FROM wp_users) u ON s.idUsuario = u.ID " .
+		" INNER JOIN (SELECT id, iditem, idLocal, patrimonio FROM estoque) e ON s.idEstoque = e.id " .
+		" INNER JOIN (SELECT id, nome, tipo FROM item) i ON e.iditem = i.id " .
+		" INNER JOIN (SELECT id, nome FROM localizacao) l ON e.idLocal = l.id;";
+	
+	$result = $cf_conn->query($sql);
+	
+	
+	if(!$result){
+		$cf_data["msg"] = "Problema com banco de dados...";
+		$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	
+	if($result->num_rows > 0 ) {
+		// output data of each row
+		
+		$cf_data["consultas"][] = ['id', 'idUsuario', 'idEstoque', 'dataSolicitacao', 'dataAtendimento', 'dataDevolucao', 'qtPedida' ,'qtAtendida' ,'qtDevolvida' ,'profResponsavel', 'status', 'obs' , 'user_nicename' , 'user_email' , 'iditem' ,'nomeItem', 'tipo' ,'patrimonio', 'idLocal','nomeLocal'];
+		
+		while($row = $result->fetch_assoc()) {
+			
+				$cf_data["consultas"][] = [ 
+											$row["id"],
+											$row["idUsuario"],
+											$row["idEstoque"],
+											$row["dataSolicitacao"],
+											$row["dataAtendimento"],
+											$row["dataDevolucao"],
+											$row["qtPedida"],
+											$row["qtAtendida"],
+											$row["qtDevolvida"],
+											$row["profResponsavel"],
+											$row["status"],
+											'"' . str_replace('"','""',$row["obs"]) . '"',
+											$row["user_nicename"],
+											$row["user_email"],
+											$row["iditem"],
+											$row["nomeItem"],
+											$row["tipo"],
+											$row["patrimonio"],
+											$row["idLocal"],
+											$row["nomeLocal"],
+										];
+		}
+
+		
+		$cf_data["msg"] = "Estoques encontrados: " . $result->num_rows . "<br>Download iniciado.";
+		$cf_data["error"] = false;
+		$cf_data["sql"] = $sql;
+		
+	}else {
+		$cf_data["msg"] = "Nenhuma solicitação foi encontrada...";
+		$cf_data["error"] = false;
+	}
+	
+	
+	finaliza();
+	
+}
+
 
 ?>

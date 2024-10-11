@@ -2104,7 +2104,7 @@ function getRelatorioEstoque(){
 		},
 		success: function(data){
 			if(data.error){
-				jQuery("#msgTopoHistorico").html("Erro ao buscar solicitação, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+				jQuery("#msgTopoHistorico").html("Erro ao buscar relatório de estoque, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
 				
 				if(data.msg2 != ""){
 					jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
@@ -2119,6 +2119,53 @@ function getRelatorioEstoque(){
 			
 			var csv = arrayToCsv(data.consultas);
 			downloadBlob(csv, 'relatorioEstoque.csv', 'text/csv;charset=utf-8;')
+			
+			jQuery("#btnRelatorioEstoque").prop("disabled", false); 
+			jQuery("#btnRelatorioSolicitacoes").prop("disabled", false); 
+			jQuery("#btnRelatorioMovimentacoes").prop("disabled", false); 
+			
+			return;
+			
+			
+		}
+	});
+	
+}
+
+function getRelatorioSolicitacao(){
+	window.scrollTo({ top: 0, behavior: 'smooth' });
+	
+	resetMsgTopo();
+	
+	jQuery("#btnRelatorioEstoque").prop("disabled", true); 
+	jQuery("#btnRelatorioSolicitacoes").prop("disabled", true); 
+	jQuery("#btnRelatorioMovimentacoes").prop("disabled", true); 
+	
+	jQuery.post({
+		url: ajax_url,
+		type: "POST",
+		dataType: "JSON",
+		data: {
+			"action": 'getRelatorioSolicitacao',
+			"nonce":    nonce_getRelatorioSolicitacao,
+		},
+		success: function(data){
+			if(data.error){
+				jQuery("#msgTopoHistorico").html("Erro ao buscar relatório de solicitação, recarregue a página ou contacte o administrador! <br> Erro: " + data.msg + "<br>");
+				
+				if(data.msg2 != ""){
+					jQuery("#msgAviso").html('<br><p>' + data.msg2 + '</p>');
+				}
+				
+				jQuery("#btnRelatorioEstoque").prop("disabled", false); 
+				jQuery("#btnRelatorioSolicitacoes").prop("disabled", false); 
+				jQuery("#btnRelatorioMovimentacoes").prop("disabled", false); 
+				
+				return;
+			}
+			
+			var csv = arrayToCsv(data.consultas);
+			downloadBlob(csv, 'relatorioSolicitacao.csv', 'text/csv;charset=utf-8;')
 			
 			jQuery("#btnRelatorioEstoque").prop("disabled", false); 
 			jQuery("#btnRelatorioSolicitacoes").prop("disabled", false); 

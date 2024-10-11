@@ -2544,9 +2544,9 @@ function getRelatorioSolicitacao($post){
 		}
 
 		
-		$cf_data["msg"] = "Estoques encontrados: " . $result->num_rows . "<br>Download iniciado.";
+		$cf_data["msg"] = "Solicitações encontradas: " . $result->num_rows . "<br>Download iniciado.";
 		$cf_data["error"] = false;
-		$cf_data["sql"] = $sql;
+		//$cf_data["sql"] = $sql;
 		
 	}else {
 		$cf_data["msg"] = "Nenhuma solicitação foi encontrada...";
@@ -2558,5 +2558,80 @@ function getRelatorioSolicitacao($post){
 	
 }
 
+
+add_action('wp_ajax_getRelatorioMovimentacao','getRelatorioMovimentacao');
+function getRelatorioMovimentacao($post){
+	global $cf_conn, $cf_data;
+	
+	
+	if(!validaPOST() || !validaNonce('nonce_getRelatorioMovimentacao') || !validaUsuario() || !conecta()){
+		finaliza(); // termina o programa aqui;
+	}
+
+	$cf_data["msg"] = "Gerando relatório de movimentação...";
+	$cf_data["msg2"] = "";
+	$cf_data["error"] = false;
+	$cd_data["consultas"] = [];
+	
+	
+	$sql = "SELECT m.*, u.user_nicename, u.user_email, i.nome as nomeItem, i.tipo, l.nome as localOrigem, l2.nome as localDestino FROM movimentacoes m " . 
+		" INNER JOIN (SELECT ID, user_nicename, user_email FROM wp_users) u ON m.idUsuario = u.ID " .
+		" LEFT JOIN (SELECT id, nome, tipo FROM item) i ON m.idItem = i.id " .
+		" LEFT JOIN (SELECT id, nome FROM localizacao) l ON m.idLocalOrigem = l.id " .
+		" LEFT JOIN (SELECT id, nome FROM localizacao) l2 ON m.idLocalDestino = l2.id;";
+	
+	$result = $cf_conn->query($sql);
+	
+	
+	if(!$result){
+		$cf_data["msg"] = "Problema com banco de dados...";
+		$cf_data["msg2"]= "SQL: " . $sql . " <br> Erro: " . $cf_conn->error;
+		$cf_data["error"] = true;
+		finaliza();
+	}
+	
+	
+	if($result->num_rows > 0 ) {
+		// output data of each row
+		
+		$cf_data["consultas"][] = ['id','idUsuario','user_email','user_nicename','idItem','nomeItem','tipo','patrimonio','idLocalOrigem','localOrigem','idLocalDestino','localDestino','idSolicitacao','data','qt','tipo_movimentacao','obs'];
+		
+		while($row = $result->fetch_assoc()) {
+			
+				$cf_data["consultas"][] = [ 
+											$row["id"],
+											$row["idUsuario"],
+											$row["user_email"],
+											$row["user_nicename"],
+											$row["idItem"],
+											$row["nomeItem"],
+											$row["tipo"],
+											$row["patrimonio"],
+											$row["idLocalOrigem"],
+											$row["localOrigem"],
+											$row["idLocalDestino"],
+											$row["localDestino"],
+											$row["idSolicitacao"],
+											$row["data"],
+											$row["qt"],
+											$row["tipo_movimentacao"],
+											'"' . str_replace('"','""',$row["obs"]) . '"'
+										];
+		}
+
+		
+		$cf_data["msg"] = "Movimentações encontrados: " . $result->num_rows . "<br>Download iniciado.";
+		$cf_data["error"] = false;
+		//$cf_data["sql"] = $sql;
+		
+	}else {
+		$cf_data["msg"] = "Nenhuma movimentação foi encontrada...";
+		$cf_data["error"] = false;
+	}
+	
+	
+	finaliza();
+	
+}
 
 ?>

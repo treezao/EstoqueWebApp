@@ -259,6 +259,8 @@ function pagina_gerencia_relatorios(){
 	wp_localize_script( 'funcoes_estoque', 'nonce_getRelatorioSolicitacao', 
 							wp_create_nonce('nonce_getRelatorioSolicitacao'));
 	
+	wp_localize_script( 'funcoes_estoque', 'nonce_getRelatorioMovimentacao', 
+							wp_create_nonce('nonce_getRelatorioMovimentacao'));
 
 	$path = $path_pagina . "tabRelatorios.html";
 	

@@ -13,7 +13,13 @@ $lib_fontawesome_css = 'https://use.fontawesome.com/releases/v5.3.1/css/all.css'
 
 
 global $path_pagina;
+
+// localhost
 $path_pagina = $_SERVER['DOCUMENT_ROOT'] . "/WPEstoque/bibEstoque/";
+
+// ufsc
+//$path_pagina = $_SERVER['DOCUMENT_ROOT'] . "/bibEstoque/";
+
 
 
 function enqueue_datatables(){

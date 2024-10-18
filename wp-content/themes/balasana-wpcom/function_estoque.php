@@ -1,10 +1,23 @@
 <?php
 
+// cabeçalho para servidor localhost
 require $_SERVER['DOCUMENT_ROOT'] . '/private/serverdata.php';
 
-global $cf_data, $cf_conn, $cf_timezone;
 global $path_debug_file;
 $path_debug_file = $_SERVER['DOCUMENT_ROOT'] . "/WPEstoque/bibEstoque/logs.txt";
+
+// cabeçalho para servidor UFSC
+/*
+
+require $_SERVER['DOCUMENT_ROOT'] . '/../private/serverdata.php';
+
+global $path_debug_file;
+$path_debug_file = $_SERVER['DOCUMENT_ROOT'] . "../private/logs.txt";
+
+*/
+
+
+global $cf_data, $cf_conn, $cf_timezone;
 
 $cf_data["msg"] = "Falhou em algo";
 $cf_data["msg2"] = "";
@@ -12,7 +25,6 @@ $cf_data["error"] = true;
 $cf_data["consultas"] = [];
 
 $cf_timezone = "America/Sao_Paulo";
-
 
 
 /*
@@ -87,6 +99,9 @@ function conecta(){
 	
 	
 	$cf_conn = new mysqli($servername, $username, $password,$dbname,$port);
+	
+	//printf("Current character set: %s\n", $cf_conn->character_set_name());
+	$cf_conn -> set_charset("utf8");
 	
 	if ($cf_conn->connect_error){
 		$cf_data["msg"] = "Connection failed: " . $cf_conn->connect_error . "<br>";

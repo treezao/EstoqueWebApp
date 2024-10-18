@@ -54,6 +54,11 @@ Emails
 	- notificação geral 
 
 
+formulário de registro
+	- pedir nome completo 
+	- matrícula
+
+
 Relatorios
 	-de Itens
 		- fazer um aglomerado de todos os locais que tem o item e descrever os qts associados 

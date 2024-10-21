@@ -6,15 +6,17 @@ require $_SERVER['DOCUMENT_ROOT'] . '/private/serverdata.php';
 global $path_debug_file;
 $path_debug_file = $_SERVER['DOCUMENT_ROOT'] . "/WPEstoque/bibEstoque/logs.txt";
 
+
+
 // cabeçalho para servidor UFSC
 /*
-
 require $_SERVER['DOCUMENT_ROOT'] . '/../private/serverdata.php';
 
 global $path_debug_file;
 $path_debug_file = $_SERVER['DOCUMENT_ROOT'] . "../private/logs.txt";
 
 */
+
 
 
 global $cf_data, $cf_conn, $cf_timezone;
@@ -1884,11 +1886,11 @@ function getSolicitacaoTudo($post){
 	$cf_data["msg2"] = "";
 	$cf_data["error"] = false;
 	
-	$sql = "SELECT s.*, e.patrimonio, i.itemNome,i.itemTipo,l.localNome, u.user_nicename from solicitacao s ".
+	$sql = "SELECT s.*, e.patrimonio, i.itemNome,i.itemTipo,l.localNome, u.meta_value from solicitacao s ".
 		"INNER JOIN (SELECT * from estoque) e ON s.idEstoque = e.id " .
 		"INNER JOIN (SELECT id, nome as itemNome, tipo as itemTipo FROM item) i ON e.iditem=i.id " .
 		"INNER JOIN (SELECT id, nome as localNome FROM localizacao ) l ON e.idLocal=l.id ". 
-		"INNER JOIN (SELECT id, user_nicename from wp_users) u ON s.idUsuario=u.id; ";
+		"INNER JOIN (SELECT user_id, meta_key, meta_value from wp_usermeta WHERE meta_key='nome_completo') u ON s.idUsuario=u.user_id; ";
 		
 	$result = $cf_conn->query($sql);
 	
@@ -1920,7 +1922,7 @@ function getSolicitacaoTudo($post){
 											$row["localNome"],
 											$row["patrimonio"],
 											$row["profResponsavel"],
-											$row["user_nicename"]
+											$row["meta_value"]
 										];
 		}
 		
@@ -1952,11 +1954,11 @@ function get1Solicitacao($post){
 	$cf_data["encontrado"] = false;
 	
 	
-	$sql = "SELECT s.*, e.patrimonio, i.itemNome,i.itemTipo,l.localNome, u.user_nicename from solicitacao s ".
+	$sql = "SELECT s.*, e.patrimonio, i.itemNome,i.itemTipo,l.localNome, u.meta_value from solicitacao s ".
 		"INNER JOIN (SELECT * from estoque) e ON s.idEstoque = e.id " .
 		"INNER JOIN (SELECT id, nome as itemNome, tipo as itemTipo from item) i ON e.iditem=i.id " . 
 		"INNER JOIN (SELECT id, nome as localNome from localizacao ) l ON e.idLocal=l.id " .
-		"INNER JOIN (SELECT id, user_nicename from wp_users) u ON s.idUsuario=u.id " .
+		"INNER JOIN (SELECT user_id, meta_key, meta_value from wp_usermeta WHERE meta_key='nome_completo') u ON s.idUsuario=u.user_id " .
 		" WHERE s.id=". $_POST["idSolicitacao"] .";";
 	
 	$result = $cf_conn->query($sql);
@@ -1995,7 +1997,7 @@ function get1Solicitacao($post){
 								$row["localNome"],
 								$row["patrimonio"],
 								$row["profResponsavel"],
-								$row["user_nicename"]
+								$row["meta_value"]
 							];
 	
 	$cf_data["msg"] = "Solicitações encontradas: " . $result->num_rows;

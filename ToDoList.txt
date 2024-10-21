@@ -57,6 +57,12 @@ Emails
 formulário de registro
 	- pedir nome completo 
 	- matrícula
+	
+Tela de usuários, 
+	- com lista de empréstimos
+	- pode enviar email pedindo devolução 
+	
+	Deixar coisas que mudam de localhost/UFSC num só arquivo
 
 
 Relatorios

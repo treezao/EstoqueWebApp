@@ -2231,7 +2231,7 @@ function getRelatorioMovimentacao(){
  * https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
  */
 function arrayToCsv(data){
-  return data.map(row => row.join(',')  // comma-separated
+  return data.map(row => row.join(';')  // comma-separated
 					).join('\r\n');  // rows starting on new lines
 }
 

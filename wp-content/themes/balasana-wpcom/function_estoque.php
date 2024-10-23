@@ -1,25 +1,11 @@
 <?php
 
-// cabeçalho para servidor localhost
-require $_SERVER['DOCUMENT_ROOT'] . '/private/serverdata.php';
-
-global $path_debug_file;
-$path_debug_file = $_SERVER['DOCUMENT_ROOT'] . "/WPEstoque/bibEstoque/logs.txt";
-
-
-
-// cabeçalho para servidor UFSC
-/*
-require $_SERVER['DOCUMENT_ROOT'] . '/../private/serverdata.php';
-
-global $path_debug_file;
-$path_debug_file = $_SERVER['DOCUMENT_ROOT'] . "../private/logs.txt";
-
-*/
-
+require $_SERVER['DOCUMENT_ROOT'] . '/private/serverdata.php'; // para localhost
+//require $_SERVER['DOCUMENT_ROOT'] . '/../private/serverdata.php'; // para servidor da UFSC
 
 
 global $cf_data, $cf_conn, $cf_timezone;
+global $path_debug_file;
 
 $cf_data["msg"] = "Falhou em algo";
 $cf_data["msg2"] = "";
@@ -2470,9 +2456,11 @@ function getRelatorioEstoque($post){
 			
 				$cf_data["consultas"][] = [ 
 											$row["id"], // id
-											$row["item"],
+											//$row["item"],
+											'"' . str_replace('"','""',$row["item"]) . '"',
 											$row["tipo"],
-											$row["local"],
+											//$row["local"],
+											'"' . str_replace('"','""',$row["local"]) . '"',
 											$row["patrimonio"],
 											$row["qt"], 
 											$row["qtEmprestada"]
@@ -2546,17 +2534,22 @@ function getRelatorioSolicitacao($post){
 											$row["qtPedida"],
 											$row["qtAtendida"],
 											$row["qtDevolvida"],
-											$row["profResponsavel"],
+											//$row["profResponsavel"],
+											'"' . str_replace('"','""',$row["profResponsavel"]) . '"',
 											$row["status"],
 											'"' . str_replace('"','""',$row["obs"]) . '"',
-											$row["user_nicename"],
-											$row["user_email"],
+											//$row["user_nicename"],
+											'"' . str_replace('"','""',$row["user_nicename"]) . '"',
+											//$row["user_email"],
+											'"' . str_replace('"','""',$row["user_email"]) . '"',
 											$row["iditem"],
-											$row["nomeItem"],
+											//$row["nomeItem"],
+											'"' . str_replace('"','""',$row["nomeItem"]) . '"',
 											$row["tipo"],
 											$row["patrimonio"],
 											$row["idLocal"],
-											$row["nomeLocal"],
+											//$row["nomeLocal"],
+											'"' . str_replace('"','""',$row["nomeLocal"]) . '"'
 										];
 		}
 
@@ -2618,16 +2611,21 @@ function getRelatorioMovimentacao($post){
 				$cf_data["consultas"][] = [ 
 											$row["id"],
 											$row["idUsuario"],
-											$row["user_email"],
-											$row["user_nicename"],
+											//$row["user_email"],
+											'"' . str_replace('"','""',$row["user_email"]) . '"',
+											//$row["user_nicename"],
+											'"' . str_replace('"','""',$row["user_nicename"]) . '"',
 											$row["idItem"],
-											$row["nomeItem"],
+											//$row["nomeItem"],
+											'"' . str_replace('"','""',$row["nomeItem"]) . '"',
 											$row["tipo"],
 											$row["patrimonio"],
 											$row["idLocalOrigem"],
-											$row["localOrigem"],
+											//$row["localOrigem"],
+											'"' . str_replace('"','""',$row["localOrigem"]) . '"',
 											$row["idLocalDestino"],
-											$row["localDestino"],
+											//$row["localDestino"],
+											'"' . str_replace('"','""',$row["localDestino"]) . '"',
 											$row["idSolicitacao"],
 											$row["data"],
 											$row["qt"],

@@ -1872,6 +1872,7 @@ function getSolicitacaoTudo($post){
 	$cf_data["msg2"] = "";
 	$cf_data["error"] = false;
 	
+	
 	$sql = "SELECT s.*, e.patrimonio, i.itemNome,i.itemTipo,l.localNome, u.meta_value from solicitacao s ".
 		"INNER JOIN (SELECT * from estoque) e ON s.idEstoque = e.id " .
 		"INNER JOIN (SELECT id, nome as itemNome, tipo as itemTipo FROM item) i ON e.iditem=i.id " .
@@ -1880,6 +1881,7 @@ function getSolicitacaoTudo($post){
 		
 	$result = $cf_conn->query($sql);
 	
+	//$cf_data["sql"] = $sql;
 	
 	if(!$result){
 		$cf_data["msg"] = "Problema com banco de dados...";
@@ -2471,7 +2473,7 @@ function getRelatorioEstoque($post){
 		
 		$cf_data["msg"] = "Estoques encontrados: " . $result->num_rows . "<br>Download iniciado.";
 		$cf_data["error"] = false;
-		$cf_data["sql"] = $sql;
+		//$cf_data["sql"] = $sql;
 		
 	}else {
 		$cf_data["msg"] = "Nenhum estoque foi encontrado...";
@@ -2499,12 +2501,15 @@ function getRelatorioSolicitacao($post){
 	$cd_data["consultas"] = [];
 	
 	
-	$sql = "SELECT s.*, u.user_nicename, u.user_email, e.iditem, i.nome as nomeItem, i.tipo, e.patrimonio, e.idLocal, l.nome as nomeLocal ".
+	$sql = "SELECT s.*, u.nomecompleto, u.matricula, u2.user_nicename, u2.user_email, e.iditem, i.nome as nomeItem, i.tipo, e.patrimonio, e.idLocal, l.nome as nomeLocal ".
 		" FROM solicitacao s " .
-		" INNER JOIN (SELECT ID, user_nicename, user_email FROM wp_users) u ON s.idUsuario = u.ID " .
+		" INNER JOIN (SELECT t1.user_id, t1.meta_value as nomecompleto, t2.meta_value as matricula FROM wp_usermeta as t1, wp_usermeta as t2 where t1.user_id = t2.user_id and t1.meta_key = 'nome_completo' and t2.meta_key = 'matricula') u ON s.idUsuario = u.user_id " .
+		" INNER JOIN (SELECT ID, user_nicename, user_email FROM wp_users) u2 ON s.idUsuario = u2.ID " .
 		" INNER JOIN (SELECT id, iditem, idLocal, patrimonio FROM estoque) e ON s.idEstoque = e.id " .
 		" INNER JOIN (SELECT id, nome, tipo FROM item) i ON e.iditem = i.id " .
 		" INNER JOIN (SELECT id, nome FROM localizacao) l ON e.idLocal = l.id;";
+	
+	//$cf_data["sql"] = $sql;
 	
 	$result = $cf_conn->query($sql);
 	
@@ -2520,7 +2525,7 @@ function getRelatorioSolicitacao($post){
 	if($result->num_rows > 0 ) {
 		// output data of each row
 		
-		$cf_data["consultas"][] = ['id', 'idUsuario', 'idEstoque', 'dataSolicitacao', 'dataAtendimento', 'dataDevolucao', 'qtPedida' ,'qtAtendida' ,'qtDevolvida' ,'profResponsavel', 'status', 'obs' , 'user_nicename' , 'user_email' , 'iditem' ,'nomeItem', 'tipo' ,'patrimonio', 'idLocal','nomeLocal'];
+		$cf_data["consultas"][] = ['id', 'idUsuario', 'idEstoque', 'dataSolicitacao', 'dataAtendimento', 'dataDevolucao', 'qtPedida' ,'qtAtendida' ,'qtDevolvida' ,'profResponsavel', 'status', 'obs' , 'nome completo', 'user_nicename' ,'matricula', 'user_email' , 'iditem' ,'nomeItem', 'tipo' ,'patrimonio', 'idLocal','nomeLocal'];
 		
 		while($row = $result->fetch_assoc()) {
 			
@@ -2534,21 +2539,18 @@ function getRelatorioSolicitacao($post){
 											$row["qtPedida"],
 											$row["qtAtendida"],
 											$row["qtDevolvida"],
-											//$row["profResponsavel"],
 											'"' . str_replace('"','""',$row["profResponsavel"]) . '"',
 											$row["status"],
 											'"' . str_replace('"','""',$row["obs"]) . '"',
-											//$row["user_nicename"],
+											'"' . str_replace('"','""',$row["nomecompleto"]) . '"',
 											'"' . str_replace('"','""',$row["user_nicename"]) . '"',
-											//$row["user_email"],
+											$row["matricula"],
 											'"' . str_replace('"','""',$row["user_email"]) . '"',
 											$row["iditem"],
-											//$row["nomeItem"],
 											'"' . str_replace('"','""',$row["nomeItem"]) . '"',
 											$row["tipo"],
 											$row["patrimonio"],
 											$row["idLocal"],
-											//$row["nomeLocal"],
 											'"' . str_replace('"','""',$row["nomeLocal"]) . '"'
 										];
 		}

@@ -11,30 +11,10 @@ nas observações, ir "somando" as observações" para manter histórico?
 atualização de accordions só quando clica, tem q ter novas funções
 
 
-	
-Mudar SQL para latin1 ou o que ficar mais fácil.
-	- feito, testar 
-	
-
-Página de relatórios
 
 indicação de estoque mínimo
 
 
-Banco de dados inicial a partir da planilha google
-	- fazer planilha no google
-	- lista dos estoques, adicionar coluna de tipo (permanente/consumo)
-		- talvez o melhor seja planilhas diferentes
-	- encontrar as descrições únicas
-		- verificar se tem algumas parecidas e juntar se for o caso
-		- criar ids 
-	- encontrar os locais únicos 
-		- verificar se tem alguns parecidos e juntar se for o caso 
-		- criar ids
-		
-	- nas planilhas dos itens, associar com os ids de locais e itens 
-	- produzir "texto" de inserção do SQL 
-	
 
 Tamanho de fontes
 	- tem que adicionar novas categorias no Sass map, links abaixo
@@ -48,19 +28,22 @@ Tamanho de fontes
 	small
 	lead
 	
-	
-Emails
-	- notificar individualmente
-	- notificação geral 
-
-
-formulário de registro
-	- pedir nome completo 
-	- matrícula
-	
-Tela de usuários, 
+Página de Usuários
+	Emails
+		- notificar individualmente
+		- notificação geral
+	listar o que cada um tem em seu nome 
+	permitir notificação individual 
+	Notificação geral?
 	- com lista de empréstimos
 	- pode enviar email pedindo devolução 
+	
+	
+Gerencia de solicitações
+	- permitir doação, que daí simplifica os passos
+	
+
+Tela de usuários, 
 	
 	Deixar coisas que mudam de localhost/UFSC num só arquivo
 

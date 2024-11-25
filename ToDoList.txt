@@ -46,6 +46,10 @@ Gerencia de solicitações
 Tela de usuários, 
 	
 	Deixar coisas que mudam de localhost/UFSC num só arquivo
+	
+
+Página de solicitações 
+	- não mostrar estoques zerados para facilitar 
 
 
 Relatorios

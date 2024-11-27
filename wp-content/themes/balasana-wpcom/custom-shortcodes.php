@@ -13,13 +13,11 @@ $lib_fontawesome_css = 'https://use.fontawesome.com/releases/v5.3.1/css/all.css'
 
 
 global $path_pagina;
-
-// localhost
-$path_pagina = $_SERVER['DOCUMENT_ROOT'] . "/WPEstoque/bibEstoque/";
-
-// ufsc
-//$path_pagina = $_SERVER['DOCUMENT_ROOT'] . "/bibEstoque/";
-
+if($_SERVER['DOCUMENT_ROOT'] === '/home/labscacbnu/public_html'){
+	$path_pagina = $_SERVER['DOCUMENT_ROOT'] . "/bibEstoque/"; // para servidor da UFSC
+}else{
+	$path_pagina = $_SERVER['DOCUMENT_ROOT'] . "/WPEstoque/bibEstoque/"; // para localhost
+}
 
 
 function enqueue_datatables(){

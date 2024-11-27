@@ -1,7 +1,10 @@
 <?php
 
-require $_SERVER['DOCUMENT_ROOT'] . '/private/serverdata.php'; // para localhost
-//require $_SERVER['DOCUMENT_ROOT'] . '/../private/serverdata.php'; // para servidor da UFSC
+if($_SERVER['DOCUMENT_ROOT'] === '/home/labscacbnu/public_html'){
+	require $_SERVER['DOCUMENT_ROOT'] . '/../private/serverdata.php'; // para servidor da UFSC
+}else{
+	require $_SERVER['DOCUMENT_ROOT'] . '/private/serverdata.php'; // para localhost
+}
 
 
 global $cf_data, $cf_conn, $cf_timezone;
@@ -456,14 +459,17 @@ function getItens(){
 	
 	//$sql = "SELECT * FROM item ORDER BY item.nome ASC";
 	$sql = "SELECT i.*, e.total, e.totalEmpr from item as i " . 
-				"INNER JOIN (SELECT iditem, sum(qt) as total, sum(qtEmprestada) as totalEmpr from estoque group by iditem) e ON i.id = e.iditem;";
+				"LEFT JOIN (SELECT iditem, sum(qt) as total, sum(qtEmprestada) as totalEmpr from estoque group by iditem) e ON i.id = e.iditem;";
 	$result = $cf_conn->query($sql);
-	
+	$cf_data["sql"] = $sql;
 	
 	if($result->num_rows > 0 ) {
 		// output data of each row
 		while($row = $result->fetch_assoc()) {
-			
+				// Se não tem estoque, vai vir nulo, daí ajeita para zero
+				$row["total"] = is_null($row["total"]) ? 0 : $row["total"];
+				$row["totalEmpr"] = is_null($row["totalEmpr"]) ? 0: $row["totalEmpr"];
+				
 				$cf_data["consultas"][] = [
 										$row["id"], // id
 										$row["nome"], // nome curto

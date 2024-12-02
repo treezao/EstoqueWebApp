@@ -597,7 +597,7 @@ function btnAdicionarEstoque(idItem,idLocal,patrimonio){
 	jQuery("#estoque_item").val(idItem);
 
 	jQuery("#estoque_local").trigger("change");
-	
+	jQuery("#estoque_item").trigger("change");
 	
 	jQuery("#formAlteraEstoque").show();
 	
@@ -614,6 +614,7 @@ function btnMovimentarEstoque(idItem,idLocal,patrimonio){
 	jQuery("#estoque_item").val(idItem);
 
 	jQuery("#estoque_local").trigger("change");
+	jQuery("#estoque_item").trigger("change");
 	
 	/* não funciona pois as funções estão sendo executadas de forma assíncrona e esta termina antes do trigger ser chamado (ajax mais lento, tem callback na linha anterior) 
 	if(patrimonio !== null){
@@ -639,6 +640,7 @@ function btnRemoverEstoque(idItem,idLocal,patrimonio){
 	jQuery("#estoque_item").val(idItem);
 
 	jQuery("#estoque_local").trigger("change");
+	jQuery("#estoque_item").trigger("change");
 	
 	/* não funciona pois as funções estão sendo executadas de forma assíncrona e esta termina antes do trigger ser chamado (ajax mais lento, tem callback na linha anterior) 
 	if(patrimonio !== null){

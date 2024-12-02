@@ -5,6 +5,23 @@ jQuery(document).ready( function () {
 	estoque_formGetLocal();
 	estoque_formGetItem();
 	
+	// aplica Select2 (biblioteca)
+	jQuery("#estoque_local").select2({
+		width: '80%'
+	});
+	
+	jQuery("#estoque_item").select2({
+		width: '80%'
+	});
+	
+	jQuery("#estoque_local_mov").select2({
+		width: '80%'
+	});
+	
+	jQuery("#estoque_patr_mov").select2({
+		width: '80%'
+	});
+	
 	
 	
 	// Event listeners

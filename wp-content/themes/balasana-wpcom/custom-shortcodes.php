@@ -1,15 +1,21 @@
 <?php
 include('function_estoque.php');
 
-global $lib_jquery, $lib_jquery_datatables, $lib_jquery_datatables_css, $lib_bootstrap_css, $lib_fontawesome_css;
+global $lib_jquery, $lib_jquery_datatables, $lib_jquery_datatables_css, $lib_bootstrap_css, $lib_fontawesome_css, $lib_select2_css, $lib_select2_bundle;
 
 $lib_jquery = 'https://code.jquery.com/jquery-3.7.1.js';
 $lib_jquery_datatables = 'https://cdn.datatables.net/2.1.3/js/dataTables.js';
 $lib_jquery_datatables_css = 'https://cdn.datatables.net/2.1.3/css/dataTables.dataTables.css';
+
 $lib_bootstrap_css = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css';
 $lib_bootsrap_bundle = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js
 ';
+
 $lib_fontawesome_css = 'https://use.fontawesome.com/releases/v5.3.1/css/all.css';
+
+$lib_select2_css = 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css';
+$lib_select2_bundle = 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js';
+
 
 
 global $path_pagina;
@@ -44,7 +50,14 @@ function enqueue_fontawesome(){
 	
 }
 
-
+function enqueue_select2(){
+	global $lib_select2_css, $lib_select2_bundle;
+	
+	wp_enqueue_style( 'select2Style', $lib_select2_css );
+	
+	wp_enqueue_script( 'select2-scripts', $lib_select2_bundle ,array( 'jquery' ), '', true );
+	
+}
 
 add_shortcode('estoque_locais', 'pagina_locais');
 function pagina_locais(){
@@ -119,6 +132,7 @@ function pagina_estoque(){
 	enqueue_datatables();
 	enqueue_bootstrap();
 	enqueue_fontawesome();
+	enqueue_select2();
 
 	
 	wp_enqueue_script('funcoes_estoque', '/bibEstoque/funcoes_estoque.js', '', '', true);

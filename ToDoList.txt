@@ -52,7 +52,8 @@ Página de solicitações
 	- não mostrar estoques zerados para facilitar 
 	
 Geral
-	na seleção do local, colocar caixa de seleção com auto-preenchimento
+	- na seleção do local, colocar caixa de seleção com auto-preenchimento
+		- feito, mas o estilo ficou meio feio... e não condizente com o restante... verificar
 
 
 Relatorios

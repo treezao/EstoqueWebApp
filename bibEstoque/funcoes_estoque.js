@@ -1321,15 +1321,17 @@ function atualizaTabEstoque_solicitacoes(data){
 	
 		for(x of data.consultas){
 			
-			t.row.add([
-					x[7],
-					//x[5],
-					accordionItemEstoque(x),
-					x[2],
-					x[3],
-					x[4],
-					'<i class="fas fa-cart-arrow-down" title="Solicitar" onclick="get1Estoque_solicitacao(' + x[0] +','+ x[1] + ',' + x[4] + ')"></i> '
-					]);
+			if(parseInt(x[2]) > 0){
+				t.row.add([
+						x[7],
+						//x[5],
+						accordionItemEstoque(x),
+						x[2],
+						x[3],
+						x[4],
+						'<i class="fas fa-cart-arrow-down" title="Solicitar" onclick="get1Estoque_solicitacao(' + x[0] +','+ x[1] + ',' + x[4] + ')"></i> '
+						]);
+			}
 		}
 		
 		
